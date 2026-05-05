@@ -18,3 +18,22 @@ expertMode = true
 [postMerge]
 path = "scripts/post-merge.sh"
 timeoutMs = 20000
+
+[[ports]]
+localPort = 8080
+externalPort = 8080
+
+[[ports]]
+localPort = 8081
+externalPort = 80
+
+[userenv]
+
+[userenv.shared]
+
+[userenv.shared."postgresql:"]
+
+[userenv.shared."postgresql:".""]
+
+[userenv.shared."postgresql:".""."neondb_owner:npg_ZuOAo8EFjeb3@ep-raspy-shape-a678bg3j.us-west-2.aws.neon.tech"]
+"neondb?sslmode=require" = "DATABASE_URL"
