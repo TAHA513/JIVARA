@@ -18,13 +18,19 @@ localPort = 22570
 run = "pnpm --filter @workspace/jivara run dev"
 
 [services.production]
-build = [ "pnpm", "--filter", "@workspace/jivara", "run", "build" ]
-publicDir = "artifacts/jivara/dist/public"
-serve = "static"
 
-[[services.production.rewrites]]
-from = "/*"
-to = "/index.html"
+[services.production.build]
+args = ["pnpm", "--filter", "@workspace/jivara", "run", "build"]
+
+[services.production.build.env]
+NODE_ENV = "production"
+
+[services.production.run]
+args = ["node", "artifacts/jivara/dist/index.js"]
+
+[services.production.run.env]
+PORT = "22570"
+NODE_ENV = "production"
 
 [services.env]
 PORT = "22570"
