@@ -1,0 +1,34 @@
+2index-9Knspc0q.js:422 Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+(anonymous) @ index-9Knspc0q.js:422Understand this warning
+index-9Knspc0q.js:455 Upload started - keeping modal open
+index-9Knspc0q.js:455 Getting upload URL with token: Present
+/api/objects/upload:1  Failed to load resource: the server responded with a status of 500 ()Understand this error
+index-9Knspc0q.js:455 Upload URL request failed: 500 {"error":"Object storage not configured - PRIVATE_OBJECT_DIR missing"}
+onGetUploadParameters @ index-9Knspc0q.js:455Understand this error
+index-9Knspc0q.js:431 [Uppy] [02:17:56] Failed to get upload URL
+error @ index-9Knspc0q.js:431Understand this error
+index-9Knspc0q.js:455 Upload error: Error: Failed to upload 516003558_755065890370629_8434310152880119255_n.jpg
+    at Function.<anonymous> (index-9Knspc0q.js:436:7847)
+    at s (index-9Knspc0q.js:431:31417)
+    at W9.e.emit (index-9Knspc0q.js:431:30785)
+    at hf.emit (index-9Knspc0q.js:431:41533)
+    at tK.o (index-9Knspc0q.js:455:17602)
+    at index-9Knspc0q.js:455:787
+(anonymous) @ index-9Knspc0q.js:455Understand this error
+index-9Knspc0q.js:431 [Uppy] [02:17:56] Error: Failed to upload 516003558_755065890370629_8434310152880119255_n.jpg
+    at Function.<anonymous> (index-9Knspc0q.js:436:7847)
+    at s (index-9Knspc0q.js:431:31417)
+    at W9.e.emit (index-9Knspc0q.js:431:30785)
+    at hf.emit (index-9Knspc0q.js:431:41533)
+    at tK.o (index-9Knspc0q.js:455:17602)
+    at index-9Knspc0q.js:455:787
+warn @ index-9Knspc0q.js:431Understand this warning
+index-9Knspc0q.js:455 File upload error: 516003558_755065890370629_8434310152880119255_n.jpg Error: Failed to get upload URL
+    at onGetUploadParameters (index-9Knspc0q.js:455:29214)
+(anonymous) @ index-9Knspc0q.js:455Understand this error
+index-9Knspc0q.js:455 Upload completed
+index-9Knspc0q.js:455 Upload result: Object
+index-9Knspc0q.js:455 Upload failed: Array(1)
+onComplete @ index-9Knspc0q.js:455Understand this error
+index-9Knspc0q.js:455 Detailed error: Object
+onComplete @ index-9Knspc0q.js:455Understand this error
