@@ -67,27 +67,34 @@ export default function SocksUaePage() {
   const { toast } = useToast();
   const [orderSuccess, setOrderSuccess] = useState(false);
   const [activeImg, setActiveImg] = useState(0);
-  const [selectedModel, setSelectedModel] = useState(1);
+  // colorQtys: qty per color id (0 = not selected)
+  const [colorQtys, setColorQtys] = useState<Record<number, number>>({ 1: 0, 2: 0, 3: 0, 4: 0 });
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [emirate, setEmirate] = useState("");
   const [address, setAddress] = useState("");
-  const [qty, setQty] = useState(1);
   const [progress, setProgress] = useState(0);
   const [submitted, setSubmitted] = useState(false);
   const progressRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const autoPlayRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const isBundle = selectedModel === BUNDLE_MODEL_ID;
-  const subtotal = isBundle ? BUNDLE_PRICE : PRICE_AED * qty;
+  const totalQty = Object.values(colorQtys).reduce((a, b) => a + b, 0);
+  const allColorsSelected = MODELS.every((m) => (colorQtys[m.id] ?? 0) >= 1);
+  const isBundle = allColorsSelected && totalQty === BUNDLE_QTY;
+  const subtotal = isBundle ? BUNDLE_PRICE : PRICE_AED * totalQty;
   const savings = isBundle ? PRICE_AED * BUNDLE_QTY - BUNDLE_PRICE : 0;
   const total = subtotal + SHIPPING_AED;
+
+  const adjustColor = (id: number, delta: number) => {
+    setColorQtys((prev) => ({ ...prev, [id]: Math.max(0, (prev[id] ?? 0) + delta) }));
+  };
 
   const isFormReady =
     name.trim().length > 0 &&
     phone.trim().length > 0 &&
     emirate.trim().length > 0 &&
-    address.trim().length > 0;
+    address.trim().length > 0 &&
+    totalQty > 0;
 
   const getMissing = () => {
     const m: string[] = [];
@@ -95,6 +102,7 @@ export default function SocksUaePage() {
     if (!phone.trim()) m.push("Phone");
     if (!emirate.trim()) m.push("Emirate");
     if (!address.trim()) m.push("Address");
+    if (totalQty === 0) m.push("Select at least one color");
     return m;
   };
 
@@ -162,22 +170,21 @@ export default function SocksUaePage() {
   const orderMutation = useMutation({
     mutationFn: async () => {
       startProgress();
-      pixelInitiateCheckout({ contentIds: [String(PRODUCT_ID)], value: total / 3.67, numItems: qty, currency: "USD" });
+      pixelInitiateCheckout({ contentIds: [String(PRODUCT_ID)], value: total / 3.67, numItems: totalQty, currency: "USD" });
       const sessionId =
         safeStorage.getItem("socks-uae-session") ||
         "uae-" + Math.random().toString(36).substring(7);
       safeStorage.setItem("socks-uae-session", sessionId);
-      const model = MODELS.find((m) => m.id === selectedModel);
-      const colorLabel = isBundle ? "All 4 Colors (Light Grey, Navy, Black, Beige)" : model?.name;
-      const orderQty = isBundle ? BUNDLE_QTY : qty;
-      const itemPrice = isBundle ? String(BUNDLE_PRICE) : String(PRICE_AED);
+      const selectedColors = MODELS.filter((m) => (colorQtys[m.id] ?? 0) > 0);
+      const colorBreakdown = selectedColors.map((m) => `${m.name} ×${colorQtys[m.id]}`).join(", ");
+      const colorLabel = isBundle ? "All 4 Colors Bundle" : colorBreakdown;
       return await apiRequest("POST", "/api/orders", {
         sessionId,
         customerName: name,
         customerPhone: phone,
         shippingAddress: `${address} — ${emirate}, UAE`,
         city: emirate,
-        notes: `Source: MARICO-CAP-UAE | Color: ${colorLabel} | Qty: ${orderQty} | Subtotal: ${subtotal} AED | Shipping: مجاني FREE | Total: ${total} AED${isBundle ? " | BUNDLE DEAL" : ""}`,
+        notes: `Source: MARICO-CAP-UAE | Colors: ${colorBreakdown} | Total Qty: ${totalQty} | Subtotal: ${subtotal} AED | Shipping: مجاني FREE | Total: ${total} AED${isBundle ? " | BUNDLE DEAL -96 AED" : ""}`,
         totalAmount: String(total),
         landingPage: "/socks-uae",
         fbclid: getFbclid(),
@@ -186,8 +193,8 @@ export default function SocksUaePage() {
         items: [
           {
             productId: PRODUCT_ID,
-            quantity: orderQty,
-            price: itemPrice,
+            quantity: totalQty,
+            price: isBundle ? String(BUNDLE_PRICE) : String(subtotal),
             name: `MARICO Mesh Sport Cap — ${colorLabel}`,
             nameAr: `كاب رياضي ماريكو — ${colorLabel}`,
           },
@@ -197,7 +204,7 @@ export default function SocksUaePage() {
     onSuccess: async (data: any) => {
       finishProgress();
       const __r: any = (data && typeof (data as any).json === "function") ? await (data as any).json().catch(() => ({})) : data; const orderId = __r?.id || __r?.order?.id || `uae-${Date.now()}`;
-      pixelPurchase({ orderId, contentIds: [String(PRODUCT_ID)], value: total / 3.67, numItems: qty, currency: "USD" });
+      pixelPurchase({ orderId, contentIds: [String(PRODUCT_ID)], value: total / 3.67, numItems: totalQty, currency: "USD" });
       setTimeout(() => {
         setOrderSuccess(true);
         window.scrollTo({ top: 0, behavior: "smooth" });
@@ -252,7 +259,7 @@ export default function SocksUaePage() {
             <p className="text-gray-700">Phone: <strong>{phone}</strong></p>
             <p className="text-gray-700">Emirate: <strong>{emirate}</strong></p>
             <p className="text-gray-700">
-              Quantity: <strong>{qty} cap{qty > 1 ? "s" : ""}</strong>
+              Quantity: <strong>{totalQty} cap{totalQty > 1 ? "s" : ""}</strong>
             </p>
             <p className="text-gray-700">
               Total: <strong>{total} AED</strong>
@@ -438,57 +445,62 @@ export default function SocksUaePage() {
             </p>
           </div>
 
-          {/* Bundle Card */}
-          <button
-            type="button"
-            onClick={() => { setSelectedModel(BUNDLE_MODEL_ID); setQty(BUNDLE_QTY); }}
-            className={`w-full rounded-2xl border-2 p-4 transition-all mb-3 ${
-              isBundle
-                ? "border-amber-500 bg-amber-50 shadow-lg scale-[1.01]"
-                : "border-gray-200 bg-white hover:border-amber-400"
-            }`}
-          >
-            <div className="flex items-center gap-3">
-              <div className="flex gap-1">
-                {MODELS.map((m) => (
-                  <img key={m.id} src={m.img} alt={m.name} className="w-12 h-12 rounded-lg object-contain bg-gray-100" />
-                ))}
-              </div>
-              <div className="flex-1 text-left">
-                <div className="flex items-center gap-2">
-                  <p className="font-black text-sm">🎁 Bundle — All 4 Colors</p>
-                  {isBundle && <CheckCircle className="w-4 h-4 text-emerald-500" />}
-                </div>
-                <p className="text-[11px] text-amber-700 font-bold mt-0.5">300 AED <span className="line-through text-gray-400 font-normal">396 AED</span> · Save 96 AED</p>
-              </div>
+          {/* Bundle hint */}
+          {isBundle && (
+            <div className="mb-3 bg-amber-400 text-black rounded-2xl p-3 text-center">
+              <p className="font-black text-sm">🎁 Bundle Deal Applied — 300 AED instead of 396 AED!</p>
+              <p className="text-xs mt-0.5">You save 96 AED</p>
             </div>
-          </button>
+          )}
 
           <div className="grid grid-cols-2 gap-3">
-            {MODELS.map((m) => (
-              <button
-                key={m.id}
-                type="button"
-                onClick={() => { setSelectedModel(m.id); setQty(1); }}
-                className={`text-left rounded-2xl border-2 p-3 transition-all bg-white ${
-                  selectedModel === m.id
-                    ? "border-black shadow-lg scale-[1.02]"
-                    : "border-gray-200 hover:border-gray-400"
-                }`}
-              >
-                <div className="aspect-square rounded-xl overflow-hidden bg-gray-50 mb-2">
-                  <img src={m.img} alt={m.name} className="w-full h-full object-contain" />
+            {MODELS.map((m) => {
+              const q = colorQtys[m.id] ?? 0;
+              return (
+                <div
+                  key={m.id}
+                  className={`rounded-2xl border-2 p-3 transition-all bg-white ${
+                    q > 0 ? "border-black shadow-lg" : "border-gray-200"
+                  }`}
+                >
+                  <div className="aspect-square rounded-xl overflow-hidden bg-gray-50 mb-2">
+                    <img src={m.img} alt={m.name} className="w-full h-full object-contain" />
+                  </div>
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="font-black text-sm">{m.name}</p>
+                    {q > 0 && <CheckCircle className="w-4 h-4 text-emerald-500" />}
+                  </div>
+                  <p className="text-[11px] text-gray-500 mb-3">{m.tagline}</p>
+                  {/* Per-color qty selector */}
+                  <div className="flex items-center justify-between gap-1">
+                    <button
+                      type="button"
+                      onClick={() => adjustColor(m.id, -1)}
+                      disabled={q === 0}
+                      className="w-9 h-9 rounded-full border-2 border-gray-300 font-black text-lg flex items-center justify-center disabled:opacity-30 hover:border-black transition-all"
+                    >
+                      −
+                    </button>
+                    <span className="font-black text-lg w-6 text-center">{q}</span>
+                    <button
+                      type="button"
+                      onClick={() => adjustColor(m.id, 1)}
+                      className="w-9 h-9 rounded-full border-2 border-gray-300 font-black text-lg flex items-center justify-center hover:border-black transition-all"
+                    >
+                      +
+                    </button>
+                  </div>
                 </div>
-                <div className="flex items-center justify-between">
-                  <p className="font-black text-sm">{m.name}</p>
-                  {selectedModel === m.id && (
-                    <CheckCircle className="w-4 h-4 text-emerald-500" />
-                  )}
-                </div>
-                <p className="text-[11px] text-gray-500 mt-0.5">{m.tagline}</p>
-              </button>
-            ))}
+              );
+            })}
           </div>
+
+          {/* Bundle tip */}
+          {!isBundle && (
+            <p className="text-center text-xs text-amber-700 font-semibold mt-3">
+              🎁 Select 1 of each color (4 total) to unlock the Bundle Deal — 300 AED instead of 396 AED
+            </p>
+          )}
         </div>
       </section>
 
@@ -684,81 +696,50 @@ export default function SocksUaePage() {
                 />
               </div>
 
-              {/* Selected color preview */}
-              <div className="bg-white/5 border border-white/10 rounded-xl p-3 flex items-center gap-3">
-                {isBundle ? (
-                  <div className="flex gap-1">
-                    {MODELS.map((m) => (
-                      <img key={m.id} src={m.img} alt={m.name} className="w-10 h-10 rounded-lg bg-white object-contain" />
-                    ))}
-                  </div>
-                ) : (
-                  <img
-                    src={MODELS.find((m) => m.id === selectedModel)?.img}
-                    alt=""
-                    className="w-12 h-12 rounded-lg bg-white object-contain"
-                  />
-                )}
-                <div className="flex-1">
-                  <p className="text-[10px] uppercase tracking-widest text-gray-400">
-                    {isBundle ? "Bundle" : "Selected Color"}
-                  </p>
-                  <p className="font-bold text-sm">
-                    {isBundle ? "🎁 All 4 Colors — 300 AED" : MODELS.find((m) => m.id === selectedModel)?.name}
-                  </p>
-                </div>
-              </div>
-
-              {/* Quantity — hidden for bundle (fixed at 4) */}
-              {!isBundle && (
-                <div>
-                  <label className="block text-xs font-bold text-gray-300 mb-2">
-                    Quantity
-                  </label>
-                  <div className="flex items-center gap-3">
-                    <button
-                      type="button"
-                      onClick={() => setQty((q) => Math.max(1, q - 1))}
-                      className="w-11 h-11 rounded-full border-2 border-white/20 font-black text-xl flex items-center justify-center hover:border-amber-400 transition-all"
-                    >
-                      −
-                    </button>
-                    <div className="flex-1 text-center">
-                      <span className="text-2xl font-black">{qty}</span>
-                      <span className="text-gray-400 text-xs ml-2">
-                        cap{qty > 1 ? "s" : ""}
-                      </span>
+              {/* Selected colors summary */}
+              {totalQty > 0 ? (
+                <div className="bg-white/5 border border-white/10 rounded-xl p-3 space-y-1.5">
+                  <p className="text-[10px] uppercase tracking-widest text-gray-400 mb-2">Your Selection</p>
+                  {MODELS.filter((m) => (colorQtys[m.id] ?? 0) > 0).map((m) => (
+                    <div key={m.id} className="flex items-center gap-2">
+                      <img src={m.img} alt={m.name} className="w-8 h-8 rounded-lg bg-white object-contain" />
+                      <span className="text-sm font-bold flex-1">{m.name}</span>
+                      <span className="text-sm text-gray-300">×{colorQtys[m.id]}</span>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => setQty((q) => q + 1)}
-                      className="w-11 h-11 rounded-full border-2 border-white/20 font-black text-xl flex items-center justify-center hover:border-amber-400 transition-all"
-                    >
-                      +
-                    </button>
-                  </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="bg-red-900/30 border border-red-500/30 rounded-xl p-3 text-center">
+                  <p className="text-red-400 text-sm font-bold">Please select at least one color above</p>
                 </div>
               )}
 
-              {/* Bundle deal highlight when qty = 4 */}
+              {/* Bundle deal highlight */}
               {isBundle && (
                 <div className="bg-amber-400 text-black rounded-xl p-3 text-center">
                   <p className="font-black text-sm">🎁 Bundle Deal Applied!</p>
-                  <p className="text-xs font-semibold mt-0.5">4 Colors · Save 96 AED</p>
+                  <p className="text-xs font-semibold mt-0.5">All 4 Colors · Save 96 AED</p>
                 </div>
               )}
 
               {/* Totals */}
               <div className="bg-white text-gray-900 rounded-xl p-4 space-y-1.5">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">
-                    {isBundle ? "Bundle (4 caps — all colors)" : `Subtotal (${qty} cap${qty > 1 ? "s" : ""})`}
-                  </span>
-                  <span className="font-bold">{subtotal} AED</span>
-                </div>
+                {isBundle ? (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-500">Bundle (all 4 colors)</span>
+                    <span className="font-bold">{subtotal} AED</span>
+                  </div>
+                ) : (
+                  MODELS.filter((m) => (colorQtys[m.id] ?? 0) > 0).map((m) => (
+                    <div key={m.id} className="flex justify-between text-sm">
+                      <span className="text-gray-500">{m.name} ×{colorQtys[m.id]}</span>
+                      <span className="font-bold">{(colorQtys[m.id] ?? 0) * PRICE_AED} AED</span>
+                    </div>
+                  ))
+                )}
                 {isBundle && (
                   <div className="flex justify-between text-sm">
-                    <span className="text-emerald-600 font-bold">You save</span>
+                    <span className="text-emerald-600 font-bold">Bundle saving</span>
                     <span className="font-black text-emerald-600">−{savings} AED</span>
                   </div>
                 )}
