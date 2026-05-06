@@ -235,8 +235,8 @@ export default function ZtBambooPage() {
             <span className="text-xl font-black text-white">🧦 جواريب بامبو</span>
             <span className="text-xs text-yellow-400 font-bold">البريطانية</span>
           </div>
-          <a href={`tel:${WHATSAPP}`} className="flex items-center gap-1 text-xs text-gray-300">
-            <Phone className="w-3 h-3" />
+          <a href={`https://wa.me/${WHATSAPP}`} target="_blank" rel="noreferrer" className="flex items-center gap-1 text-xs text-green-400 font-bold">
+            <span>💬</span>
             <span>07819966698</span>
           </a>
         </div>
@@ -479,7 +479,7 @@ export default function ZtBambooPage() {
         {/* Contact Footer */}
         <div className="text-center pb-8 text-gray-500 text-xs">
           <p className="font-bold text-gray-700 mb-1">جيفارا للتسوق — الرمادي، 7 كيلو</p>
-          <a href="tel:07819966698" className="text-blue-600 font-bold">📞 07819966698</a>
+          <a href={`https://wa.me/${WHATSAPP}`} target="_blank" rel="noreferrer" className="text-green-600 font-bold">💬 07819966698</a>
         </div>
       </div>
     </div>
