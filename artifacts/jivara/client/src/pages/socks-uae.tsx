@@ -20,7 +20,9 @@ import {
 } from "lucide-react";
 
 const PRODUCT_ID = 20;
-const PRICE_AED = 65;
+const PRICE_AED = 99;
+const BUNDLE_QTY = 4;
+const BUNDLE_PRICE = 300;
 const SHIPPING_AED = 0;
 const WHATSAPP = "971569464066";
 
@@ -75,7 +77,9 @@ export default function SocksUaePage() {
   const progressRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const autoPlayRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const subtotal = PRICE_AED * qty;
+  const isBundle = qty === BUNDLE_QTY;
+  const subtotal = isBundle ? BUNDLE_PRICE : PRICE_AED * qty;
+  const savings = isBundle ? PRICE_AED * BUNDLE_QTY - BUNDLE_PRICE : 0;
   const total = subtotal + SHIPPING_AED;
 
   const isFormReady =
@@ -330,6 +334,20 @@ export default function SocksUaePage() {
               <p className="text-[10px] uppercase tracking-widest text-gray-500">Shipping</p>
               <p className="text-sm font-black text-emerald-600">FREE 🎁</p>
               <p className="text-[10px] text-gray-500">72 hours</p>
+            </div>
+          </div>
+
+          {/* Bundle deal banner */}
+          <div className="mt-4 inline-flex items-center gap-2 bg-gradient-to-r from-amber-500 to-amber-400 text-black rounded-2xl px-5 py-3 shadow-xl">
+            <span className="text-xl">🎁</span>
+            <div className="text-left">
+              <p className="text-[10px] font-black uppercase tracking-widest">Special Bundle Deal</p>
+              <p className="text-base font-black leading-tight">
+                4 Caps (All Colors) = <span className="text-2xl">300 AED</span>
+              </p>
+              <p className="text-[11px] font-semibold opacity-80">
+                Save 96 AED — instead of 396 AED
+              </p>
             </div>
           </div>
           <div className="flex items-center justify-center gap-1 mt-4">
@@ -682,19 +700,40 @@ export default function SocksUaePage() {
                 </div>
               </div>
 
+              {/* Bundle deal highlight when qty = 4 */}
+              {isBundle && (
+                <div className="bg-amber-400 text-black rounded-xl p-3 text-center">
+                  <p className="font-black text-sm">🎁 Bundle Deal Applied!</p>
+                  <p className="text-xs font-semibold mt-0.5">4 Colors · Save 96 AED</p>
+                </div>
+              )}
+
               {/* Totals */}
               <div className="bg-white text-gray-900 rounded-xl p-4 space-y-1.5">
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">Subtotal ({qty} cap{qty > 1 ? "s" : ""})</span>
+                  <span className="text-gray-500">
+                    {isBundle ? "Bundle (4 caps — all colors)" : `Subtotal (${qty} cap${qty > 1 ? "s" : ""})`}
+                  </span>
                   <span className="font-bold">{subtotal} AED</span>
                 </div>
+                {isBundle && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-emerald-600 font-bold">You save</span>
+                    <span className="font-black text-emerald-600">−{savings} AED</span>
+                  </div>
+                )}
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-500">Shipping</span>
                   <span className="font-black text-emerald-600">FREE 🎁</span>
                 </div>
                 <div className="border-t border-gray-200 pt-1.5 flex justify-between items-center">
                   <span className="font-bold">Total</span>
-                  <span className="text-2xl font-black">{total} AED</span>
+                  <div className="text-right">
+                    {isBundle && (
+                      <p className="text-xs text-gray-400 line-through">{PRICE_AED * BUNDLE_QTY} AED</p>
+                    )}
+                    <span className="text-2xl font-black">{total} AED</span>
+                  </div>
                 </div>
               </div>
 
