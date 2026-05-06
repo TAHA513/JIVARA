@@ -13,6 +13,7 @@ const PRICE_USD = 30;
 const WHATSAPP = "971569464066";
 
 const SOCK_IMAGES = [
+  "/bamboo-socks-box.jpg",
   "/api/images/pg2rlig1761791318187",
   "/api/images/rnosom1761791331288",
   "/api/images/juu5t1761791339364",
