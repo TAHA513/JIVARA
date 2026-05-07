@@ -15,7 +15,6 @@ export default function Cart() {
   const [customerInfo, setCustomerInfo] = useState({
     name: "",
     phone: "",
-    email: "",
     address: "",
     city: "",
     notes: ""
@@ -51,7 +50,7 @@ export default function Cart() {
         sessionId,
         customerName: customerInfo.name,
         customerPhone: customerInfo.phone,
-        customerEmail: customerInfo.email,
+        customerEmail: null,
         shippingAddress: customerInfo.address,
         city: customerInfo.city,
         notes: customerInfo.notes || null,
@@ -68,7 +67,6 @@ export default function Cart() {
       setCustomerInfo({
         name: "",
         phone: "",
-        email: "",
         address: "",
         city: "",
         notes: ""
@@ -344,19 +342,6 @@ export default function Cart() {
                         />
                       </div>
                       
-                      <div>
-                        <Label htmlFor="email" className="arabic-text text-xs sm:text-sm font-medium mb-1.5 block">البريد الإلكتروني</Label>
-                        <Input
-                          id="email"
-                          type="email"
-                          value={customerInfo.email}
-                          onChange={(e) => setCustomerInfo(prev => ({ ...prev, email: e.target.value }))}
-                          placeholder="example@email.com"
-                          className="mobile-input h-11 sm:h-12 text-sm sm:text-base"
-                          dir="ltr"
-                          data-testid="input-email"
-                        />
-                      </div>
                       
                       <div>
                         <Label htmlFor="city" className="arabic-text text-xs sm:text-sm font-medium mb-1.5 block">المحافظة *</Label>
