@@ -1,6 +1,7 @@
 declare global {
   interface Window {
     fbq: (...args: any[]) => void;
+    ttq: any;
   }
 }
 
@@ -69,5 +70,60 @@ export function pixelAddToCart(opts: {
     value: opts.value,
     num_items: opts.numItems ?? 1,
     currency: opts.currency ?? 'USD',
+  });
+}
+
+// ── TikTok Pixel helpers ──────────────────────────────────────────────────────
+
+function ttq(...args: any[]) {
+  if (typeof window !== 'undefined' && window.ttq) {
+    window.ttq.track(...args);
+  }
+}
+
+export function tiktokViewContent(opts: {
+  contentName: string;
+  contentIds: string[];
+  value: number;
+  currency?: string;
+}) {
+  ttq('ViewContent', {
+    content_name: opts.contentName,
+    content_id: opts.contentIds[0] ?? '',
+    content_type: 'product',
+    value: opts.value,
+    currency: opts.currency ?? 'USD',
+  });
+}
+
+export function tiktokInitiateCheckout(opts: {
+  contentIds: string[];
+  value: number;
+  numItems?: number;
+  currency?: string;
+}) {
+  ttq('InitiateCheckout', {
+    content_id: opts.contentIds[0] ?? '',
+    content_type: 'product',
+    value: opts.value,
+    quantity: opts.numItems ?? 1,
+    currency: opts.currency ?? 'USD',
+  });
+}
+
+export function tiktokPurchase(opts: {
+  orderId: string | number;
+  contentIds: string[];
+  value: number;
+  numItems?: number;
+  currency?: string;
+}) {
+  ttq('CompletePayment', {
+    content_id: opts.contentIds[0] ?? '',
+    content_type: 'product',
+    value: opts.value,
+    quantity: opts.numItems ?? 1,
+    currency: opts.currency ?? 'USD',
+    order_id: String(opts.orderId),
   });
 }

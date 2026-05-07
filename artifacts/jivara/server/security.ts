@@ -60,7 +60,7 @@ export function securityHeaders(req: Request, res: Response, next: NextFunction)
   // Content Security Policy - allow Facebook/Instagram crawlers and in-app browser
   res.setHeader('Content-Security-Policy', 
     "default-src 'self'; " +
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://replit.com https://connect.facebook.net; " +
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://replit.com https://connect.facebook.net https://analytics.tiktok.com; " +
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
     "font-src 'self' https://fonts.gstatic.com; " +
     "img-src 'self' data: https: blob:; " +
