@@ -88,9 +88,13 @@ export function tiktokViewContent(opts: {
   currency?: string;
 }) {
   ttq('ViewContent', {
-    content_name: opts.contentName,
-    content_id: opts.contentIds[0] ?? '',
-    content_type: 'product',
+    contents: opts.contentIds.map(id => ({
+      content_id: id,
+      content_type: 'product',
+      content_name: opts.contentName,
+      price: opts.value,
+      quantity: 1,
+    })),
     value: opts.value,
     currency: opts.currency ?? 'USD',
   });
@@ -103,10 +107,13 @@ export function tiktokInitiateCheckout(opts: {
   currency?: string;
 }) {
   ttq('InitiateCheckout', {
-    content_id: opts.contentIds[0] ?? '',
-    content_type: 'product',
+    contents: opts.contentIds.map(id => ({
+      content_id: id,
+      content_type: 'product',
+      price: opts.value,
+      quantity: opts.numItems ?? 1,
+    })),
     value: opts.value,
-    quantity: opts.numItems ?? 1,
     currency: opts.currency ?? 'USD',
   });
 }
@@ -119,11 +126,13 @@ export function tiktokPurchase(opts: {
   currency?: string;
 }) {
   ttq('CompletePayment', {
-    content_id: opts.contentIds[0] ?? '',
-    content_type: 'product',
+    contents: opts.contentIds.map(id => ({
+      content_id: id,
+      content_type: 'product',
+      price: opts.value,
+      quantity: opts.numItems ?? 1,
+    })),
     value: opts.value,
-    quantity: opts.numItems ?? 1,
     currency: opts.currency ?? 'USD',
-    order_id: String(opts.orderId),
   });
 }
