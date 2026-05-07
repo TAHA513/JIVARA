@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useCart } from "@/hooks/use-cart";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { pixelViewContent, pixelAddToCart } from "@/lib/pixel";
+import { pixelViewContent, pixelAddToCart, tiktokViewContent } from "@/lib/pixel";
 import { Heart, Star, Truck, Shield, RotateCcw, Plus, Minus, ArrowRight, Camera, ShoppingCart } from "lucide-react";
 import { safeStorage } from "@/lib/safe-storage";
 import type { Product } from "@shared/schema";
@@ -105,6 +105,7 @@ export default function ProductDetail() {
     if (product?.id && !hasLoggedRef.current) {
       logViewMutation.mutate();
       pixelViewContent({ contentName: product.name, contentIds: [String(product.id)], value: parseFloat(product.price) / 1500 });
+      tiktokViewContent({ contentName: product.name, contentIds: [String(product.id)], value: parseFloat(product.price) / 1500 });
       hasLoggedRef.current = true;
     }
   }, [product?.id, logViewMutation]);

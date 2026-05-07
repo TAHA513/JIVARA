@@ -4,7 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { validateIraqiPhone } from "@/lib/form-validation";
 import { apiRequest } from "@/lib/queryClient";
-import { pixelViewContent, pixelInitiateCheckout, pixelPurchase } from "@/lib/pixel";
+import { pixelViewContent, pixelInitiateCheckout, pixelPurchase, tiktokViewContent, tiktokInitiateCheckout, tiktokPurchase } from "@/lib/pixel";
 import { CheckCircle, Truck, ChevronLeft, ChevronRight, Phone, Check, Gift, Package, Clock, Flame } from "lucide-react";
 
 import boxerGrid from "@assets/FB_IMG_1776908531244_1777623561569.jpg";
@@ -69,6 +69,7 @@ export default function BundlePackPage() {
       setActiveImg(p => (p + 1) % ALL_IMAGES.length);
     }, 3000);
     pixelViewContent({ contentName: "Bundle Pack — Socks + Boxer", contentIds: ["bundle-pack"], value: BUNDLE_PRICE / 1500 });
+    tiktokViewContent({ contentName: "Bundle Pack — Socks + Boxer", contentIds: ["bundle-pack"], value: BUNDLE_PRICE / 1500 });
 
     // عداد 48 ساعة (يبدأ من نقطة ثابتة لكل زائر بناءً على وقت دخوله)
     const stored = safeStorage.getItem("pack-countdown-end");
@@ -130,6 +131,7 @@ export default function BundlePackPage() {
     mutationFn: async () => {
       startProgress();
       pixelInitiateCheckout({ contentIds: ["bundle-pack"], value: BUNDLE_PRICE / 1500, numItems: 1 });
+      tiktokInitiateCheckout({ contentIds: ["bundle-pack"], value: BUNDLE_PRICE / 1500, numItems: 1 });
       const sessionId = safeStorage.getItem("pack-session") || ("pack-" + Math.random().toString(36).substring(7));
       safeStorage.setItem("pack-session", sessionId);
       return await apiRequest("POST", "/api/orders", {
@@ -158,6 +160,7 @@ export default function BundlePackPage() {
       const __r: any = (data && typeof (data as any).json === "function") ? await (data as any).json().catch(() => ({})) : data;
       const orderId = __r?.id || __r?.order?.id || `pack-${Date.now()}`;
       pixelPurchase({ orderId, contentIds: ["bundle-pack"], value: BUNDLE_PRICE / 1500, numItems: 1 });
+      tiktokPurchase({ orderId, contentIds: ["bundle-pack"], value: BUNDLE_PRICE / 1500, numItems: 1 });
       setTimeout(() => { setOrderSuccess(true); window.scrollTo({ top: 0, behavior: "smooth" }); }, 400);
     },
     onError: () => {

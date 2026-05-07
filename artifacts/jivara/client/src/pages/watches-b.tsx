@@ -5,7 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { CheckCircle, ChevronLeft, ChevronRight, Shield, Truck, Clock, X } from "lucide-react";
 import { useFunnelTracker, getFunnelData } from "@/hooks/use-funnel-tracker";
-import { pixelViewContent, pixelInitiateCheckout } from "@/lib/pixel";
+import { pixelViewContent, pixelInitiateCheckout, tiktokViewContent, tiktokInitiateCheckout } from "@/lib/pixel";
 import { validateIraqiPhone, validateRequiredText } from "@/lib/form-validation";
 
 /* ── صور YHMEI ── */
@@ -178,6 +178,7 @@ function OrderModal({ product, selectedColor, onClose, onSuccess }:
 
   useEffect(() => {
     pixelInitiateCheckout({ contentIds: [product.id], value: parseFloat((product.price / 1500).toFixed(2)) });
+    tiktokInitiateCheckout({ contentIds: [product.id], value: parseFloat((product.price / 1500).toFixed(2)) });
     trackFormStart();
   }, []);
 
@@ -338,6 +339,11 @@ export default function WatchesBPage() {
 
   useEffect(() => {
     pixelViewContent({
+      contentName: "مجموعة ساعات جيفارا — الأنبار الرمادي",
+      contentIds: PRODUCTS.map(p => p.id),
+      value: parseFloat((PRODUCTS[0].price / 1500).toFixed(2)),
+    });
+    tiktokViewContent({
       contentName: "مجموعة ساعات جيفارا — الأنبار الرمادي",
       contentIds: PRODUCTS.map(p => p.id),
       value: parseFloat((PRODUCTS[0].price / 1500).toFixed(2)),

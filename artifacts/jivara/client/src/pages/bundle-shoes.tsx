@@ -6,7 +6,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { CheckCircle } from "lucide-react";
 import type { Product } from "@shared/schema";
 import { useFunnelTracker, getFunnelData } from "@/hooks/use-funnel-tracker";
-import { pixelViewContent, pixelInitiateCheckout } from "@/lib/pixel";
+import { pixelViewContent, pixelInitiateCheckout, tiktokViewContent, tiktokInitiateCheckout } from "@/lib/pixel";
 import { validateIraqiPhone, IRAQ_PROVINCES } from "@/lib/form-validation";
 
 const SHOE_IDS = [27];

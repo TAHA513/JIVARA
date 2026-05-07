@@ -4,7 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { validateIraqiPhone } from "@/lib/form-validation";
 import { apiRequest } from "@/lib/queryClient";
-import { pixelViewContent, pixelInitiateCheckout, pixelPurchase } from "@/lib/pixel";
+import { pixelViewContent, pixelInitiateCheckout, pixelPurchase, tiktokViewContent, tiktokInitiateCheckout, tiktokPurchase } from "@/lib/pixel";
 import { CheckCircle, Shield, Star, Package, Truck, Phone, MapPin, ChevronLeft, ChevronRight, Clock } from "lucide-react";
 import img1 from "@assets/FB_IMG_1776099592559_1776099656603.jpg";
 import img2 from "@assets/FB_IMG_1776099580057_1776099656627.jpg";
@@ -71,6 +71,7 @@ export default function KneePadPage() {
       setActiveImg(p => (p + 1) % IMAGES.length);
     }, 3500);
     pixelViewContent({ contentName: "Baby Knee Pads", contentIds: ["knee-pad"], value: PRICE_IQD / 1500 });
+    tiktokViewContent({ contentName: "Baby Knee Pads", contentIds: ["knee-pad"], value: PRICE_IQD / 1500 });
     return () => { if (autoPlayRef.current) clearInterval(autoPlayRef.current); };
   }, []);
 
@@ -116,6 +117,7 @@ export default function KneePadPage() {
     mutationFn: async () => {
       startProgress();
       pixelInitiateCheckout({ contentIds: ["knee-pad"], value: (PRICE_IQD * qty) / 1500, numItems: qty });
+      tiktokInitiateCheckout({ contentIds: ["knee-pad"], value: (PRICE_IQD * qty) / 1500, numItems: qty });
       const sessionId = safeStorage.getItem("kneepad-session") || ("kp-" + Math.random().toString(36).substring(7));
       safeStorage.setItem("kneepad-session", sessionId);
       return await apiRequest("POST", "/api/orders", {
@@ -143,6 +145,7 @@ export default function KneePadPage() {
       finishProgress();
       const __r: any = (data && typeof (data as any).json === "function") ? await (data as any).json().catch(() => ({})) : data; const orderId = __r?.id || __r?.order?.id || `kp-${Date.now()}`;
       pixelPurchase({ orderId, contentIds: ["knee-pad"], value: (PRICE_IQD * qty) / 1500, numItems: qty });
+      tiktokPurchase({ orderId, contentIds: ["knee-pad"], value: (PRICE_IQD * qty) / 1500, numItems: qty });
       setTimeout(() => { setOrderSuccess(true); window.scrollTo({ top: 0, behavior: "smooth" }); }, 400);
     },
     onError: () => {

@@ -3,7 +3,7 @@ import { useMutation } from "@tanstack/react-query";
 import { safeStorage } from "@/lib/safe-storage";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { pixelViewContent, pixelInitiateCheckout, pixelPurchase } from "@/lib/pixel";
+import { pixelViewContent, pixelInitiateCheckout, pixelPurchase, tiktokViewContent, tiktokInitiateCheckout, tiktokPurchase } from "@/lib/pixel";
 import {
   CheckCircle,
   ChevronLeft,
@@ -111,6 +111,7 @@ export default function SocksUaePage() {
       setActiveImg((p) => (p + 1) % CAP_IMAGES.length);
     }, 3500);
     pixelViewContent({ contentName: "MARICO Mesh Sport Cap UAE", contentIds: [String(PRODUCT_ID)], value: PRICE_AED / 3.67, currency: "USD" });
+    tiktokViewContent({ contentName: "MARICO Mesh Sport Cap UAE", contentIds: [String(PRODUCT_ID)], value: PRICE_AED / 3.67, currency: "USD" });
     return () => {
       if (autoPlayRef.current) clearInterval(autoPlayRef.current);
     };
@@ -171,6 +172,7 @@ export default function SocksUaePage() {
     mutationFn: async () => {
       startProgress();
       pixelInitiateCheckout({ contentIds: [String(PRODUCT_ID)], value: total / 3.67, numItems: totalQty, currency: "USD" });
+      tiktokInitiateCheckout({ contentIds: [String(PRODUCT_ID)], value: total / 3.67, numItems: totalQty, currency: "USD" });
       const sessionId =
         safeStorage.getItem("socks-uae-session") ||
         "uae-" + Math.random().toString(36).substring(7);
@@ -205,6 +207,7 @@ export default function SocksUaePage() {
       finishProgress();
       const __r: any = (data && typeof (data as any).json === "function") ? await (data as any).json().catch(() => ({})) : data; const orderId = __r?.id || __r?.order?.id || `uae-${Date.now()}`;
       pixelPurchase({ orderId, contentIds: [String(PRODUCT_ID)], value: total / 3.67, numItems: totalQty, currency: "USD" });
+      tiktokPurchase({ orderId, contentIds: [String(PRODUCT_ID)], value: total / 3.67, numItems: totalQty, currency: "USD" });
       setTimeout(() => {
         setOrderSuccess(true);
         window.scrollTo({ top: 0, behavior: "smooth" });

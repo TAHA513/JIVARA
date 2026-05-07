@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { pixelViewContent, pixelInitiateCheckout, pixelPurchase } from "@/lib/pixel";
+import { pixelViewContent, pixelInitiateCheckout, pixelPurchase, tiktokViewContent, tiktokInitiateCheckout, tiktokPurchase } from "@/lib/pixel";
 import { CheckCircle, Phone, MapPin, User, Truck, Shield, Star, ShoppingBag, Tag } from "lucide-react";
 import { SiWhatsapp } from "react-icons/si";
 import type { Product } from "@shared/schema";
@@ -69,6 +69,7 @@ export default function BuyNow() {
   useEffect(() => {
     if (product?.id) {
       pixelViewContent({ contentName: product.name, contentIds: [String(product.id)], value: parseFloat(product.price) / 1500 });
+      tiktokViewContent({ contentName: product.name, contentIds: [String(product.id)], value: parseFloat(product.price) / 1500 });
     }
   }, [product?.id]);
 
@@ -115,6 +116,7 @@ export default function BuyNow() {
       const finalNotes = [sizeNote, customerInfo.notes].filter(Boolean).join(' | ') || null;
 
       pixelInitiateCheckout({ contentIds: [String(product.id)], value: parseFloat(totalAmount) / 1500, numItems: totalQty });
+      tiktokInitiateCheckout({ contentIds: [String(product.id)], value: parseFloat(totalAmount) / 1500, numItems: totalQty });
 
       return await apiRequest("POST", "/api/orders", {
         sessionId,
@@ -145,6 +147,7 @@ export default function BuyNow() {
         const subtotal = parseFloat(product.price) * totalQty;
         const discount = appliedDiscount ? Math.min(parseFloat(appliedDiscount.discountAmount), subtotal) : 0;
         pixelPurchase({ orderId, contentIds: [String(product.id)], value: (subtotal - discount) / 1500, numItems: totalQty });
+        tiktokPurchase({ orderId, contentIds: [String(product.id)], value: (subtotal - discount) / 1500, numItems: totalQty });
       }
       setOrderSuccess(true);
     },

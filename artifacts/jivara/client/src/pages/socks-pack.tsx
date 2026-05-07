@@ -4,7 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { validateIraqiPhone, IRAQ_PROVINCES } from "@/lib/form-validation";
 import { apiRequest } from "@/lib/queryClient";
-import { pixelViewContent, pixelInitiateCheckout, pixelPurchase } from "@/lib/pixel";
+import { pixelViewContent, pixelInitiateCheckout, pixelPurchase, tiktokViewContent, tiktokInitiateCheckout, tiktokPurchase } from "@/lib/pixel";
 import { CheckCircle, Shield, Truck, Phone, ChevronLeft, ChevronRight, ArrowDown } from "lucide-react";
 
 const PRODUCT_ID = 20;
@@ -80,6 +80,7 @@ export default function SocksPackPage() {
 
   useEffect(() => {
     pixelViewContent({ contentName: "Socks Pack — 4 Models", contentIds: ["socks-pack"], value: BUNDLE_PRICES[4] / 1500 });
+    tiktokViewContent({ contentName: "Socks Pack — 4 Models", contentIds: ["socks-pack"], value: BUNDLE_PRICES[4] / 1500 });
   }, []);
 
   const toggleModel = (id: string) => setSelected(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
@@ -100,6 +101,7 @@ export default function SocksPackPage() {
     mutationFn: async () => {
       startProgress();
       pixelInitiateCheckout({ contentIds: ["socks-pack"], value: totalPrice / 1500, numItems: count });
+      tiktokInitiateCheckout({ contentIds: ["socks-pack"], value: totalPrice / 1500, numItems: count });
       const sessionId = safeStorage.getItem("socks-pack-session") || ("sp-" + Math.random().toString(36).substring(7));
       safeStorage.setItem("socks-pack-session", sessionId);
       const selectedModels = MODELS.filter(m => selected.includes(m.id)).map(m => m.nameAr).join(", ");
@@ -116,6 +118,7 @@ export default function SocksPackPage() {
       const r: any = (data && typeof (data as any).json === "function") ? await (data as any).json().catch(() => ({})) : data;
       const orderId = r?.id || r?.order?.id || `sp-${Date.now()}`;
       pixelPurchase({ orderId, contentIds: ["socks-pack"], value: totalPrice / 1500, numItems: count });
+      tiktokPurchase({ orderId, contentIds: ["socks-pack"], value: totalPrice / 1500, numItems: count });
       setTimeout(() => { setOrderSuccess(true); window.scrollTo({ top: 0, behavior: "smooth" }); }, 400);
     },
     onError: () => { if (progressRef.current) clearInterval(progressRef.current); setProgress(0); toast({ title: "حدث خطأ", description: "يرجى المحاولة مرة أخرى", variant: "destructive" }); },

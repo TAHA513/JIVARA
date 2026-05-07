@@ -4,7 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { validateIraqiPhone } from "@/lib/form-validation";
 import { apiRequest } from "@/lib/queryClient";
-import { pixelViewContent, pixelInitiateCheckout, pixelPurchase } from "@/lib/pixel";
+import { pixelViewContent, pixelInitiateCheckout, pixelPurchase, tiktokViewContent, tiktokInitiateCheckout, tiktokPurchase } from "@/lib/pixel";
 import { CheckCircle, Package, Truck, ChevronLeft, ChevronRight, Phone, Shield, Ruler } from "lucide-react";
 
 const PRICE = 25000;
@@ -218,6 +218,7 @@ export default function BoxerMenPage() {
 
   useEffect(() => {
     pixelViewContent({ contentName: "Boxer Men 4pcs", contentIds: ["boxer-men"], value: PRICE / 1500 });
+    tiktokViewContent({ contentName: "Boxer Men 4pcs", contentIds: ["boxer-men"], value: PRICE / 1500 });
   }, []);
 
   const startProgress = () => {
@@ -248,6 +249,7 @@ export default function BoxerMenPage() {
     mutationFn: async () => {
       startProgress();
       pixelInitiateCheckout({ contentIds: ["boxer-men"], value: totalPrice / 1500, numItems: Math.max(selectedBoxes.length, 1) });
+      tiktokInitiateCheckout({ contentIds: ["boxer-men"], value: totalPrice / 1500, numItems: Math.max(selectedBoxes.length, 1) });
       const sessionId = safeStorage.getItem("boxer-session") || ("bxr-" + Math.random().toString(36).substring(7));
       safeStorage.setItem("boxer-session", sessionId);
       const boxNames = selectedBoxes.length > 0
@@ -275,6 +277,7 @@ export default function BoxerMenPage() {
       finishProgress();
       const __r: any = (data && typeof (data as any).json === "function") ? await (data as any).json().catch(() => ({})) : data; const orderId = __r?.id || __r?.order?.id || `bxr-${Date.now()}`;
       pixelPurchase({ orderId, contentIds: ["boxer-men"], value: totalPrice / 1500, numItems: Math.max(selectedBoxes.length, 1) });
+      tiktokPurchase({ orderId, contentIds: ["boxer-men"], value: totalPrice / 1500, numItems: Math.max(selectedBoxes.length, 1) });
       setOrderSuccess(true);
     },
     onError:   () => { finishProgress(); toast({ title: "خطأ", description: "حاول مرة أخرى", variant: "destructive" }); },

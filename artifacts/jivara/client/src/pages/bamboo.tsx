@@ -4,7 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { validateIraqiPhone, IRAQ_PROVINCES } from "@/lib/form-validation";
 import { apiRequest } from "@/lib/queryClient";
-import { pixelViewContent, pixelInitiateCheckout, pixelPurchase } from "@/lib/pixel";
+import { pixelViewContent, pixelInitiateCheckout, pixelPurchase, tiktokViewContent, tiktokInitiateCheckout, tiktokPurchase } from "@/lib/pixel";
 import { CheckCircle, ChevronLeft, ChevronRight, MapPin, Phone, Clock, Shield, Star, Package } from "lucide-react";
 
 const PRODUCT_ID = 20;
@@ -70,6 +70,7 @@ export default function BambooPage() {
       setActiveImg(p => (p + 1) % SOCK_IMAGES.length);
     }, 3000);
     pixelViewContent({ contentName: "Bamboo British Socks", contentIds: [String(PRODUCT_ID)], value: PRICE_USD });
+    tiktokViewContent({ contentName: "Bamboo British Socks", contentIds: [String(PRODUCT_ID)], value: PRICE_USD });
     return () => { if (autoPlayRef.current) clearInterval(autoPlayRef.current); };
   }, []);
 
@@ -115,6 +116,7 @@ export default function BambooPage() {
     mutationFn: async () => {
       startProgress();
       pixelInitiateCheckout({ contentIds: [String(PRODUCT_ID)], value: PRICE_USD * qty, numItems: qty });
+      tiktokInitiateCheckout({ contentIds: [String(PRODUCT_ID)], value: PRICE_USD * qty, numItems: qty });
       const sessionId = safeStorage.getItem("bamboo-session") || ("bam-" + Math.random().toString(36).substring(7));
       safeStorage.setItem("bamboo-session", sessionId);
       return await apiRequest("POST", "/api/orders", {
@@ -142,6 +144,7 @@ export default function BambooPage() {
       finishProgress();
       const __r: any = (data && typeof (data as any).json === "function") ? await (data as any).json().catch(() => ({})) : data; const orderId = __r?.id || __r?.order?.id || `bam-${Date.now()}`;
       pixelPurchase({ orderId, contentIds: [String(PRODUCT_ID)], value: PRICE_USD * qty, numItems: qty });
+      tiktokPurchase({ orderId, contentIds: [String(PRODUCT_ID)], value: PRICE_USD * qty, numItems: qty });
       setTimeout(() => { setOrderSuccess(true); window.scrollTo({ top: 0, behavior: "smooth" }); }, 400);
     },
     onError: () => {

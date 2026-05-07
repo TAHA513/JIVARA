@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { pixelViewContent, pixelInitiateCheckout, pixelPurchase } from "@/lib/pixel";
+import { pixelViewContent, pixelInitiateCheckout, pixelPurchase, tiktokViewContent, tiktokInitiateCheckout, tiktokPurchase } from "@/lib/pixel";
 import { useEffect } from "react";
 import { CheckCircle } from "lucide-react";
 import type { Product } from "@shared/schema";
@@ -52,6 +52,7 @@ export default function ShoesEasyPage() {
 
   useEffect(() => {
     pixelViewContent({ contentName: "Shoes Easy", contentIds: SHOE_IDS.map(String), value: PRICE / 1500 });
+    tiktokViewContent({ contentName: "Shoes Easy", contentIds: SHOE_IDS.map(String), value: PRICE / 1500 });
   }, []);
 
   const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -64,6 +65,7 @@ export default function ShoesEasyPage() {
   const createOrder = useMutation({
     mutationFn: async () => {
       pixelInitiateCheckout({ contentIds: SHOE_IDS.map(String), value: total / 1500, numItems: qty });
+      tiktokInitiateCheckout({ contentIds: SHOE_IDS.map(String), value: total / 1500, numItems: qty });
       const notes = `قياس: ${form.size} | لون: ${form.color} | عدد: ${qty}`;
       return await apiRequest("POST", "/api/orders", {
         sessionId,
@@ -89,6 +91,7 @@ export default function ShoesEasyPage() {
     onSuccess: async (data: any) => {
       const __r: any = (data && typeof (data as any).json === "function") ? await (data as any).json().catch(() => ({})) : data; const orderId = __r?.id || __r?.order?.id || `se-${Date.now()}`;
       pixelPurchase({ orderId, contentIds: SHOE_IDS.map(String), value: total / 1500, numItems: qty });
+      tiktokPurchase({ orderId, contentIds: SHOE_IDS.map(String), value: total / 1500, numItems: qty });
       trackOrderSuccess(0, total);
       setOrderSuccess(true);
     },

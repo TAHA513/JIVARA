@@ -6,7 +6,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { CheckCircle, ChevronLeft, ChevronRight } from "lucide-react";
 import { useFunnelTracker, getFunnelData } from "@/hooks/use-funnel-tracker";
 import { validateIraqiPhone, validateRequiredText } from "@/lib/form-validation";
-import { pixelViewContent, pixelInitiateCheckout } from "@/lib/pixel";
+import { pixelViewContent, pixelInitiateCheckout, tiktokViewContent, tiktokInitiateCheckout } from "@/lib/pixel";
 
 // صور استعراضية (فوق)
 import showcase1 from "@assets/1763435418d5841dd75b539f4af6a5692279b1657a_thumbnail_750x999_1775192971143.webp";

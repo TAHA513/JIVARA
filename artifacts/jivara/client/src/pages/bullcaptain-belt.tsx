@@ -4,7 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { validateIraqiPhone } from "@/lib/form-validation";
 import { apiRequest } from "@/lib/queryClient";
-import { pixelViewContent, pixelInitiateCheckout, pixelPurchase } from "@/lib/pixel";
+import { pixelViewContent, pixelInitiateCheckout, pixelPurchase, tiktokViewContent, tiktokInitiateCheckout, tiktokPurchase } from "@/lib/pixel";
 import { CheckCircle, Package, Truck, ChevronLeft, ChevronRight, Phone, Check } from "lucide-react";
 import imgBrown1 from "@assets/FB_IMG_1776105014378_1776105116533.jpg";
 import imgBrown2 from "@assets/FB_IMG_1776105021072_1776105116441.jpg";
@@ -48,6 +48,7 @@ export default function BullcaptainBeltPage() {
       setActiveImg(p => (p + 1) % ALL_IMAGES.length);
     }, 3200);
     pixelViewContent({ contentName: "BULLCAPTAIN Belt", contentIds: ["bullcaptain-belt"], value: PRICE_IQD / 1500 });
+    tiktokViewContent({ contentName: "BULLCAPTAIN Belt", contentIds: ["bullcaptain-belt"], value: PRICE_IQD / 1500 });
     return () => { if (autoPlayRef.current) clearInterval(autoPlayRef.current); };
   }, []);
 
@@ -99,6 +100,7 @@ export default function BullcaptainBeltPage() {
     mutationFn: async () => {
       startProgress();
       pixelInitiateCheckout({ contentIds: ["bullcaptain-belt"], value: totalPrice / 1500, numItems: qty });
+      tiktokInitiateCheckout({ contentIds: ["bullcaptain-belt"], value: totalPrice / 1500, numItems: qty });
       const sessionId = safeStorage.getItem("belt-session") || ("belt-" + Math.random().toString(36).substring(7));
       safeStorage.setItem("belt-session", sessionId);
       return await apiRequest("POST", "/api/orders", {
@@ -126,6 +128,7 @@ export default function BullcaptainBeltPage() {
       finishProgress();
       const __r: any = (data && typeof (data as any).json === "function") ? await (data as any).json().catch(() => ({})) : data; const orderId = __r?.id || __r?.order?.id || `belt-${Date.now()}`;
       pixelPurchase({ orderId, contentIds: ["bullcaptain-belt"], value: totalPrice / 1500, numItems: qty });
+      tiktokPurchase({ orderId, contentIds: ["bullcaptain-belt"], value: totalPrice / 1500, numItems: qty });
       setTimeout(() => { setOrderSuccess(true); window.scrollTo({ top: 0, behavior: "smooth" }); }, 400);
     },
     onError: () => {

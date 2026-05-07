@@ -5,7 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { CheckCircle, ChevronLeft, ChevronRight, Truck, Shield, RotateCcw, Minus, Plus } from "lucide-react";
 import { validateIraqiPhone, validateRequiredText, IRAQ_PROVINCES } from "@/lib/form-validation";
-import { pixelViewContent, pixelInitiateCheckout, pixelPurchase } from "@/lib/pixel";
+import { pixelViewContent, pixelInitiateCheckout, pixelPurchase, tiktokViewContent, tiktokInitiateCheckout, tiktokPurchase } from "@/lib/pixel";
 
 import imgBox    from "@assets/1777702404634_1777731686743.png";
 import imgGroup1 from "@assets/1777730382391_1777731686677.png";
@@ -42,6 +42,7 @@ export default function BambooSocksPage() {
 
   useEffect(() => {
     pixelViewContent({ contentName: "Bamboo Socks Box", contentIds: ["bamboo-socks"], value: PRICE / 1500 });
+    tiktokViewContent({ contentName: "Bamboo Socks Box", contentIds: ["bamboo-socks"], value: PRICE / 1500 });
   }, []);
 
   const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -54,6 +55,7 @@ export default function BambooSocksPage() {
   const createOrder = useMutation({
     mutationFn: async () => {
       pixelInitiateCheckout({ contentIds: ["bamboo-socks"], value: PRICE / 1500, numItems: 1 });
+      tiktokInitiateCheckout({ contentIds: ["bamboo-socks"], value: PRICE / 1500, numItems: 1 });
       const res = await apiRequest("POST", "/api/orders", {
         sessionId,
         customerName: form.name,
@@ -77,6 +79,7 @@ export default function BambooSocksPage() {
       const r: any = (data && typeof (data as any).json === "function") ? await (data as any).json().catch(() => ({})) : data;
       const orderId = r?.id || r?.order?.id || `bs-${Date.now()}`;
       pixelPurchase({ orderId, contentIds: ["bamboo-socks"], value: PRICE / 1500, numItems: 1 });
+      tiktokPurchase({ orderId, contentIds: ["bamboo-socks"], value: PRICE / 1500, numItems: 1 });
       setOrderSuccess(true);
       window.scrollTo({ top: 0, behavior: "smooth" });
     },

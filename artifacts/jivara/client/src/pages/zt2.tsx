@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { pixelViewContent, pixelInitiateCheckout, pixelPurchase } from "@/lib/pixel";
+import { pixelViewContent, pixelInitiateCheckout, pixelPurchase, tiktokViewContent, tiktokInitiateCheckout, tiktokPurchase } from "@/lib/pixel";
 import { CheckCircle, ShoppingBag, Phone, MapPin, User, Package, Star, Shield, Truck, ChevronLeft, ChevronRight } from "lucide-react";
 import { SiWhatsapp } from "react-icons/si";
 import boxImg from "@assets/ChatGPT_Image_Apr_22,_2026,_04_03_20_AM_1776820864894.png";
@@ -70,6 +70,7 @@ export default function Zt2Page() {
 
   useEffect(() => {
     pixelViewContent({ contentName: "جوارب بامبو ZT2", contentIds: [String(PRODUCT_ID)], value: PRICE_IQD / 1500 });
+    tiktokViewContent({ contentName: "جوارب بامبو ZT2", contentIds: [String(PRODUCT_ID)], value: PRICE_IQD / 1500 });
   }, []);
 
   // تحديث الصورة عند تغيير اللون
@@ -101,6 +102,7 @@ export default function Zt2Page() {
       setOrderId(newOrderId);
       setOrderSuccess(true);
       pixelPurchase({ orderId: newOrderId, contentIds: [String(PRODUCT_ID)], value: (PRICE_IQD * qty) / 1500, numItems: qty, currency: "USD" });
+      tiktokPurchase({ orderId: newOrderId, contentIds: [String(PRODUCT_ID)], value: (PRICE_IQD * qty) / 1500, numItems: qty, currency: "USD" });
     },
     onError: () => {
       toast({ title: "حدث خطأ", description: "حاول مجدداً", variant: "destructive" });
@@ -118,6 +120,7 @@ export default function Zt2Page() {
       return;
     }
     pixelInitiateCheckout({ contentIds: [String(PRODUCT_ID)], value: (PRICE_IQD * qty) / 1500, numItems: qty, currency: "USD" });
+    tiktokInitiateCheckout({ contentIds: [String(PRODUCT_ID)], value: (PRICE_IQD * qty) / 1500, numItems: qty, currency: "USD" });
     orderMutation.mutate();
   };
 

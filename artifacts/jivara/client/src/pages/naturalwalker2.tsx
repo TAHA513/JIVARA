@@ -22,7 +22,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { validateIraqiPhone, IRAQ_PROVINCES } from "@/lib/form-validation";
 import { apiRequest } from "@/lib/queryClient";
-import { pixelViewContent, pixelInitiateCheckout, pixelPurchase } from "@/lib/pixel";
+import { pixelViewContent, pixelInitiateCheckout, pixelPurchase, tiktokViewContent, tiktokInitiateCheckout, tiktokPurchase } from "@/lib/pixel";
 import { CheckCircle, ChevronLeft, ChevronRight, Phone, Package } from "lucide-react";
 import { getFunnelData } from "@/hooks/use-funnel-tracker";
 
@@ -91,6 +91,7 @@ export default function NaturalWalker2Page() {
       setActiveImg(p => (p + 1) % CAP_IMAGES.length);
     }, 3000);
     pixelViewContent({ contentName: "NaturalWalker Cap", contentIds: ["naturalwalker"], value: PACKAGES[0].price / 1500 });
+    tiktokViewContent({ contentName: "NaturalWalker Cap", contentIds: ["naturalwalker"], value: PACKAGES[0].price / 1500 });
     return () => { if (autoPlayRef.current) clearInterval(autoPlayRef.current); };
   }, []);
 
@@ -123,6 +124,7 @@ export default function NaturalWalker2Page() {
     mutationFn: async () => {
       startProgress();
       pixelInitiateCheckout({ contentIds: ["naturalwalker"], value: pkg.price / 1500, numItems: pkg.qty });
+      tiktokInitiateCheckout({ contentIds: ["naturalwalker"], value: pkg.price / 1500, numItems: pkg.qty });
       return await apiRequest("POST", "/api/orders", {
         sessionId,
         customerName: name,
@@ -146,6 +148,7 @@ export default function NaturalWalker2Page() {
       finishProgress();
       const __r: any = (data && typeof (data as any).json === "function") ? await (data as any).json().catch(() => ({})) : data; const orderId = __r?.id || __r?.order?.id || `nw2-${Date.now()}`;
       pixelPurchase({ orderId, contentIds: ["naturalwalker"], value: pkg.price / 1500, numItems: pkg.qty });
+      tiktokPurchase({ orderId, contentIds: ["naturalwalker"], value: pkg.price / 1500, numItems: pkg.qty });
       setTimeout(() => { setOrderSuccess(true); window.scrollTo({ top: 0, behavior: "smooth" }); }, 400);
     },
     onError: () => {

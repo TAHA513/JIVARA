@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { pixelViewContent, pixelInitiateCheckout, pixelPurchase } from "@/lib/pixel";
+import { pixelViewContent, pixelInitiateCheckout, pixelPurchase, tiktokViewContent, tiktokInitiateCheckout, tiktokPurchase } from "@/lib/pixel";
 import { validateIraqiPhone } from "@/lib/form-validation";
 import { getFunnelData } from "@/hooks/use-funnel-tracker";
 import { CheckCircle, Phone, MapPin, User, Truck, Shield, ShoppingBag, Plus, Minus, Store, X, ChevronLeft, ChevronRight } from "lucide-react";
@@ -200,6 +200,11 @@ export default function BundlePage() {
         contentIds: products.map(p => String(p.id)),
         value: products.reduce((s, p) => s + parseFloat(p.price), 0) / 1500,
       });
+      tiktokViewContent({
+        contentName: "Bundle Page",
+        contentIds: products.map(p => String(p.id)),
+        value: products.reduce((s, p) => s + parseFloat(p.price), 0) / 1500,
+      });
     }
   }, [products.length]);
 
@@ -239,6 +244,10 @@ export default function BundlePage() {
         contentIds: items.map(it => String(it.productId ?? it.sku)),
         value: totalPrice / 1500, numItems: totalQty,
       });
+      tiktokInitiateCheckout({
+        contentIds: items.map(it => String(it.productId ?? it.sku)),
+        value: totalPrice / 1500, numItems: totalQty,
+      });
 
       return await apiRequest("POST", "/api/orders", {
         sessionId,
@@ -257,6 +266,11 @@ export default function BundlePage() {
       const r: any = (data && typeof data.json === "function") ? await data.json().catch(() => ({})) : data;
       const orderId = r?.id || r?.order?.id || `bdl-${Date.now()}`;
       pixelPurchase({
+        orderId,
+        contentIds: allItems.filter(it => getQty(it.key) > 0).map(it => String(it.productId ?? it.key)),
+        value: totalPrice / 1500, numItems: totalQty,
+      });
+      tiktokPurchase({
         orderId,
         contentIds: allItems.filter(it => getQty(it.key) > 0).map(it => String(it.productId ?? it.key)),
         value: totalPrice / 1500, numItems: totalQty,

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
-import { pixelViewContent, pixelInitiateCheckout, pixelPurchase } from "@/lib/pixel";
+import { pixelViewContent, pixelInitiateCheckout, pixelPurchase, tiktokViewContent, tiktokInitiateCheckout, tiktokPurchase } from "@/lib/pixel";
 import { safeStorage } from "@/lib/safe-storage";
 import { useToast } from "@/hooks/use-toast";
 import { CheckCircle, Truck, Shield, RotateCcw, Package, User, Phone, MapPin } from "lucide-react";
@@ -36,6 +36,7 @@ export default function SocksIqPage() {
 
   useEffect(() => {
     pixelViewContent({ contentName: "جوارب بامبو", contentIds: [String(PRODUCT_ID)], value: PRICE / 1500, currency: "USD" });
+    tiktokViewContent({ contentName: "جوارب بامبو", contentIds: [String(PRODUCT_ID)], value: PRICE / 1500, currency: "USD" });
   }, []);
 
   const total = PRICE * qty;
@@ -55,6 +56,7 @@ export default function SocksIqPage() {
   const orderMutation = useMutation({
     mutationFn: async () => {
       pixelInitiateCheckout({ contentIds: [String(PRODUCT_ID)], value: total / 1500, numItems: qty, currency: "USD" });
+      tiktokInitiateCheckout({ contentIds: [String(PRODUCT_ID)], value: total / 1500, numItems: qty, currency: "USD" });
       const sessionId = safeStorage.getItem("socks-iq-session") || "sq-" + Math.random().toString(36).substring(7);
       safeStorage.setItem("socks-iq-session", sessionId);
       return await apiRequest("POST", "/api/orders", {
@@ -76,6 +78,7 @@ export default function SocksIqPage() {
       const r = (data && typeof data.json === "function") ? await data.json().catch(() => ({})) : data;
       const oid = r?.id || r?.order?.id || `sq-${Date.now()}`;
       pixelPurchase({ orderId: oid, contentIds: [String(PRODUCT_ID)], value: total / 1500, numItems: qty, currency: "USD" });
+      tiktokPurchase({ orderId: oid, contentIds: [String(PRODUCT_ID)], value: total / 1500, numItems: qty, currency: "USD" });
       setOrderId(oid);
       setDone(true);
       window.scrollTo({ top: 0, behavior: "smooth" });
