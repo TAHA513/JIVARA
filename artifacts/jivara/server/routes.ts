@@ -2770,6 +2770,76 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // إحصائيات المصادر (فيسبوك / تيك توك / مباشر)
+  app.get('/api/admin/source-stats', requireAdmin, async (req, res) => {
+    try {
+      const now = new Date();
+      const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const weekStart = new Date(todayStart.getTime() - 6 * 86400000);
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+      const allOrders = await db.select({
+        id: orders.id,
+        utmSource: orders.utmSource,
+        totalAmount: orders.totalAmount,
+        status: orders.status,
+        createdAt: orders.createdAt,
+        landingPage: orders.landingPage,
+      }).from(orders);
+
+      function classify(src: string | null): string {
+        const s = (src || '').toLowerCase();
+        if (s === 'tiktok') return 'tiktok';
+        if (s === 'instagram') return 'instagram';
+        if (s === 'organic' || s === 'direct') return 'organic';
+        return 'facebook'; // default
+      }
+
+      function buildStats(list: typeof allOrders) {
+        const bySource: Record<string, { orders: number; revenue: number; cancelled: number }> = {};
+        for (const o of list) {
+          const src = classify(o.utmSource);
+          if (!bySource[src]) bySource[src] = { orders: 0, revenue: 0, cancelled: 0 };
+          bySource[src].orders++;
+          if (o.status !== 'cancelled') {
+            bySource[src].revenue += parseFloat(o.totalAmount || '0');
+          } else {
+            bySource[src].cancelled++;
+          }
+        }
+        return bySource;
+      }
+
+      // تفصيل يومي لآخر 7 أيام
+      const daily: Record<string, Record<string, number>> = {};
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date(todayStart.getTime() - i * 86400000);
+        const key = d.toISOString().split('T')[0];
+        daily[key] = { facebook: 0, tiktok: 0, instagram: 0, organic: 0 };
+      }
+      for (const o of allOrders) {
+        const d = new Date(o.createdAt || 0);
+        if (d >= weekStart) {
+          const key = d.toISOString().split('T')[0];
+          if (daily[key]) {
+            const src = classify(o.utmSource);
+            daily[key][src] = (daily[key][src] || 0) + 1;
+          }
+        }
+      }
+
+      res.json({
+        today:  buildStats(allOrders.filter(o => new Date(o.createdAt || 0) >= todayStart)),
+        week:   buildStats(allOrders.filter(o => new Date(o.createdAt || 0) >= weekStart)),
+        month:  buildStats(allOrders.filter(o => new Date(o.createdAt || 0) >= monthStart)),
+        daily,
+        total:  buildStats(allOrders),
+      });
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
   // Telegram Bot test endpoint
   app.post('/api/telegram/test', requireAdmin, async (req, res) => {
     try {
