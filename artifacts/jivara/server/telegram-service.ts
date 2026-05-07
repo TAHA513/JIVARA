@@ -98,12 +98,22 @@ class TelegramService {
 
     const notesLine = order.notes ? `\n📝 ${order.notes}` : '';
 
+    const sourceMap: Record<string, string> = {
+      tiktok:   '🎵 تيك توك',
+      facebook: '📘 فيسبوك',
+      instagram:'📸 انستغرام',
+      organic:  '🌐 مباشر',
+    };
+    const rawSource = (order.utmSource || '').toLowerCase();
+    const sourceLabel = sourceMap[rawSource] || (rawSource ? `🔗 ${order.utmSource}` : '📘 فيسبوك');
+    const sourceLine = `\n📣 المصدر: <b>${sourceLabel}</b>`;
+
     return `
 🔔 <b>طلب جديد #${order.id}</b>
 
 👤 ${order.customerName}
 📱 ${order.customerPhone}
-🏙️ ${order.city} — ${order.shippingAddress}
+🏙️ ${order.city} — ${order.shippingAddress}${sourceLine}
 
 ${itemsList}${notesLine}
 
