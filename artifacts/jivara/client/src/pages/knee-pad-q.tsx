@@ -56,9 +56,20 @@ export default function KneePadQ() {
     if (Math.abs(dx) > 40) setSlide(s => dx > 0 ? (s + 1) % IMAGES.length : (s - 1 + IMAGES.length) % IMAGES.length);
   }
 
+  function validatePhone(p: string) {
+    if (!p.trim()) return "رقم الهاتف مطلوب";
+    if (!p.startsWith("07")) return "رقم الهاتف يجب أن يبدأ بـ 07";
+    if (p.length !== 11) return `رقم الهاتف يجب أن يكون 11 رقم — أدخلت ${p.length} رقم`;
+    if (!/^\d+$/.test(p)) return "رقم الهاتف يجب أن يحتوي على أرقام فقط";
+    return "";
+  }
+
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (!phone.trim() || !gov || !area.trim()) { setError("جميع الحقول مطلوبة"); return; }
+    const phoneErr = validatePhone(phone.trim());
+    if (phoneErr) { setError(phoneErr); return; }
+    if (!gov) { setError("يرجى اختيار المحافظة"); return; }
+    if (!area.trim()) { setError("يرجى إدخال اسم المنطقة"); return; }
     setError("");
     setLoading(true);
 
@@ -162,15 +173,44 @@ export default function KneePadQ() {
       <form onSubmit={submit} style={{ padding: "14px 14px 24px", display: "flex", flexDirection: "column", gap: 10 }}>
 
         <div>
-          <label style={{ color: "#bbb", fontSize: 12, fontWeight: 700, display: "block", marginBottom: 4 }}>📱 رقم الهاتف</label>
+          <label style={{ color: "#bbb", fontSize: 12, fontWeight: 700, display: "block", marginBottom: 4 }}>📱 رقم الهاتف <span style={{ color: "#ff5555" }}>*</span></label>
           <input
             type="tel"
             value={phone}
-            onChange={e => setPhone(e.target.value)}
+            onChange={e => {
+              const v = e.target.value.replace(/\D/g, "").slice(0, 11);
+              setPhone(v);
+              setError("");
+            }}
             placeholder="07xxxxxxxxx"
+            maxLength={11}
             required
-            style={{ width: "100%", background: "#1e1e1e", border: "1.5px solid #333", borderRadius: 10, padding: "10px 12px", color: "#fff", fontSize: 15, outline: "none", boxSizing: "border-box", direction: "ltr", textAlign: "right" }}
+            style={{
+              width: "100%",
+              background: "#1e1e1e",
+              border: `1.5px solid ${phone.length > 0 && (phone.length === 11 && phone.startsWith("07") ? "#22c55e" : "#ef4444")}`,
+              borderColor: phone.length === 0 ? "#333" : phone.length === 11 && phone.startsWith("07") ? "#22c55e" : "#ef4444",
+              borderRadius: 10,
+              padding: "10px 12px",
+              color: "#fff",
+              fontSize: 15,
+              outline: "none",
+              boxSizing: "border-box",
+              direction: "ltr",
+              textAlign: "right",
+            }}
           />
+          {phone.length > 0 && (
+            <p style={{
+              fontSize: 11,
+              marginTop: 3,
+              margin: "3px 0 0",
+              color: phone.length === 11 && phone.startsWith("07") ? "#22c55e" : "#ef4444",
+              fontWeight: 600,
+            }}>
+              {!phone.startsWith("07") ? "⚠️ الرقم يجب أن يبدأ بـ 07" : phone.length < 11 ? `⚠️ متبقي ${11 - phone.length} رقم` : "✅ رقم صحيح"}
+            </p>
+          )}
         </div>
 
         <div>
