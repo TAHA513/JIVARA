@@ -145,9 +145,13 @@ export default function KneePadQ() {
       </div>
 
       {/* السعر */}
-      <div style={{ background: "linear-gradient(135deg, #f5c842 0%, #ff9500 100%)", padding: "12px 20px 10px", textAlign: "center" }}>
-        <p style={{ fontSize: 14, fontWeight: 800, color: "#7a4000", margin: "0 0 6px" }}>بوكس يحتوي على 5 أزواج ملونة</p>
-        <p style={{ fontSize: 36, fontWeight: 900, color: "#1a1a1a", margin: "0 0 6px", lineHeight: 1.1 }}>25 الف</p>
+      <div style={{ background: "linear-gradient(135deg, #f5c842 0%, #ff9500 100%)", padding: "14px 20px 12px", textAlign: "center" }}>
+        <p style={{ fontSize: 18, fontWeight: 900, color: "#1a1a1a", margin: "0 0 4px", lineHeight: 1.4 }}>
+          5 أزواج ملونة في بوكس واحد
+        </p>
+        <p style={{ fontSize: 16, fontWeight: 800, color: "#7a4000", margin: "0 0 8px" }}>
+          بسعر 25 الف — شامل التوصيل
+        </p>
         <div style={{ display: "flex", justifyContent: "center", gap: 10, fontSize: 12, fontWeight: 600, color: "#5a3000", flexWrap: "wrap" }}>
           <span>✅ دفع عند الاستلام</span>
           <span>✅ لكل العراق</span>
