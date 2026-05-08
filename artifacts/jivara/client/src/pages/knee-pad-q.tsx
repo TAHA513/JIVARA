@@ -145,13 +145,19 @@ export default function KneePadQ() {
       </div>
 
       {/* السعر */}
-      <div style={{ background: "linear-gradient(135deg, #f5c842 0%, #ff9500 100%)", padding: "20px 20px 18px", textAlign: "center" }}>
-        <p style={{ fontSize: 13, fontWeight: 700, color: "#7a4000", margin: "0 0 4px" }}>واقي الركبة للأطفال — 5 أزواج ألوان</p>
-        <p style={{ fontSize: 38, fontWeight: 900, color: "#1a1a1a", margin: "0 0 6px", lineHeight: 1.1 }}>
-          {PRICE.toLocaleString("en-US")} <span style={{ fontSize: 20 }}>دينار</span>
-        </p>
-        <div style={{ display: "flex", justifyContent: "center", gap: 12, fontSize: 13, fontWeight: 600, color: "#5a3000", flexWrap: "wrap" }}>
-          <span>✅ توصيل مجاني</span>
+      <div style={{ background: "linear-gradient(135deg, #f5c842 0%, #ff9500 100%)", padding: "18px 20px 16px", textAlign: "center" }}>
+        <p style={{ fontSize: 15, fontWeight: 800, color: "#7a4000", margin: "0 0 10px" }}>بوكس يحتوي على 5 أزواج ملونة</p>
+        <div style={{ display: "flex", justifyContent: "center", gap: 16, flexWrap: "wrap" }}>
+          <div style={{ background: "rgba(0,0,0,0.12)", borderRadius: 12, padding: "8px 18px", minWidth: 120 }}>
+            <p style={{ fontSize: 11, fontWeight: 700, color: "#5a3000", margin: "0 0 2px" }}>السعر</p>
+            <p style={{ fontSize: 28, fontWeight: 900, color: "#1a1a1a", margin: 0, lineHeight: 1.1 }}>25,000</p>
+          </div>
+          <div style={{ background: "rgba(0,0,0,0.12)", borderRadius: 12, padding: "8px 18px", minWidth: 120 }}>
+            <p style={{ fontSize: 11, fontWeight: 700, color: "#5a3000", margin: "0 0 2px" }}>التوصيل</p>
+            <p style={{ fontSize: 28, fontWeight: 900, color: "#1a1a1a", margin: 0, lineHeight: 1.1 }}>25,000</p>
+          </div>
+        </div>
+        <div style={{ display: "flex", justifyContent: "center", gap: 10, fontSize: 12, fontWeight: 600, color: "#5a3000", flexWrap: "wrap", marginTop: 10 }}>
           <span>✅ دفع عند الاستلام</span>
           <span>✅ لكل العراق</span>
         </div>
