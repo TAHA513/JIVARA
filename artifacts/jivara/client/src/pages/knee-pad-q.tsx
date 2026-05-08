@@ -194,7 +194,7 @@ export default function KneePadQ() {
       {/* السعر */}
       <div style={{ background: "linear-gradient(135deg, #f5c842 0%, #ff9500 100%)", padding: "14px 20px 12px", textAlign: "center" }}>
         <p style={{ fontSize: 18, fontWeight: 900, color: "#1a1a1a", margin: "0 0 4px", lineHeight: 1.4 }}>
-          5 أزواج ملونة في بوكس واحد
+          5 أزواج واقي ركبة للأطفال
         </p>
         <p style={{ fontSize: 16, fontWeight: 800, color: "#7a4000", margin: "0 0 8px" }}>
           بسعر 25 الف — شامل التوصيل
