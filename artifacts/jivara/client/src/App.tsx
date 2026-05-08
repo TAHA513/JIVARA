@@ -44,6 +44,7 @@ import Zt2Page from "@/pages/zt2";
 import NaturalWalkerPage from "@/pages/naturalwalker";
 import NaturalWalker2Page from "@/pages/naturalwalker2";
 import KneePadPage from "@/pages/knee-pad";
+import KneePadQPage from "@/pages/knee-pad-q";
 import BullcaptainBeltPage from "@/pages/bullcaptain-belt";
 import BundlePackPage from "@/pages/bundle-pack";
 import BoxerMenPage from "@/pages/boxer-men";
@@ -77,7 +78,7 @@ function App() {
   const [location] = useLocation();
   const isAdminRoute = location.startsWith('/admin');
   const isBuyRoute = location.startsWith('/buy');
-  const isBundleRoute = location.startsWith('/bundle') || location === '/bamboo' || location === '/shoes-easy' || location === '/watches-easy' || location === '/watches-b' || location === '/shoes-b' || location === '/zt' || location === '/zt2' || location === '/naturalwalker' || location === '/naturalwalker2' || location === '/knee-pad' || location === '/bullcaptain-belt' || location === '/boxer-men' || location === '/socks-uae' || location === '/socks-iq' || location === '/socks-pack' || location === '/bamboo-socks' || location === '/supplier' || location === '/pack';
+  const isBundleRoute = location.startsWith('/bundle') || location === '/bamboo' || location === '/shoes-easy' || location === '/watches-easy' || location === '/watches-b' || location === '/shoes-b' || location === '/zt' || location === '/zt2' || location === '/naturalwalker' || location === '/naturalwalker2' || location === '/knee-pad' || location === '/knee-pad-q' || location === '/bullcaptain-belt' || location === '/boxer-men' || location === '/socks-uae' || location === '/socks-iq' || location === '/socks-pack' || location === '/bamboo-socks' || location === '/supplier' || location === '/pack';
   const isShopRoute = location === '/shop';
   
   // استعادة التمرير إلى الأعلى عند تغيير الصفحة (حل مشكلة عدم فتح المنتج من الأعلى)
@@ -112,6 +113,7 @@ function App() {
                   <Route path="/naturalwalker" component={NaturalWalkerPage} />
                   <Route path="/naturalwalker2" component={NaturalWalker2Page} />
                   <Route path="/knee-pad" component={KneePadPage} />
+                  <Route path="/knee-pad-q" component={KneePadQPage} />
                   <Route path="/bullcaptain-belt" component={BullcaptainBeltPage} />
                   <Route path="/boxer-men" component={BoxerMenPage} />
                   <Route path="/socks-uae" component={SocksUaePage} />

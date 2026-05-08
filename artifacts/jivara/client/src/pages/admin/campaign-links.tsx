@@ -34,6 +34,7 @@ export default function CampaignLinks() {
   const [socksUaeCopied, setSocksUaeCopied] = useState(false);
   const [socksIqCopied, setSocksIqCopied] = useState(false);
   const [zt2Copied, setZt2Copied] = useState(false);
+  const [kneePadQCopied, setKneePadQCopied] = useState(false);
 
   const { data: products = [], isLoading } = useQuery<Product[]>({
     queryKey: ["/api/products"],
@@ -232,6 +233,15 @@ export default function CampaignLinks() {
       setZt2Copied(true);
       toast({ title: "تم النسخ!", description: "رابط صفحة جوارب بامبو ZT (نسخة جديدة) جاهز" });
       setTimeout(() => setZt2Copied(false), 2000);
+    });
+  };
+
+  const copyKneePadQLink = () => {
+    const link = `${baseUrl}/knee-pad-q`;
+    navigator.clipboard.writeText(link).then(() => {
+      setKneePadQCopied(true);
+      toast({ title: "تم النسخ!", description: "رابط صفحة واقي الركبة (TikTok) جاهز" });
+      setTimeout(() => setKneePadQCopied(false), 2000);
     });
   };
 
@@ -713,6 +723,50 @@ export default function CampaignLinks() {
                     variant="outline"
                     onClick={() => window.open(`${baseUrl}/knee-pad`, "_blank")}
                     className="h-8 px-3 text-xs arabic-text gap-1.5 border-pink-300 text-pink-700"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" /> معاينة
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* رابط صفحة واقي الركبة — نسخة TikTok السريعة */}
+        <div className="mb-5">
+          <Card className="border-2 border-violet-500 bg-gradient-to-br from-violet-50 to-pink-50">
+            <CardContent className="p-3">
+              <div className="flex items-center gap-3">
+                <div className="w-14 h-14 rounded-lg bg-gradient-to-br from-violet-500 to-pink-500 flex items-center justify-center shrink-0 text-2xl">
+                  🛡️
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <p className="font-bold text-sm arabic-text text-violet-900">واقي ركبة للأطفال — نسخة TikTok ⚡</p>
+                    <span className="bg-black text-white text-[9px] font-black px-1.5 py-0.5 rounded">TikTok</span>
+                  </div>
+                  <p className="text-xs text-violet-700 arabic-text mt-0.5">٢٥,٠٠٠ د.ع | ٥ أزواج | صفحة سريعة | بدون رأس أو ذيل</p>
+                  <p className="text-xs text-muted-foreground mt-1 truncate font-mono" dir="ltr">
+                    {baseUrl}/knee-pad-q
+                  </p>
+                </div>
+                <div className="flex flex-col gap-1.5 shrink-0">
+                  <Button
+                    size="sm"
+                    onClick={copyKneePadQLink}
+                    className={`h-8 px-3 text-xs arabic-text gap-1.5 ${kneePadQCopied ? "bg-violet-700 hover:bg-violet-800" : "bg-violet-600 hover:bg-violet-700"}`}
+                  >
+                    {kneePadQCopied ? (
+                      <><Check className="w-3.5 h-3.5" /> تم النسخ</>
+                    ) : (
+                      <><Copy className="w-3.5 h-3.5" /> نسخ الرابط</>
+                    )}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => window.open(`${baseUrl}/knee-pad-q`, "_blank")}
+                    className="h-8 px-3 text-xs arabic-text gap-1.5 border-violet-300 text-violet-700"
                   >
                     <ExternalLink className="w-3.5 h-3.5" /> معاينة
                   </Button>
