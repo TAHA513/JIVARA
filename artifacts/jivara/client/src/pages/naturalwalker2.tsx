@@ -29,10 +29,10 @@ import { getFunnelData } from "@/hooks/use-funnel-tracker";
 const WHATSAPP = "9647819966698";
 
 const COLORS = [
-  { name: "كحلي",  hex: "#1a2a4a", img: navyImg  },
-  { name: "أسود",  hex: "#1a1a1a", img: blackImg },
-  { name: "رمادي", hex: "#9ca3af", img: grayImg  },
-  { name: "بيج",   hex: "#d4b896", img: beigeImg },
+  { name: "كحلي",  hex: "#1a2a4a", img: navyImg,  soldOut: false },
+  { name: "أسود",  hex: "#1a1a1a", img: blackImg, soldOut: true  },
+  { name: "رمادي", hex: "#9ca3af", img: grayImg,  soldOut: false },
+  { name: "بيج",   hex: "#d4b896", img: beigeImg, soldOut: false },
 ];
 
 const CAP_IMAGES = [slide1, slide2, slide3, slide4, slide5, slide6, slide7, slide8, slide9, slide10, slide11, slide12];
@@ -321,11 +321,14 @@ export default function NaturalWalker2Page() {
           <div className="grid grid-cols-2 gap-3 mb-4">
             {COLORS.map((c, i) => {
               const isSelected = selectedColors.includes(i);
+              const isSoldOut = c.soldOut;
               return (
                 <button
                   key={i}
                   type="button"
+                  disabled={isSoldOut}
                   onClick={() => {
+                    if (isSoldOut) return;
                     setPreviewColor(i);
                     resetTimer();
                     setSelectedColors(prev => {
@@ -338,9 +341,11 @@ export default function NaturalWalker2Page() {
                     });
                   }}
                   className={`flex flex-col items-center gap-2 p-3 rounded-2xl transition-all border-2 ${
-                    isSelected
-                      ? "border-yellow-400 bg-gray-800 scale-[1.03]"
-                      : "border-gray-700 bg-gray-800/50 opacity-70"
+                    isSoldOut
+                      ? "border-red-800 bg-gray-800/30 cursor-not-allowed opacity-60"
+                      : isSelected
+                        ? "border-yellow-400 bg-gray-800 scale-[1.03]"
+                        : "border-gray-700 bg-gray-800/50 opacity-70"
                   }`}
                 >
                   <div className="relative">
@@ -348,15 +353,23 @@ export default function NaturalWalker2Page() {
                       src={c.img}
                       alt={c.name}
                       className="w-16 h-16 object-contain rounded-lg bg-white"
-                      style={{ border: isSelected ? "2px solid #facc15" : "2px solid transparent" }}
+                      style={{
+                        border: isSoldOut ? "2px solid #7f1d1d" : isSelected ? "2px solid #facc15" : "2px solid transparent",
+                        filter: isSoldOut ? "grayscale(60%)" : "none",
+                      }}
                     />
-                    {isSelected && (
+                    {isSoldOut && (
+                      <div className="absolute inset-0 flex items-center justify-center rounded-lg" style={{ background: "rgba(0,0,0,0.55)" }}>
+                        <span className="text-red-400 text-[9px] font-black text-center leading-tight px-1">نفذت<br/>الكمية</span>
+                      </div>
+                    )}
+                    {isSelected && !isSoldOut && (
                       <div className="absolute -top-1 -right-1 w-5 h-5 bg-yellow-400 rounded-full flex items-center justify-center shadow">
                         <span className="text-black text-[10px] font-black">✓</span>
                       </div>
                     )}
                   </div>
-                  <span className={`text-xs font-bold ${isSelected ? "text-yellow-400" : "text-gray-400"}`}>
+                  <span className={`text-xs font-bold ${isSoldOut ? "text-red-500" : isSelected ? "text-yellow-400" : "text-gray-400"}`}>
                     {c.name}
                   </span>
                 </button>
