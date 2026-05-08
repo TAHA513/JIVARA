@@ -145,46 +145,37 @@ export default function KneePadQ() {
       </div>
 
       {/* السعر */}
-      <div style={{ background: "linear-gradient(135deg, #f5c842 0%, #ff9500 100%)", padding: "18px 20px 16px", textAlign: "center" }}>
-        <p style={{ fontSize: 15, fontWeight: 800, color: "#7a4000", margin: "0 0 10px" }}>بوكس يحتوي على 5 أزواج ملونة</p>
-        <div style={{ display: "flex", justifyContent: "center", gap: 16, flexWrap: "wrap" }}>
-          <div style={{ background: "rgba(0,0,0,0.12)", borderRadius: 12, padding: "8px 18px", minWidth: 120 }}>
-            <p style={{ fontSize: 11, fontWeight: 700, color: "#5a3000", margin: "0 0 2px" }}>السعر</p>
-            <p style={{ fontSize: 28, fontWeight: 900, color: "#1a1a1a", margin: 0, lineHeight: 1.1 }}>25,000</p>
-          </div>
-          <div style={{ background: "rgba(0,0,0,0.12)", borderRadius: 12, padding: "8px 18px", minWidth: 120 }}>
-            <p style={{ fontSize: 11, fontWeight: 700, color: "#5a3000", margin: "0 0 2px" }}>التوصيل</p>
-            <p style={{ fontSize: 28, fontWeight: 900, color: "#1a1a1a", margin: 0, lineHeight: 1.1 }}>25,000</p>
-          </div>
-        </div>
-        <div style={{ display: "flex", justifyContent: "center", gap: 10, fontSize: 12, fontWeight: 600, color: "#5a3000", flexWrap: "wrap", marginTop: 10 }}>
+      <div style={{ background: "linear-gradient(135deg, #f5c842 0%, #ff9500 100%)", padding: "12px 20px 10px", textAlign: "center" }}>
+        <p style={{ fontSize: 14, fontWeight: 800, color: "#7a4000", margin: "0 0 6px" }}>بوكس يحتوي على 5 أزواج ملونة</p>
+        <p style={{ fontSize: 36, fontWeight: 900, color: "#1a1a1a", margin: "0 0 6px", lineHeight: 1.1 }}>25 الف</p>
+        <div style={{ display: "flex", justifyContent: "center", gap: 10, fontSize: 12, fontWeight: 600, color: "#5a3000", flexWrap: "wrap" }}>
           <span>✅ دفع عند الاستلام</span>
           <span>✅ لكل العراق</span>
         </div>
       </div>
 
       {/* النموذج */}
-      <form onSubmit={submit} style={{ padding: "20px 16px 40px", display: "flex", flexDirection: "column", gap: 16 }}>
+      <form onSubmit={submit} style={{ padding: "14px 14px 24px", display: "flex", flexDirection: "column", gap: 10 }}>
 
         <div>
-          <label style={{ color: "#ccc", fontSize: 14, fontWeight: 700, display: "block", marginBottom: 7 }}>📱 رقم الهاتف</label>
+          <label style={{ color: "#bbb", fontSize: 12, fontWeight: 700, display: "block", marginBottom: 4 }}>📱 رقم الهاتف</label>
           <input
             type="tel"
             value={phone}
             onChange={e => setPhone(e.target.value)}
             placeholder="07xxxxxxxxx"
             required
-            style={{ width: "100%", background: "#1e1e1e", border: "1.5px solid #333", borderRadius: 12, padding: "14px", color: "#fff", fontSize: 16, outline: "none", boxSizing: "border-box", direction: "ltr", textAlign: "right" }}
+            style={{ width: "100%", background: "#1e1e1e", border: "1.5px solid #333", borderRadius: 10, padding: "10px 12px", color: "#fff", fontSize: 15, outline: "none", boxSizing: "border-box", direction: "ltr", textAlign: "right" }}
           />
         </div>
 
         <div>
-          <label style={{ color: "#ccc", fontSize: 14, fontWeight: 700, display: "block", marginBottom: 7 }}>📍 المحافظة</label>
+          <label style={{ color: "#bbb", fontSize: 12, fontWeight: 700, display: "block", marginBottom: 4 }}>📍 المحافظة</label>
           <select
             value={gov}
             onChange={e => setGov(e.target.value)}
             required
-            style={{ width: "100%", background: "#1e1e1e", border: "1.5px solid #333", borderRadius: 12, padding: "14px", color: gov ? "#fff" : "#666", fontSize: 16, outline: "none", boxSizing: "border-box", appearance: "none", WebkitAppearance: "none" }}
+            style={{ width: "100%", background: "#1e1e1e", border: "1.5px solid #333", borderRadius: 10, padding: "10px 12px", color: gov ? "#fff" : "#666", fontSize: 15, outline: "none", boxSizing: "border-box", appearance: "none", WebkitAppearance: "none" }}
           >
             <option value="" disabled>اختر المحافظة</option>
             {GOVS.map(g => <option key={g} value={g} style={{ color: "#fff", background: "#1e1e1e" }}>{g}</option>)}
@@ -192,38 +183,34 @@ export default function KneePadQ() {
         </div>
 
         <div>
-          <label style={{ color: "#ccc", fontSize: 14, fontWeight: 700, display: "block", marginBottom: 7 }}>🏘️ اسم المنطقة / أقرب نقطة دالة</label>
+          <label style={{ color: "#bbb", fontSize: 12, fontWeight: 700, display: "block", marginBottom: 4 }}>🏘️ المنطقة</label>
           <input
             type="text"
             value={area}
             onChange={e => setArea(e.target.value)}
             placeholder="مثال: الكرادة — بالقرب من الجامع"
             required
-            style={{ width: "100%", background: "#1e1e1e", border: "1.5px solid #333", borderRadius: 12, padding: "14px", color: "#fff", fontSize: 15, outline: "none", boxSizing: "border-box" }}
+            style={{ width: "100%", background: "#1e1e1e", border: "1.5px solid #333", borderRadius: 10, padding: "10px 12px", color: "#fff", fontSize: 14, outline: "none", boxSizing: "border-box" }}
           />
         </div>
 
-        {error && <p style={{ color: "#ff5555", fontSize: 13, textAlign: "center", margin: 0 }}>{error}</p>}
+        {error && <p style={{ color: "#ff5555", fontSize: 12, textAlign: "center", margin: 0 }}>{error}</p>}
 
         <button
           type="submit"
           disabled={loading}
           style={{
             background: loading ? "#444" : "linear-gradient(135deg, #a855f7 0%, #ec4899 100%)",
-            border: "none", borderRadius: 14, padding: "17px", color: "#fff",
-            fontSize: 18, fontWeight: 900, cursor: loading ? "not-allowed" : "pointer",
+            border: "none", borderRadius: 12, padding: "13px", color: "#fff",
+            fontSize: 16, fontWeight: 900, cursor: loading ? "not-allowed" : "pointer",
             width: "100%",
             boxShadow: loading ? "none" : "0 4px 20px rgba(168,85,247,0.4)",
             transition: "all 0.2s",
-            marginTop: 4,
+            marginTop: 2,
           }}
         >
           {loading ? "جاري الإرسال..." : "أرسل طلبي الآن 🚀"}
         </button>
-
-        <p style={{ color: "#555", fontSize: 12, textAlign: "center", margin: 0 }}>
-          سيصلك خلال يومين — دفع عند الاستلام فقط
-        </p>
       </form>
     </div>
   );
