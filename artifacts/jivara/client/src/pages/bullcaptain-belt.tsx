@@ -222,7 +222,7 @@ export default function BullcaptainBeltPage() {
       <header className="bg-white border-b border-gray-100 shadow-sm sticky top-0 z-50">
         <div className="max-w-lg mx-auto px-4 py-3 text-center">
           <p className="font-black text-gray-900 text-base leading-tight">جيفارا للتسوق — الرمادي</p>
-          <p className="text-xs text-gray-400">فرع الرمادي | الإمارات — عجمان</p>
+          <p className="text-xs text-gray-400">فرع الرمادي</p>
         </div>
       </header>
 
