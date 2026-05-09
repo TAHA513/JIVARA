@@ -1,0 +1,8 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "BkFP_kcfl6yNyp2Q2ffIB"
+uri = "file://backups/backup_20260509_151449.sql.gz"
+type = "unspecified"
+title = "نسخة احتياطية كاملة — قاعدة البيانات 9 مايو 2026"
