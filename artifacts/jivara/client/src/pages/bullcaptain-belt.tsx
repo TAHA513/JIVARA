@@ -200,13 +200,13 @@ export default function BullcaptainBeltPage() {
           style={{ animation: "ticker 22s linear infinite" }}
         >
           {[
-            "🇬🇧 جيفارا للتسوق — الأنبار",
+            "🇬🇧 جيفارا للتسوق — الرمادي",
             "🐂 حزام BULLCAPTAIN الجلد الطبيعي",
             "⭐ الماركة البريطانية منذ 1989",
             "🎁 مع علبة هدية فاخرة",
             "🚚 توصيل مجاني لكل العراق",
             "💳 الدفع عند الاستلام",
-            "🇬🇧 جيفارا للتسوق — الأنبار",
+            "🇬🇧 جيفارا للتسوق — الرمادي",
             "🐂 حزام BULLCAPTAIN الجلد الطبيعي",
             "⭐ الماركة البريطانية منذ 1989",
             "🎁 مع علبة هدية فاخرة",
@@ -221,8 +221,8 @@ export default function BullcaptainBeltPage() {
       {/* ─── الهيدر ─── */}
       <header className="bg-white border-b border-gray-100 shadow-sm sticky top-0 z-50">
         <div className="max-w-lg mx-auto px-4 py-3 text-center">
-          <p className="font-black text-gray-900 text-base leading-tight">جيفارا للتسوق — الأنبار</p>
-          <p className="text-xs text-gray-400">فرع الأنبار | الإمارات — عجمان</p>
+          <p className="font-black text-gray-900 text-base leading-tight">جيفارا للتسوق — الرمادي</p>
+          <p className="text-xs text-gray-400">فرع الرمادي | الإمارات — عجمان</p>
         </div>
       </header>
 
