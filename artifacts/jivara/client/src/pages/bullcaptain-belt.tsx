@@ -6,16 +6,16 @@ import { validateIraqiPhone } from "@/lib/form-validation";
 import { apiRequest } from "@/lib/queryClient";
 import { pixelViewContent, pixelInitiateCheckout, pixelPurchase, tiktokViewContent, tiktokInitiateCheckout, tiktokPurchase } from "@/lib/pixel";
 import { CheckCircle, Package, Truck, ChevronLeft, ChevronRight, Phone, Check } from "lucide-react";
-import imgBrown1 from "@assets/FB_IMG_1776105014378_1776105116533.jpg";
-import imgBrown2 from "@assets/FB_IMG_1776105021072_1776105116441.jpg";
-import imgBlack1 from "@assets/FB_IMG_1776105023205_1776105116485.jpg";
-import imgBlack2 from "@assets/FB_IMG_1776105017061_1776105116513.jpg";
+import imgBlackBox  from "@assets/Screenshot_20260505_113050_1778361281487.jpg";
+import imgBrownBox  from "@assets/Screenshot_20260505_113031_1778361281503.jpg";
+import imgBlackSize from "@assets/Screenshot_20260505_113806_1778361281511.jpg";
+import imgBrownSize from "@assets/Screenshot_20260505_113446_com.openai.chatgpt_1778361281517.jpg";
 
 const PRICE_IQD = 45000;
 const WHATSAPP = "9647819966698";
 
 // كل الصور مع بعض للعرض في الأعلى
-const ALL_IMAGES = [imgBrown1, imgBlack1, imgBrown2, imgBlack2];
+const ALL_IMAGES = [imgBrownBox, imgBlackBox, imgBrownSize, imgBlackSize];
 
 const COLORS = [
   { id: "brown", label: "بني / عسلي", hex: "#92400e", emoji: "🟫" },
@@ -288,6 +288,7 @@ export default function BullcaptainBeltPage() {
             <div className="mt-2 text-xs space-y-1">
               <p className="text-green-400">✓ توصيل مجاني</p>
               <p className="text-green-400">✓ دفع عند الاستلام</p>
+              <p className="text-green-400">✓ الفحص أمام المندوب قبل الدفع</p>
             </div>
           </div>
         </div>
@@ -307,7 +308,7 @@ export default function BullcaptainBeltPage() {
         {/* ════════ نموذج الطلب ════════ */}
         <div id="order-form" className="bg-gray-900 rounded-3xl p-6 text-white shadow-2xl">
           <h2 className="text-xl font-black text-center mb-1">🛒 أكمل طلبك</h2>
-          <p className="text-gray-400 text-xs text-center mb-5">الدفع عند الاستلام — التوصيل مجاني</p>
+          <p className="text-gray-400 text-xs text-center mb-5">الدفع عند الاستلام — التوصيل مجاني — الفحص أمام المندوب قبل الدفع</p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
 
@@ -357,8 +358,8 @@ export default function BullcaptainBeltPage() {
               </label>
               <div className="flex gap-3">
                 {[
-                  { id: "brown", label: "بني / عسلي", img: imgBrown1 },
-                  { id: "black", label: "أسود",        img: imgBlack1 },
+                  { id: "brown", label: "بني / عسلي", img: imgBrownBox },
+                  { id: "black", label: "أسود",        img: imgBlackBox },
                 ].map(c => {
                   const isSelected = selectedColors.includes(c.id);
                   return (
