@@ -35,6 +35,7 @@ export default function CampaignLinks() {
   const [socksIqCopied, setSocksIqCopied] = useState(false);
   const [zt2Copied, setZt2Copied] = useState(false);
   const [kneePadQCopied, setKneePadQCopied] = useState(false);
+  const [poedagarCopied, setPoedagarCopied] = useState(false);
 
   const { data: products = [], isLoading } = useQuery<Product[]>({
     queryKey: ["/api/products"],
@@ -242,6 +243,15 @@ export default function CampaignLinks() {
       setKneePadQCopied(true);
       toast({ title: "تم النسخ!", description: "رابط صفحة واقي الركبة (TikTok) جاهز" });
       setTimeout(() => setKneePadQCopied(false), 2000);
+    });
+  };
+
+  const copyPoedagarLink = () => {
+    const link = `${baseUrl}/poedagar-watch`;
+    navigator.clipboard.writeText(link).then(() => {
+      setPoedagarCopied(true);
+      toast({ title: "تم النسخ!", description: "رابط صفحة ساعة POEDAGAR جاهز" });
+      setTimeout(() => setPoedagarCopied(false), 2000);
     });
   };
 
@@ -767,6 +777,50 @@ export default function CampaignLinks() {
                     variant="outline"
                     onClick={() => window.open(`${baseUrl}/knee-pad-q`, "_blank")}
                     className="h-8 px-3 text-xs arabic-text gap-1.5 border-violet-300 text-violet-700"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" /> معاينة
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* رابط صفحة ساعة POEDAGAR — سنتر المستودع */}
+        <div className="mb-5">
+          <Card className="border-2 border-amber-500 bg-gradient-to-br from-amber-50 to-yellow-50">
+            <CardContent className="p-3">
+              <div className="flex items-center gap-3">
+                <div className="w-14 h-14 rounded-lg bg-gradient-to-br from-amber-600 to-yellow-500 flex items-center justify-center shrink-0 text-2xl">
+                  ⌚
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <p className="font-bold text-sm arabic-text text-amber-900">ساعة POEDAGAR — سنتر المستودع</p>
+                    <span className="bg-amber-700 text-white text-[9px] font-black px-1.5 py-0.5 rounded">Facebook</span>
+                  </div>
+                  <p className="text-xs text-amber-700 arabic-text mt-0.5">٥٥ الف د.ع | ٥ ألوان | ضد الماء 30م | الرمادي</p>
+                  <p className="text-xs text-muted-foreground mt-1 truncate font-mono" dir="ltr">
+                    {baseUrl}/poedagar-watch
+                  </p>
+                </div>
+                <div className="flex flex-col gap-1.5 shrink-0">
+                  <Button
+                    size="sm"
+                    onClick={copyPoedagarLink}
+                    className={`h-8 px-3 text-xs arabic-text gap-1.5 ${poedagarCopied ? "bg-amber-800 hover:bg-amber-900" : "bg-amber-600 hover:bg-amber-700"}`}
+                  >
+                    {poedagarCopied ? (
+                      <><Check className="w-3.5 h-3.5" /> تم النسخ</>
+                    ) : (
+                      <><Copy className="w-3.5 h-3.5" /> نسخ الرابط</>
+                    )}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => window.open(`${baseUrl}/poedagar-watch`, "_blank")}
+                    className="h-8 px-3 text-xs arabic-text gap-1.5 border-amber-300 text-amber-700"
                   >
                     <ExternalLink className="w-3.5 h-3.5" /> معاينة
                   </Button>
