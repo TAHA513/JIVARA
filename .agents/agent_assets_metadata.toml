@@ -2,19 +2,7 @@ uploads = []
 generated = []
 
 [[outputs]]
-id = "3hdgyV6B9lSC2yXV1qda6"
-uri = "file://public/generated/bamboo-design-1.png"
-type = "image"
-title = "تصميم 1 — إضاءة ذهبية فاخرة"
-
-[[outputs]]
-id = "z6TkdvdOF2jjfORLvm1Bt"
-uri = "file://public/generated/bamboo-design-2.png"
-type = "image"
-title = "تصميم 2 — رخام أبيض"
-
-[[outputs]]
-id = "R88hOyWGTkcdKVw3Lp9vW"
-uri = "file://public/generated/bamboo-design-3.png"
-type = "image"
-title = "تصميم 3 — بامبو داكن"
+id = "BkFP_kcfl6yNyp2Q2ffIB"
+uri = "file://backups/backup_20260509_151449.sql.gz"
+type = "unspecified"
+title = "نسخة احتياطية كاملة — قاعدة البيانات 9 مايو 2026"

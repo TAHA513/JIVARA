@@ -1,0 +1,37 @@
+kind = "web"
+previewPath = "/"
+title = "JIVARA"
+version = "1.0.0"
+id = "artifacts/jivara"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/", "/api" ]
+localPort = 22570
+
+[services.development]
+run = "pnpm --filter @workspace/jivara run dev"
+
+[services.production]
+
+[services.production.build]
+args = ["pnpm", "--filter", "@workspace/jivara", "run", "build"]
+
+[services.production.build.env]
+NODE_ENV = "production"
+
+[services.production.run]
+args = ["node", "artifacts/jivara/dist/index.js"]
+
+[services.production.run.env]
+PORT = "22570"
+NODE_ENV = "production"
+
+[services.env]
+PORT = "22570"
+NODE_ENV = "development"
