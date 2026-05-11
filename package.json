@@ -8,8 +8,8 @@
   },
   "scripts": {
     "preinstall": "rm -f package-lock.json yarn.lock",
-    "build": "corepack enable && corepack prepare pnpm@10.26.1 --activate && pnpm install --prod=false && pnpm --filter @workspace/jivara run build",
-    "start": "pnpm --filter @workspace/jivara run start",
+    "build": "npx --yes pnpm@10.26.1 install --prod=false && npx --yes pnpm@10.26.1 --filter @workspace/jivara run build",
+    "start": "npx --yes pnpm@10.26.1 --filter @workspace/jivara run start",
     "typecheck:libs": "tsc --build",
     "typecheck": "pnpm run typecheck:libs && pnpm -r --filter \"./artifacts/**\" --filter \"./scripts\" --if-present run typecheck"
   },
