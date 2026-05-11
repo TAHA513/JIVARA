@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: jivara
+    runtime: node
+    plan: starter
+    buildCommand: corepack enable && corepack prepare pnpm@10.26.1 --activate && pnpm install --frozen-lockfile && pnpm run build
+    startCommand: pnpm --filter @workspace/jivara run start
+    envVars:
+      - key: NODE_VERSION
+        value: "24"
+      - key: NODE_ENV
+        value: production
