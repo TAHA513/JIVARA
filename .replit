@@ -44,6 +44,3 @@ timeoutMs = 20000
 
 [userenv.shared]
 FB_PIXEL_ID = "1971505830382460"
-
-[agent]
-expertMode = true
