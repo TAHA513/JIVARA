@@ -2,12 +2,6 @@ uploads = []
 generated = []
 
 [[outputs]]
-id = "xuzYiQR_d0nDhxIT1XjZA"
-uri = "file://meta_all_customers.csv"
-type = "table"
-title = "ملف Custom Audience — 154 زبون عراقي (جاهز لميتا)"
-
-[[outputs]]
 id = "3hdgyV6B9lSC2yXV1qda6"
 uri = "file://public/generated/bamboo-design-1.png"
 type = "image"
