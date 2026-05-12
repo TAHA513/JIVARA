@@ -55,8 +55,9 @@ function getUtmSource() {
 }
 
 export default function PoedagarWatchPage() {
-  const [color, setColor]     = useState(COLORS[0].id);
+  const [colors, setColors]   = useState<string[]>([COLORS[0].id]);
   const [qty, setQty]         = useState(1);
+  const [notes, setNotes]     = useState("");
   const [slide, setSlide]     = useState(0);
   const [lightbox, setLightbox] = useState<number | null>(null);
   const [name, setName]       = useState("");
@@ -92,8 +93,8 @@ export default function PoedagarWatchPage() {
     }
   }
 
-  function selectColor(id: string) {
-    setColor(id);
+  function toggleColor(id: string) {
+    setColors(prev => prev.includes(id) ? (prev.length > 1 ? prev.filter(c => c !== id) : prev) : [...prev, id]);
     const idx = COLORS.findIndex(c => c.id === id);
     if (idx >= 0) { setSlide(idx); resetTimer(); }
     setTimeout(() => formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 100);
@@ -117,7 +118,7 @@ export default function PoedagarWatchPage() {
     if (!gov) { setError("يرجى اختيار المحافظة"); return; }
     if (!area.trim()) { setError("يرجى إدخال اسم المنطقة"); return; }
     setError(""); setLoading(true);
-    const colorLabel = COLORS.find(c => c.id === color)?.label || color;
+    const colorLabel = colors.map(id => COLORS.find(c => c.id === id)?.label).join(" + ");
     pixelInitiateCheckout({ contentIds: [SKU], value: totalPrice / 1500 });
     tiktokInitiateCheckout({ contentIds: [SKU], value: totalPrice / 1500 });
     try {
@@ -125,7 +126,7 @@ export default function PoedagarWatchPage() {
         sessionId: getSession(),
         customerName: name.trim(), customerPhone: phone.trim(), customerEmail: null,
         shippingAddress: `${gov} - ${area.trim()}`, city: gov,
-        notes: `اللون: ${colorLabel} | الكمية: ${qty} | المنطقة: ${area.trim()}`,
+        notes: `الألوان: ${colorLabel} | الكمية: ${qty} | المنطقة: ${area.trim()}${notes.trim() ? ` | ملاحظات: ${notes.trim()}` : ""}`,
         totalAmount: String(totalPrice),
         landingPage: "/poedagar-watch",
         utmSource: getUtmSource(),
@@ -141,9 +142,9 @@ export default function PoedagarWatchPage() {
     finally { setLoading(false); }
   }
 
-  const colorLabel = COLORS.find(c => c.id === color)?.label || "";
-  const selectedImg = COLORS.find(c => c.id === color)?.img;
-  const waMsg = encodeURIComponent(`مرحبا، أريد تأكيد طلبي ⌚\nالمنتج: ${PRODUCT}\nاللون: ${colorLabel}\nالكمية: ${qty}\nالاسم: ${name}\nرقم هاتفي: ${phone}`);
+  const colorLabel = colors.map(id => COLORS.find(c => c.id === id)?.label).join(" + ") || "";
+  const selectedImg = COLORS.find(c => c.id === colors[colors.length - 1])?.img;
+  const waMsg = encodeURIComponent(`مرحبا، أريد تأكيد طلبي ⌚\nالمنتج: ${PRODUCT}\nالألوان: ${colorLabel}\nالكمية: ${qty}\nالاسم: ${name}\nرقم هاتفي: ${phone}${notes.trim() ? `\nملاحظات: ${notes.trim()}` : ""}`);
 
   /* ─── شاشة النجاح ─── */
   if (success) return (
@@ -273,14 +274,15 @@ export default function PoedagarWatchPage() {
 
       {/* ══ ③ اختيار اللون ══ */}
       <div style={{ padding: "14px 12px 0" }}>
-        <p style={{ color: "#d4af37", fontSize: 14, fontWeight: 900, margin: "0 0 10px", textAlign: "center" }}>
-          👇 اضغط على الساعة لاختيار اللون والانتقال للطلب
+        <p style={{ color: "#d4af37", fontSize: 14, fontWeight: 900, margin: "0 0 4px", textAlign: "center" }}>
+          👇 اضغط لاختيار لون أو أكثر
         </p>
+        <p style={{ color: "#888", fontSize: 11, textAlign: "center", margin: "0 0 10px" }}>يمكنك اختيار أكثر من لون</p>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
           {COLORS.map(c => {
-            const isSel = color === c.id;
+            const isSel = colors.includes(c.id);
             return (
-              <button key={c.id} onClick={() => selectColor(c.id)}
+              <button key={c.id} onClick={() => toggleColor(c.id)}
                 style={{ position: "relative", aspectRatio: "1/1", borderRadius: 14, overflow: "hidden", border: isSel ? "3px solid #d4af37" : "3px solid #333", cursor: "pointer", padding: 0, background: "none", boxShadow: isSel ? "0 0 18px rgba(212,175,55,0.55)" : "none", transition: "all 0.2s", transform: isSel ? "scale(1.04)" : "scale(1)" }}>
                 <img src={c.img} alt={c.label} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
                 <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, background: isSel ? "rgba(212,175,55,0.92)" : "rgba(0,0,0,0.72)", padding: "5px 4px", textAlign: "center" }}>
@@ -291,6 +293,11 @@ export default function PoedagarWatchPage() {
             );
           })}
         </div>
+        {colors.length > 0 && (
+          <p style={{ color: "#d4af37", fontSize: 12, fontWeight: 700, textAlign: "center", margin: "10px 0 0" }}>
+            المختار: {colorLabel}
+          </p>
+        )}
       </div>
 
       {/* محتوى الطلب */}
@@ -357,6 +364,15 @@ export default function PoedagarWatchPage() {
             <label style={{ color: "#aaa", fontSize: 12, fontWeight: 700, display: "block", marginBottom: 5 }}>🏘️ المنطقة <span style={{ color: "#ef4444" }}>*</span></label>
             <input type="text" value={area} onChange={e => { setArea(e.target.value); setError(""); }} placeholder="مثال: شارع المستودع — بجانب البنك" required
               style={{ width: "100%", background: "#1e1e1e", border: "1.5px solid #333", borderRadius: 10, padding: "11px 12px", color: "#fff", fontSize: 15, outline: "none", boxSizing: "border-box" }} />
+          </div>
+
+          {/* ملاحظات اختيارية */}
+          <div>
+            <label style={{ color: "#aaa", fontSize: 12, fontWeight: 700, display: "block", marginBottom: 5 }}>📝 ملاحظات <span style={{ color: "#555", fontWeight: 400 }}>(اختياري)</span></label>
+            <textarea value={notes} onChange={e => setNotes(e.target.value)}
+              placeholder="أي تفاصيل إضافية تريد إضافتها..."
+              rows={3}
+              style={{ width: "100%", background: "#1e1e1e", border: "1.5px solid #333", borderRadius: 10, padding: "11px 12px", color: "#fff", fontSize: 14, outline: "none", boxSizing: "border-box", resize: "none", fontFamily: "inherit" }} />
           </div>
 
           {/* ══ الكمية ══ */}
