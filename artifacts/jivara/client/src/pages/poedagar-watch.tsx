@@ -94,7 +94,11 @@ export default function PoedagarWatchPage() {
   }
 
   function toggleColor(id: string) {
-    setColors(prev => prev.includes(id) ? (prev.length > 1 ? prev.filter(c => c !== id) : prev) : [...prev, id]);
+    setColors(prev => {
+      const next = prev.includes(id) ? (prev.length > 1 ? prev.filter(c => c !== id) : prev) : [...prev, id];
+      setQty(next.length);
+      return next;
+    });
     const idx = COLORS.findIndex(c => c.id === id);
     if (idx >= 0) { setSlide(idx); resetTimer(); }
     setTimeout(() => formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 100);
