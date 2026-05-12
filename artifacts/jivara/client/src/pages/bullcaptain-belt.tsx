@@ -11,7 +11,8 @@ import imgBrownBox  from "@assets/Screenshot_20260505_113031_1778361281503.jpg";
 import imgBlackSize from "@assets/Screenshot_20260505_113806_1778361281511.jpg";
 import imgBrownSize from "@assets/Screenshot_20260505_113446_com.openai.chatgpt_1778361281517.jpg";
 
-const PRICE_IQD = 45000;
+const PRICE_IQD = 25000;
+const DELIVERY_IQD = 5000;
 const WHATSAPP = "9647819966698";
 
 // كل الصور مع بعض للعرض في الأعلى
@@ -40,8 +41,9 @@ export default function BullcaptainBeltPage() {
   const autoPlayRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // السعر الإجمالي حسب عدد الألوان المختارة
-  const totalPrice = PRICE_IQD * (selectedColors.length || 1);
   const qty        = selectedColors.length || 1;
+  const subtotal   = PRICE_IQD * qty;
+  const totalPrice = subtotal + (selectedColors.length > 0 ? DELIVERY_IQD : 0);
 
   useEffect(() => {
     autoPlayRef.current = setInterval(() => {
@@ -178,7 +180,7 @@ export default function BullcaptainBeltPage() {
             <p>الألوان: <strong>{colorLabel}</strong></p>
             <p>الكمية: <strong>{qty} {qty === 1 ? "حزام" : "أحزمة"}</strong></p>
             <p className="text-xl font-black text-amber-700 pt-1">{totalPrice.toLocaleString()} د.ع</p>
-            <p className="text-green-600 font-semibold text-xs">✅ الدفع عند الاستلام — توصيل مجاني</p>
+            <p className="text-green-600 font-semibold text-xs">✅ الدفع عند الاستلام — التوصيل 5 آلاف</p>
           </div>
           <a href={`https://wa.me/${WHATSAPP}?text=مرحبا، طلبت حزام BULLCAPTAIN الألوان: ${colorLabel}. اسمي ${name}`}
             className="inline-flex items-center gap-2 bg-green-500 text-white font-bold py-3 px-7 rounded-full shadow"
@@ -204,13 +206,13 @@ export default function BullcaptainBeltPage() {
             "🐂 حزام BULLCAPTAIN الجلد الطبيعي",
             "⭐ الماركة البريطانية منذ 1989",
             "🎁 مع علبة هدية فاخرة",
-            "🚚 توصيل مجاني لكل العراق",
+            "🚚 توصيل 5 آلاف لكل العراق",
             "💳 الدفع عند الاستلام",
             "🇬🇧 جيفارا للتسوق — الرمادي",
             "🐂 حزام BULLCAPTAIN الجلد الطبيعي",
             "⭐ الماركة البريطانية منذ 1989",
             "🎁 مع علبة هدية فاخرة",
-            "🚚 توصيل مجاني لكل العراق",
+            "🚚 توصيل 5 آلاف لكل العراق",
             "💳 الدفع عند الاستلام",
           ].map((t, i) => (
             <span key={i} className={i % 2 === 0 ? "text-amber-400 mx-8" : "text-gray-300 mx-8"}>{t}</span>
@@ -279,14 +281,14 @@ export default function BullcaptainBeltPage() {
         {/* ─── السعر ─── */}
         <div className="bg-gray-900 text-white rounded-2xl p-4 mb-5 flex items-center justify-between">
           <div>
-            <p className="text-gray-500 text-xs line-through">70,000 د.ع / حزام</p>
+            <p className="text-gray-500 text-xs line-through">45,000 د.ع / حزام</p>
             <p className="text-3xl font-black text-amber-400">{PRICE_IQD.toLocaleString()}</p>
             <p className="text-gray-400 text-xs">د.ع للحزام الواحد</p>
           </div>
           <div className="text-right">
-            <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">خصم 36%</span>
+            <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">خصم 44%</span>
             <div className="mt-2 text-xs space-y-1">
-              <p className="text-green-400">✓ توصيل مجاني</p>
+              <p className="text-amber-300">🚚 التوصيل 5 آلاف لكل العراق</p>
               <p className="text-green-400">✓ دفع عند الاستلام</p>
               <p className="text-green-400">✓ الفحص أمام المندوب قبل الدفع</p>
             </div>
@@ -308,7 +310,7 @@ export default function BullcaptainBeltPage() {
         {/* ════════ نموذج الطلب ════════ */}
         <div id="order-form" className="bg-gray-900 rounded-3xl p-6 text-white shadow-2xl">
           <h2 className="text-xl font-black text-center mb-1">🛒 أكمل طلبك</h2>
-          <p className="text-gray-400 text-xs text-center mb-5">الدفع عند الاستلام — التوصيل مجاني — الفحص أمام المندوب قبل الدفع</p>
+          <p className="text-gray-400 text-xs text-center mb-5">الدفع عند الاستلام — التوصيل 5 آلاف لكل العراق — الفحص أمام المندوب قبل الدفع</p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
 
@@ -407,8 +409,10 @@ export default function BullcaptainBeltPage() {
                   <p className={`text-3xl font-black transition-all ${selectedColors.length > 0 ? "text-amber-400" : "text-gray-600"}`}>
                     {selectedColors.length === 0 ? "—" : `${totalPrice.toLocaleString()} د.ع`}
                   </p>
-                  {selectedColors.length === 2 && (
-                    <p className="text-green-400 text-xs mt-1">✓ وفّرت 10,000 د.ع مقارنة بالشراء المنفصل</p>
+                  {selectedColors.length > 0 && (
+                    <p className="text-gray-400 text-[11px] mt-1">
+                      ({subtotal.toLocaleString()} د.ع للحزام + {DELIVERY_IQD.toLocaleString()} د.ع توصيل)
+                    </p>
                   )}
                 </div>
                 <div className="flex items-center gap-1">
@@ -420,7 +424,7 @@ export default function BullcaptainBeltPage() {
               </div>
               {selectedColors.length > 0 && (
                 <div className="flex gap-3 mt-2 text-xs text-gray-400">
-                  <span className="flex items-center gap-1"><Truck className="w-3 h-3 text-green-400" /> توصيل مجاني</span>
+                  <span className="flex items-center gap-1"><Truck className="w-3 h-3 text-green-400" /> توصيل 5 آلاف</span>
                   <span>✓ الدفع عند الاستلام</span>
                 </div>
               )}
@@ -451,7 +455,7 @@ export default function BullcaptainBeltPage() {
                 : `🛒 اطلب الآن — ${totalPrice.toLocaleString()} د.ع`}
             </button>
 
-            <p className="text-center text-gray-500 text-xs">✅ لا دفع مسبق &nbsp;|&nbsp; 🚚 توصيل مجاني &nbsp;|&nbsp; 📦 48-72 ساعة</p>
+            <p className="text-center text-gray-500 text-xs">✅ لا دفع مسبق &nbsp;|&nbsp; 🚚 توصيل 5 آلاف &nbsp;|&nbsp; 📦 48-72 ساعة</p>
           </form>
         </div>
 

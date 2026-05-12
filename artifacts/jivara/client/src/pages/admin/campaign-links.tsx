@@ -972,7 +972,7 @@ export default function CampaignLinks() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold text-sm arabic-text text-amber-900">حزام BULLCAPTAIN جلد طبيعي 🇬🇧</p>
-                  <p className="text-xs text-amber-700 arabic-text mt-0.5">٤٥,٠٠٠ د.ع | لونين: عسلي وأسود | هدية فاخرة</p>
+                  <p className="text-xs text-amber-700 arabic-text mt-0.5">٢٥,٠٠٠ د.ع + ٥ آلاف توصيل لكل العراق | لونين: عسلي وأسود | هدية فاخرة</p>
                   <p className="text-xs text-muted-foreground mt-1 truncate font-mono" dir="ltr">
                     {baseUrl}/bullcaptain-belt
                   </p>
