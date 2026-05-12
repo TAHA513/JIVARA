@@ -6,3 +6,9 @@ id = "BkFP_kcfl6yNyp2Q2ffIB"
 uri = "file://backups/backup_20260509_151449.sql.gz"
 type = "unspecified"
 title = "نسخة احتياطية كاملة — قاعدة البيانات 9 مايو 2026"
+
+[[outputs]]
+id = "iIfSGpuyCg4gNr745m1q7"
+uri = "file://knee-pad-orders.csv"
+type = "table"
+title = "طلبات واقي الركبة للأطفال — 85 طلب"
