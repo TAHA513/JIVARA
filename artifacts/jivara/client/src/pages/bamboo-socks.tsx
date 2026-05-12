@@ -17,7 +17,7 @@ import imgWhite  from "@assets/1777730422560_1777731686699.png";
 import imgDGray  from "@assets/1777730419473_1777731686711.png";
 import imgLGray  from "@assets/1777730416159_1777731686719.png";
 
-const PRICE = 45000;
+const PRICE = 25000;
 const WHATSAPP = "9647819966698";
 const IMAGES = [imgBox, imgGroup1, imgGroup2, imgGroup3, imgBlack, imgNavy, imgWhite, imgDGray, imgLGray];
 
@@ -177,8 +177,8 @@ export default function BambooSocksPage() {
               <span className="text-[#1B2D5E]">جواريب بامبو البريطانية</span>
             </h1>
             <div className="text-left flex-shrink-0">
-              <p className="text-2xl font-black text-[#1B2D5E]">45 ألف</p>
-              <p className="text-xs text-gray-500">بوكس واحد</p>
+              <p className="text-2xl font-black text-[#1B2D5E]">25 ألف</p>
+              <p className="text-xs text-gray-500">شامل التوصيل</p>
             </div>
           </div>
 

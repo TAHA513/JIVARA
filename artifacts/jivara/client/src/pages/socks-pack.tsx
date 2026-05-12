@@ -8,11 +8,11 @@ import { pixelViewContent, pixelInitiateCheckout, pixelPurchase, tiktokViewConte
 import { CheckCircle, Shield, Truck, Phone, ChevronLeft, ChevronRight, ArrowDown } from "lucide-react";
 
 const PRODUCT_ID = 20;
-const BOX_PRICE = 45000;
+const BOX_PRICE = 25000;
 const WHATSAPP = "9647819966698";
 
-const BUNDLE_PRICES: Record<number, number> = { 1: 45000, 2: 85000, 3: 120000, 4: 150000 };
-const BUNDLE_SAVINGS: Record<number, number> = { 1: 0, 2: 5000, 3: 15000, 4: 30000 };
+const BUNDLE_PRICES: Record<number, number> = { 1: 25000, 2: 47000, 3: 67000, 4: 83000 };
+const BUNDLE_SAVINGS: Record<number, number> = { 1: 0, 2: 3000, 3: 8000, 4: 17000 };
 
 const PRICE_BADGES: Record<number, { label: string; color: string }> = {
   3: { label: "الأكثر طلباً", color: "bg-orange-500" },
@@ -42,7 +42,7 @@ const MODELS = [
   },
 ];
 
-const TICKER_ITEMS = ["🇬🇧 جوارب بامبو البريطانية الأصيلة","🧦 كل بوكس = 5 أزواج","🚚 توصيل مجاني","💳 الدفع عند الاستلام","🩺 مفيدة لمرضى السكري","🔥 وفّر 30 ألف على الـ 4 موديلات"];
+const TICKER_ITEMS = ["🇬🇧 جوارب بامبو البريطانية الأصيلة","🧦 كل بوكس = 5 أزواج","🚚 توصيل مجاني","💳 الدفع عند الاستلام","🩺 مفيدة لمرضى السكري","🔥 وفّر 17 ألف على الـ 4 موديلات"];
 
 function useCountdown() {
   const [t, setT] = useState({ h: 47, m: 59, s: 59 });

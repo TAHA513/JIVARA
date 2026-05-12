@@ -885,9 +885,9 @@ export default function CampaignLinks() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-0.5">
                     <p className="font-bold text-sm arabic-text text-[#1B2D5E]">جواريب بامبو — ٤ موديلات 🇬🇧</p>
-                    <span className="bg-green-600 text-white text-[9px] font-black px-1.5 py-0.5 rounded">وفّر ٣٠K</span>
+                    <span className="bg-green-600 text-white text-[9px] font-black px-1.5 py-0.5 rounded">وفّر ١٧K</span>
                   </div>
-                  <p className="text-xs text-[#1B2D5E] arabic-text font-semibold mt-0.5">٤٥K بوكس واحد | ٨٥K بوكسين | ١٢٠K ثلاثة | ١٥٠K الأربعة كاملين</p>
+                  <p className="text-xs text-[#1B2D5E] arabic-text font-semibold mt-0.5">٢٥K بوكس واحد | ٤٧K بوكسين | ٦٧K ثلاثة | ٨٣K الأربعة كاملين</p>
                   <p className="text-xs text-muted-foreground mt-1 truncate font-mono" dir="ltr">
                     {baseUrl}/socks-pack
                   </p>
@@ -931,7 +931,7 @@ export default function CampaignLinks() {
                     <p className="font-bold text-sm arabic-text text-green-800">جواريب بامبو — بوكس ٥ أزواج 🇬🇧</p>
                     <span className="bg-green-600 text-white text-[9px] font-black px-1.5 py-0.5 rounded">جديد</span>
                   </div>
-                  <p className="text-xs text-green-700 arabic-text font-semibold mt-0.5">٤٥ ألف | بوكس واحد = ٥ أزواج | فري سايز | الدفع عند الاستلام</p>
+                  <p className="text-xs text-green-700 arabic-text font-semibold mt-0.5">٢٥ ألف شامل التوصيل | بوكس واحد = ٥ أزواج | فري سايز | الدفع عند الاستلام</p>
                   <p className="text-xs text-muted-foreground mt-1 truncate font-mono" dir="ltr">
                     {baseUrl}/bamboo-socks
                   </p>
@@ -1094,7 +1094,7 @@ export default function CampaignLinks() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold text-sm arabic-text text-blue-900">جوارب بامبو البريطانية 🇬🇧 — العراق</p>
-                  <p className="text-xs text-blue-700 arabic-text mt-0.5">5 أزواج | 45,000 د.ع | دفع عند الاستلام | تأكيد واتساب</p>
+                  <p className="text-xs text-blue-700 arabic-text mt-0.5">5 أزواج | 25,000 د.ع شامل التوصيل | دفع عند الاستلام | تأكيد واتساب</p>
                   <p className="text-xs text-muted-foreground mt-1 truncate font-mono" dir="ltr">
                     {baseUrl}/socks-iq
                   </p>
@@ -1133,7 +1133,7 @@ export default function CampaignLinks() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold text-sm arabic-text text-amber-900">🧦 جوارب بامبو ZT — نسخة جديدة 🆕</p>
-                  <p className="text-xs text-amber-700 arabic-text mt-0.5">5 ألوان | 45,000 دينار | صور احترافية | واتساب تأكيد</p>
+                  <p className="text-xs text-amber-700 arabic-text mt-0.5">5 ألوان | 25,000 دينار شامل التوصيل | صور احترافية | واتساب تأكيد</p>
                   <p className="text-xs text-muted-foreground mt-1 truncate font-mono" dir="ltr">
                     {baseUrl}/zt2
                   </p>

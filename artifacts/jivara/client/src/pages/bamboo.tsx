@@ -8,8 +8,8 @@ import { pixelViewContent, pixelInitiateCheckout, pixelPurchase, tiktokViewConte
 import { CheckCircle, ChevronLeft, ChevronRight, MapPin, Phone, Clock, Shield, Star, Package } from "lucide-react";
 
 const PRODUCT_ID = 20;
-const PRICE_IQD = 45000;
-const PRICE_USD = 30;
+const PRICE_IQD = 25000;
+const PRICE_USD = 17;
 const WHATSAPP = "9647819966698";
 
 const SOCK_IMAGES = [

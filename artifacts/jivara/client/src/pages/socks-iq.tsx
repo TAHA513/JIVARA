@@ -9,7 +9,7 @@ import sockBox from "@assets/FB_IMG_1776995694228_1776997569342.jpg";
 import sockLeg from "@assets/FB_IMG_1776996223705_1776997576914.jpg";
 import sock5 from "@assets/FB_IMG_1776996227731_1776997582752.jpg";
 
-const PRICE = 45000;
+const PRICE = 25000;
 const PRODUCT_ID = 18;
 const SALES_COUNT = 1347;
 const WHATSAPP = "9647819966698";

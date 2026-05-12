@@ -14,7 +14,7 @@ import graySockImg from "@assets/ChatGPT_Image_Apr_22,_2026,_03_59_25_AM_1776820
 import brownSockImg from "@assets/ChatGPT_Image_Apr_22,_2026,_03_59_33_AM_1776820864895.png";
 
 const PRODUCT_ID = 18;
-const PRICE_IQD = 45000;
+const PRICE_IQD = 25000;
 const WHATSAPP_IQ = "9647819966698";
 
 const IRAQ_PROVINCES = [
