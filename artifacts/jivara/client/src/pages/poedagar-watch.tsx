@@ -219,7 +219,7 @@ export default function PoedagarWatchPage() {
       <div style={{ background: "#1a1010", margin: "10px 12px 0", borderRadius: 18, padding: "16px", border: "2px solid #7f1d1d", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div>
           <p style={{ color: "#9ca3af", fontSize: 12, textDecoration: "line-through", margin: "0 0 2px" }}>بدل {OLD_PRICE.toLocaleString()} د.ع</p>
-          <p style={{ color: "#fbbf24", fontSize: 40, fontWeight: 900, margin: 0, lineHeight: 1 }}>55 الف</p>
+          <p style={{ color: "#fbbf24", fontSize: 40, fontWeight: 900, margin: 0, lineHeight: 1 }}>38 الف</p>
           <p style={{ color: "#d1d5db", fontSize: 13, fontWeight: 700, margin: "2px 0 0" }}>د.ع شامل التوصيل 🚚</p>
         </div>
         <div style={{ textAlign: "center" }}>
