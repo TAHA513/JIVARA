@@ -55,7 +55,7 @@ function getUtmSource() {
 }
 
 export default function PoedagarWatchPage() {
-  const [colors, setColors]   = useState<string[]>([COLORS[0].id]);
+  const [colors, setColors]   = useState<string[]>([]);
   const [qty, setQty]         = useState(1);
   const [notes, setNotes]     = useState("");
   const [slide, setSlide]     = useState(0);
@@ -118,6 +118,7 @@ export default function PoedagarWatchPage() {
     e.preventDefault();
     if (!name.trim()) { setError("يرجى إدخال الاسم الكامل"); return; }
     const phoneErr = validatePhone(phone.trim());
+    if (colors.length === 0) { setError("يرجى اختيار لون أولاً"); return; }
     if (phoneErr) { setError(phoneErr); return; }
     if (!gov) { setError("يرجى اختيار المحافظة"); return; }
     if (!area.trim()) { setError("يرجى إدخال اسم المنطقة"); return; }
