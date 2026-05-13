@@ -13,7 +13,7 @@ import imgWrist1   from "@assets/FB_IMG_1778449377613_1778449675954.jpg";
 import imgWrist2   from "@assets/FB_IMG_1778449375133_1778449675965.jpg";
 import imgGreen2   from "@assets/FB_IMG_1778449372240_1778449675978.jpg";
 
-const PRICE     = 55000;
+const PRICE     = 38000;
 const OLD_PRICE = 75000;
 const SKU       = "poedagar-watch";
 const PRODUCT   = "ساعة POEDAGAR الرجالية ضد الماء";
