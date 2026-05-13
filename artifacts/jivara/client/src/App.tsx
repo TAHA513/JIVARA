@@ -37,6 +37,7 @@ import BundlePage from "@/pages/bundle";
 import BundleShoesPage from "@/pages/bundle-shoes";
 import ShoesEasyPage from "@/pages/shoes-easy";
 import BambooPage from "@/pages/bamboo";
+import BambooPPage from "@/pages/bamboo-p";
 import WatchesEasyPage from "@/pages/watches-easy";
 import WatchesBPage from "@/pages/watches-b";
 import ZtBambooPage from "@/pages/zt-bamboo";
@@ -79,7 +80,7 @@ function App() {
   const [location] = useLocation();
   const isAdminRoute = location.startsWith('/admin');
   const isBuyRoute = location.startsWith('/buy');
-  const isBundleRoute = location.startsWith('/bundle') || location === '/bamboo' || location === '/shoes-easy' || location === '/watches-easy' || location === '/watches-b' || location === '/shoes-b' || location === '/zt' || location === '/zt2' || location === '/naturalwalker' || location === '/naturalwalker2' || location === '/knee-pad' || location === '/knee-pad-q' || location === '/bullcaptain-belt' || location === '/poedagar-watch' || location === '/boxer-men' || location === '/socks-uae' || location === '/socks-iq' || location === '/socks-pack' || location === '/bamboo-socks' || location === '/supplier' || location === '/pack';
+  const isBundleRoute = location.startsWith('/bundle') || location === '/bamboo' || location === '/bamboo-p' || location === '/shoes-easy' || location === '/watches-easy' || location === '/watches-b' || location === '/shoes-b' || location === '/zt' || location === '/zt2' || location === '/naturalwalker' || location === '/naturalwalker2' || location === '/knee-pad' || location === '/knee-pad-q' || location === '/bullcaptain-belt' || location === '/poedagar-watch' || location === '/boxer-men' || location === '/socks-uae' || location === '/socks-iq' || location === '/socks-pack' || location === '/bamboo-socks' || location === '/supplier' || location === '/pack';
   const isShopRoute = location === '/shop';
   
   // استعادة التمرير إلى الأعلى عند تغيير الصفحة (حل مشكلة عدم فتح المنتج من الأعلى)
@@ -107,6 +108,7 @@ function App() {
                   <Route path="/shoes-b" component={BundleShoesPage} />
                   <Route path="/shoes-easy" component={ShoesEasyPage} />
                   <Route path="/bamboo" component={BambooPage} />
+                  <Route path="/bamboo-p" component={BambooPPage} />
                   <Route path="/watches-easy" component={WatchesEasyPage} />
                   <Route path="/watches-b" component={WatchesBPage} />
                   <Route path="/zt" component={ZtBambooPage} />
