@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import AdminSidebar from "@/components/admin/sidebar";
 import { useAdminAuth } from "@/hooks/use-admin-auth";
 import { useToast } from "@/hooks/use-toast";
-import { Copy, Check, Search, Link2, ExternalLink, TrendingUp, Package, Footprints, Store, Leaf, Watch } from "lucide-react";
+import { Copy, Check, Search, Link2, ExternalLink, TrendingUp, Package, Footprints, Store, Leaf, Watch, Baby } from "lucide-react";
 import type { Product } from "@shared/schema";
 
 export default function CampaignLinks() {
@@ -31,6 +31,7 @@ export default function CampaignLinks() {
   const [packCopied, setPackCopied] = useState(false);
   const [socksPackCopied, setSocksPackCopied] = useState(false);
   const [bambooSocksCopied, setBambooSocksCopied] = useState(false);
+  const [mamameCopied, setMamameCopied] = useState(false);
   const [socksUaeCopied, setSocksUaeCopied] = useState(false);
   const [socksIqCopied, setSocksIqCopied] = useState(false);
   const [zt2Copied, setZt2Copied] = useState(false);
@@ -117,6 +118,15 @@ export default function CampaignLinks() {
       setBambooCopied(true);
       toast({ title: "تم النسخ!", description: "رابط صفحة جواريب Bamboo جاهز" });
       setTimeout(() => setBambooCopied(false), 2000);
+    });
+  };
+
+  const copyMamameLink = () => {
+    const link = `${baseUrl}/mamame`;
+    navigator.clipboard.writeText(link).then(() => {
+      setMamameCopied(true);
+      toast({ title: "تم النسخ!", description: "رابط متجر الأطفال جاهز" });
+      setTimeout(() => setMamameCopied(false), 2000);
     });
   };
 
@@ -486,6 +496,47 @@ export default function CampaignLinks() {
                     variant="outline"
                     onClick={() => window.open(`${baseUrl}/shoes-easy`, "_blank")}
                     className="h-8 px-3 text-xs arabic-text gap-1.5 border-orange-300 text-orange-700"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" /> معاينة
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* رابط متجر الأطفال — Mamame */}
+        <div className="mb-5">
+          <Card className="border-2 border-pink-200 bg-pink-50">
+            <CardContent className="p-3">
+              <div className="flex items-center gap-3">
+                <div className="w-14 h-14 rounded-lg bg-pink-100 flex items-center justify-center shrink-0">
+                  <Baby className="w-6 h-6 text-pink-600" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-sm arabic-text text-pink-900">متجر الأطفال 🍼</p>
+                  <p className="text-xs text-pink-600 arabic-text mt-0.5">صفحة متجر للأطفال والرضع | رئيسية + أقسام + سلة</p>
+                  <p className="text-xs text-muted-foreground mt-1 truncate font-mono" dir="ltr">
+                    {baseUrl}/mamame
+                  </p>
+                </div>
+                <div className="flex flex-col gap-1.5 shrink-0">
+                  <Button
+                    size="sm"
+                    onClick={copyMamameLink}
+                    className={`h-8 px-3 text-xs arabic-text gap-1.5 ${mamameCopied ? "bg-green-600 hover:bg-green-700" : "bg-pink-600 hover:bg-pink-700"} text-white`}
+                  >
+                    {mamameCopied ? (
+                      <><Check className="w-3.5 h-3.5" /> تم النسخ</>
+                    ) : (
+                      <><Copy className="w-3.5 h-3.5" /> نسخ الرابط</>
+                    )}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => window.open(`${baseUrl}/mamame`, "_blank")}
+                    className="h-8 px-3 text-xs arabic-text gap-1.5 border-pink-300 text-pink-700"
                   >
                     <ExternalLink className="w-3.5 h-3.5" /> معاينة
                   </Button>
