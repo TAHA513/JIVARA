@@ -218,6 +218,25 @@ function HomeTab({ onAdd }: { onAdd: (p: Product) => void }) {
           </div>
         )}
       </div>
+
+      {/* فوتر — جيفارا للتسوق */}
+      <div style={{ margin: "0 12px 12px", background: "#fff", borderRadius: 16, padding: "20px 16px", boxShadow: "0 1px 4px rgba(0,0,0,0.05)" }}>
+        <div style={{ textAlign: "center", marginBottom: 16 }}>
+          <p style={{ margin: 0, fontSize: 18, fontWeight: 900, color: "#222" }}>جيفارا للتسوق</p>
+          <p style={{ margin: "4px 0 0", fontSize: 12, color: "#888" }}>فرع الرمادي — الأنبار، العراق</p>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+          <a href={`https://wa.me/9647819966698`} target="_blank" rel="noreferrer"
+            style={{ background: "#25d366", color: "#fff", borderRadius: 12, padding: "12px 8px", textAlign: "center", textDecoration: "none", display: "block" }}>
+            <p style={{ margin: 0, fontSize: 11, fontWeight: 600, opacity: 0.9 }}>واتساب</p>
+            <p style={{ margin: "2px 0 0", fontSize: 13, fontWeight: 800, direction: "ltr" }}>+964 781 996 6698</p>
+          </a>
+          <div style={{ background: "#fce4ec", borderRadius: 12, padding: "12px 8px", textAlign: "center" }}>
+            <p style={{ margin: 0, fontSize: 11, fontWeight: 600, color: "#888" }}>العنوان</p>
+            <p style={{ margin: "2px 0 0", fontSize: 12, fontWeight: 800, color: "#333" }}>الرمادي — الأنبار</p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
