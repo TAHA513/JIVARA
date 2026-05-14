@@ -134,12 +134,8 @@ export default function MamamePage() {
 /* ──────────── الشعار ──────────── */
 function Logo() {
   return (
-    <div dir="ltr" style={{ display: "flex", alignItems: "center", gap: 4, fontFamily: "system-ui", fontWeight: 800, fontSize: 24, letterSpacing: -0.5 }}>
-      <span style={{ fontSize: 24 }}>👥</span>
-      <span style={{ color: PINK }}>ma</span>
-      <span style={{ color: "#7ec8e3" }}>ma</span>
-      <span style={{ color: PINK }}>m</span>
-      <span style={{ color: "#7ec8e3" }}>e</span>
+    <div style={{ fontFamily: "system-ui", fontWeight: 900, fontSize: 20, letterSpacing: 0.2, color: "#222" }}>
+      جيفارا للتسوق
     </div>
   );
 }
