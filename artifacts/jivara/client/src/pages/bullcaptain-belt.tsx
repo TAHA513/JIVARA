@@ -6,17 +6,15 @@ import { validateIraqiPhone } from "@/lib/form-validation";
 import { apiRequest } from "@/lib/queryClient";
 import { pixelViewContent, pixelInitiateCheckout, pixelPurchase, tiktokViewContent, tiktokInitiateCheckout, tiktokPurchase } from "@/lib/pixel";
 import { CheckCircle, Package, Truck, ChevronLeft, ChevronRight, Phone, Check } from "lucide-react";
-import imgBlackBox  from "@assets/Screenshot_20260505_113050_1778361281487.jpg";
-import imgBrownBox  from "@assets/Screenshot_20260505_113031_1778361281503.jpg";
-import imgBlackSize from "@assets/Screenshot_20260505_113806_1778361281511.jpg";
-import imgBrownSize from "@assets/Screenshot_20260505_113446_com.openai.chatgpt_1778361281517.jpg";
+import imgBlackBox from "@assets/FB_IMG_1777968897847_1778721819600.jpg";
+import imgBrownBox from "@assets/FB_IMG_1777968842379_1778721819632.jpg";
 
 const PRICE_IQD = 25000;
 const DELIVERY_IQD = 5000;
 const WHATSAPP = "9647819966698";
 
 // كل الصور مع بعض للعرض في الأعلى
-const ALL_IMAGES = [imgBrownBox, imgBlackBox, imgBrownSize, imgBlackSize];
+const ALL_IMAGES = [imgBrownBox, imgBlackBox];
 
 const COLORS = [
   { id: "brown", label: "بني / عسلي", hex: "#92400e", emoji: "🟫" },
