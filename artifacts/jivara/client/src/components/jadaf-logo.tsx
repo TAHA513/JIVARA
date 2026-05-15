@@ -7,119 +7,229 @@ interface JadafLogoProps {
   className?: string;
 }
 
-function JadafMonogram({ size = 80, withCrown = true }: { size?: number; withCrown?: boolean }) {
+function JadafMonogram({ size = 200, withCrown = true }: { size?: number; withCrown?: boolean }) {
   const uid = useId().replace(/:/g, "");
-  const gid = `jdGold-${uid}`;
-  const sid = `jdSheen-${uid}`;
+  const goldH = `gh-${uid}`;
+  const goldV = `gv-${uid}`;
+  const goldShine = `gs-${uid}`;
+  const goldEdge = `ge-${uid}`;
+
+  const vbW = 360;
+  const vbH = withCrown ? 460 : 320;
+  const aspect = vbH / vbW;
 
   return (
     <svg
       width={size}
-      height={withCrown ? size * 1.35 : size * 1.05}
-      viewBox={withCrown ? "0 0 200 270" : "0 0 200 210"}
+      height={size * aspect}
+      viewBox={`0 0 ${vbW} ${vbH}`}
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       aria-label="JADAF monogram"
     >
       <defs>
-        {/* Soft metallic gold - quiet, refined */}
-        <linearGradient id={gid} x1="0" y1="0" x2="0" y2="1">
+        {/* Vertical metallic gold for letter bodies */}
+        <linearGradient id={goldV} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="#F6D878" />
-          <stop offset="40%" stopColor="#D4AF37" />
+          <stop offset="25%" stopColor="#FFE49A" />
+          <stop offset="45%" stopColor="#D4AF37" />
           <stop offset="70%" stopColor="#B8902C" />
           <stop offset="100%" stopColor="#8A5A14" />
         </linearGradient>
-        <linearGradient id={sid} x1="0" y1="0" x2="1" y2="0.6">
-          <stop offset="0%" stopColor="#FFE9A8" />
-          <stop offset="50%" stopColor="#F6D878" />
-          <stop offset="100%" stopColor="#B8902C" />
+        {/* Horizontal sheen for serifs and crown */}
+        <linearGradient id={goldH} x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor="#8A5A14" />
+          <stop offset="20%" stopColor="#D4AF37" />
+          <stop offset="50%" stopColor="#FFE49A" />
+          <stop offset="80%" stopColor="#D4AF37" />
+          <stop offset="100%" stopColor="#8A5A14" />
+        </linearGradient>
+        {/* Highlight inner shine */}
+        <linearGradient id={goldShine} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#FFF4C8" stopOpacity="0.85" />
+          <stop offset="60%" stopColor="#FFD36A" stopOpacity="0.15" />
+          <stop offset="100%" stopColor="#8A5A14" stopOpacity="0" />
+        </linearGradient>
+        {/* Dark edge */}
+        <linearGradient id={goldEdge} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#5A3A0A" />
+          <stop offset="100%" stopColor="#3A2406" />
         </linearGradient>
       </defs>
 
       {withCrown && (
         <g>
-          {/* Tiny diamond */}
-          <g transform="translate(100 18)">
+          {/* Diamond on top */}
+          <g transform={`translate(${vbW / 2} 20)`}>
             <polygon
-              points="0,-9 6,0 0,11 -6,0"
-              fill={`url(#${sid})`}
-              stroke="#8A5A14"
-              strokeWidth="0.6"
+              points="0,-12 11,0 0,18 -11,0"
+              fill={`url(#${goldV})`}
+              stroke="#5A3A0A"
+              strokeWidth="1"
               strokeLinejoin="round"
             />
-            <polyline
-              points="-6,0 0,-3 6,0"
-              fill="none"
-              stroke="#FFE9A8"
-              strokeWidth="0.6"
-              opacity="0.7"
+            <polygon
+              points="0,-12 11,0 0,2 -11,0"
+              fill="#FFE49A"
+              opacity="0.55"
             />
           </g>
 
-          {/* Minimal crown — thin elegant outline */}
-          <g
-            transform="translate(100 46)"
-            fill="none"
-            stroke={`url(#${gid})`}
-            strokeWidth="2.2"
-            strokeLinejoin="round"
-            strokeLinecap="round"
-          >
-            <path d="M -26 10 L -26 -4 L -16 5 L -8 -10 L 0 4 L 8 -10 L 16 5 L 26 -4 L 26 10" />
-            <line x1="-28" y1="13" x2="28" y2="13" />
+          {/* Crown */}
+          <g transform={`translate(${vbW / 2} 70)`}>
+            {/* Crown spikes & body — single path */}
+            <path
+              d="M -90 40
+                 L -90 8
+                 L -60 30
+                 L -30 -5
+                 L 0 22
+                 L 30 -5
+                 L 60 30
+                 L 90 8
+                 L 90 40
+                 Z"
+              fill={`url(#${goldV})`}
+              stroke="#5A3A0A"
+              strokeWidth="1.4"
+              strokeLinejoin="round"
+            />
+            {/* Crown band */}
+            <rect
+              x="-96"
+              y="38"
+              width="192"
+              height="14"
+              rx="2"
+              fill={`url(#${goldH})`}
+              stroke="#5A3A0A"
+              strokeWidth="1"
+            />
+            {/* Spike gems */}
+            <circle cx="-60" cy="22" r="3" fill="#FFE49A" stroke="#5A3A0A" strokeWidth="0.6" />
+            <circle cx="0" cy="14" r="3.6" fill="#FFE49A" stroke="#5A3A0A" strokeWidth="0.6" />
+            <circle cx="60" cy="22" r="3" fill="#FFE49A" stroke="#5A3A0A" strokeWidth="0.6" />
+            {/* Crown shine */}
+            <path
+              d="M -86 12 L -86 30 L 86 30 L 86 12"
+              fill={`url(#${goldShine})`}
+              opacity="0.4"
+            />
           </g>
-          {/* Crown gem dots */}
-          <circle cx="84" cy="44" r="1.6" fill={`url(#${sid})`} />
-          <circle cx="100" cy="36" r="1.8" fill={`url(#${sid})`} />
-          <circle cx="116" cy="44" r="1.6" fill={`url(#${sid})`} />
         </g>
       )}
 
-      {/* Monogram J + D — thin, soft, interlocked */}
-      <g
-        transform={withCrown ? "translate(0 70)" : "translate(0 0)"}
-        fill="none"
-        stroke={`url(#${gid})`}
-        strokeWidth="6"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        {/* D — right side: vertical spine + smooth arc */}
-        <path d="M 100 30 L 100 170" />
+      {/* JD Monogram — translated below crown if shown */}
+      <g transform={`translate(0 ${withCrown ? 140 : 20})`}>
+        {/* ===== Letter D (right, big, thick, with serifs) ===== */}
+        {/* D body: vertical spine + right arc, compound path with inner cutout */}
         <path
-          d="M 100 30
-             C 152 30 172 70 172 100
-             C 172 130 152 170 100 170"
-        />
-
-        {/* J — left side: top serif tick + descending stem + curved hook */}
-        <path d="M 50 30 L 80 30" />
-        <path
-          d="M 65 30
-             L 65 140
-             C 65 162 50 175 32 175
-             C 18 175 8 168 4 156"
-        />
-      </g>
-
-      {/* Subtle inner sheen on D arc (very soft) */}
-      <g transform={withCrown ? "translate(0 70)" : "translate(0 0)"}>
-        <path
-          d="M 100 38
-             C 145 38 164 72 164 100"
-          fill="none"
-          stroke="#FFE9A8"
+          d="M 130 0
+             L 130 280
+             L 200 280
+             C 280 280 320 230 320 140
+             C 320 50 280 0 200 0
+             Z
+             M 168 36
+             L 200 36
+             C 250 36 282 70 282 140
+             C 282 210 250 244 200 244
+             L 168 244
+             Z"
+          fill={`url(#${goldV})`}
+          fillRule="evenodd"
+          stroke="#5A3A0A"
           strokeWidth="1.4"
+          strokeLinejoin="round"
+        />
+        {/* D top serif foot (extends left from top of spine) */}
+        <path
+          d="M 108 0 L 168 0 L 168 18 L 130 18 L 130 30 L 108 30 Z"
+          fill={`url(#${goldH})`}
+          stroke="#5A3A0A"
+          strokeWidth="1.2"
+          strokeLinejoin="round"
+        />
+        {/* D bottom serif foot */}
+        <path
+          d="M 108 280 L 168 280 L 168 262 L 130 262 L 130 250 L 108 250 Z"
+          fill={`url(#${goldH})`}
+          stroke="#5A3A0A"
+          strokeWidth="1.2"
+          strokeLinejoin="round"
+        />
+        {/* D inner sheen on arc */}
+        <path
+          d="M 168 40
+             C 240 40 272 75 272 140"
+          fill="none"
+          stroke="#FFE49A"
+          strokeWidth="3"
+          strokeLinecap="round"
+          opacity="0.7"
+        />
+        {/* D spine vertical highlight */}
+        <rect x="135" y="10" width="6" height="260" fill="#FFE49A" opacity="0.35" rx="2" />
+
+        {/* ===== Letter J (inside D, curving out left at bottom) ===== */}
+        {/* Top serif crossbar */}
+        <path
+          d="M 155 36
+             L 245 36
+             L 245 60
+             L 215 60
+             L 215 70
+             L 185 70
+             L 185 60
+             L 155 60
+             Z"
+          fill={`url(#${goldH})`}
+          stroke="#5A3A0A"
+          strokeWidth="1.2"
+          strokeLinejoin="round"
+        />
+        {/* J vertical stem */}
+        <path
+          d="M 185 60
+             L 215 60
+             L 215 215
+             L 185 215
+             Z"
+          fill={`url(#${goldV})`}
+          stroke="#5A3A0A"
+          strokeWidth="1.2"
+          strokeLinejoin="round"
+        />
+        {/* J curved hook — swooping out to the left and down past D's bottom */}
+        <path
+          d="M 215 200
+             L 215 240
+             C 215 270 195 290 165 295
+             C 130 300 95 285 75 260
+             C 60 240 55 215 60 195
+             L 92 195
+             C 90 210 95 225 105 235
+             C 118 248 138 252 155 245
+             C 175 237 185 225 185 200
+             Z"
+          fill={`url(#${goldV})`}
+          stroke="#5A3A0A"
+          strokeWidth="1.4"
+          strokeLinejoin="round"
+        />
+        {/* J stem highlight */}
+        <rect x="190" y="68" width="5" height="148" fill="#FFE49A" opacity="0.5" rx="2" />
+        {/* J top serif highlight */}
+        <rect x="165" y="40" width="70" height="3" fill="#FFE49A" opacity="0.7" rx="1.5" />
+        {/* J hook inner shine */}
+        <path
+          d="M 90 200
+             C 88 220 96 238 110 248"
+          fill="none"
+          stroke="#FFE49A"
+          strokeWidth="2.5"
           strokeLinecap="round"
           opacity="0.55"
-        />
-        {/* sheen on J */}
-        <path
-          d="M 67 35 L 67 130"
-          stroke="#FFE9A8"
-          strokeWidth="1.2"
-          strokeLinecap="round"
-          opacity="0.45"
         />
       </g>
     </svg>
@@ -128,10 +238,10 @@ function JadafMonogram({ size = 80, withCrown = true }: { size?: number; withCro
 
 export default function JadafLogo({ variant = "header", className = "" }: JadafLogoProps) {
   const config = {
-    header: { icon: 36, withCrown: true, jadaf: 17, ar: 10, gap: 10, letter: "5px" },
-    hero: { icon: 130, withCrown: true, jadaf: 72, ar: 32, gap: 18, letter: "12px" },
-    footer: { icon: 0, withCrown: false, jadaf: 24, ar: 13, gap: 6, letter: "6px" },
-    "app-icon": { icon: 140, withCrown: false, jadaf: 0, ar: 0, gap: 0, letter: "0" },
+    header: { icon: 60, withCrown: true, jadaf: 17, ar: 10, gap: 10, letter: "5px", showText: true },
+    hero: { icon: 220, withCrown: true, jadaf: 72, ar: 32, gap: 20, letter: "14px", showText: true },
+    footer: { icon: 0, withCrown: false, jadaf: 26, ar: 14, gap: 6, letter: "8px", showText: true },
+    "app-icon": { icon: 130, withCrown: false, jadaf: 0, ar: 0, gap: 0, letter: "0", showText: false },
   } as const;
 
   const s = config[variant];
@@ -141,8 +251,7 @@ export default function JadafLogo({ variant = "header", className = "" }: JadafL
     fontWeight: 600,
     letterSpacing: s.letter,
     fontSize: s.jadaf,
-    background:
-      "linear-gradient(180deg, #F6D878 0%, #D4AF37 50%, #B8902C 100%)",
+    background: "linear-gradient(180deg, #F6D878 0%, #D4AF37 50%, #B8902C 100%)",
     WebkitBackgroundClip: "text",
     backgroundClip: "text",
     WebkitTextFillColor: "transparent",
@@ -159,14 +268,13 @@ export default function JadafLogo({ variant = "header", className = "" }: JadafL
     lineHeight: 1,
   };
 
-  const goldLine = (
+  const goldLine = (w: number) => (
     <span
       style={{
         display: "inline-block",
-        width: variant === "hero" ? 48 : 22,
+        width: w,
         height: 1,
-        background:
-          "linear-gradient(90deg, transparent, #D4AF37 50%, transparent)",
+        background: "linear-gradient(90deg, transparent, #D4AF37 50%, transparent)",
       }}
     />
   );
@@ -178,18 +286,16 @@ export default function JadafLogo({ variant = "header", className = "" }: JadafL
         style={{
           width: 180,
           height: 180,
-          background:
-            "radial-gradient(circle at 30% 25%, #1a1a1f 0%, #050607 70%)",
+          background: "radial-gradient(circle at 30% 25%, #1a1a1f 0%, #050607 70%)",
           borderRadius: 36,
           border: "1px solid rgba(212,175,55,0.25)",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          boxShadow:
-            "inset 0 1px 0 rgba(255,228,168,0.08), 0 8px 24px rgba(0,0,0,0.5)",
+          boxShadow: "inset 0 1px 0 rgba(255,228,168,0.08), 0 8px 24px rgba(0,0,0,0.5)",
         }}
       >
-        <JadafMonogram size={110} withCrown={false} />
+        <JadafMonogram size={s.icon} withCrown={s.withCrown} />
       </div>
     );
   }
@@ -200,9 +306,9 @@ export default function JadafLogo({ variant = "header", className = "" }: JadafL
         <JadafMonogram size={s.icon} withCrown={s.withCrown} />
         <div style={jadafTextStyle}>JADAF</div>
         <div className="flex items-center gap-3">
-          {goldLine}
+          {goldLine(48)}
           <span style={arabicStyle}>جداف</span>
-          {goldLine}
+          {goldLine(48)}
         </div>
       </div>
     );
@@ -213,9 +319,9 @@ export default function JadafLogo({ variant = "header", className = "" }: JadafL
       <div className={`flex flex-col ${className}`} style={{ gap: 4 }}>
         <div style={jadafTextStyle}>JADAF</div>
         <div className="flex items-center gap-2">
-          {goldLine}
+          {goldLine(24)}
           <span style={arabicStyle}>جداف</span>
-          {goldLine}
+          {goldLine(24)}
         </div>
       </div>
     );
@@ -225,12 +331,12 @@ export default function JadafLogo({ variant = "header", className = "" }: JadafL
   return (
     <div className={`flex items-center ${className}`} style={{ gap: s.gap }}>
       <JadafMonogram size={s.icon} withCrown={s.withCrown} />
-      <div className="flex flex-col" style={{ gap: 2 }}>
+      <div className="flex flex-col" style={{ gap: 3 }}>
         <div style={jadafTextStyle}>JADAF</div>
         <div className="flex items-center gap-1.5">
-          {goldLine}
+          {goldLine(14)}
           <span style={arabicStyle}>جداف</span>
-          {goldLine}
+          {goldLine(14)}
         </div>
       </div>
     </div>
