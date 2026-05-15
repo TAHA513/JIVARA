@@ -155,7 +155,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Products
-  async getProducts(filters?: { categoryId?: number; search?: string; featured?: boolean }): Promise<Product[]> {
+  async getProducts(filters?: { categoryId?: number; search?: string; featured?: boolean; showOnJadaf?: boolean }): Promise<Product[]> {
     // استبعاد البيانات الضخمة للصور لتحسين الأداء
     let query = db.select({
       id: products.id,
@@ -171,6 +171,7 @@ export class DatabaseStorage implements IStorage {
       stock: products.stock,
       isActive: products.isActive,
       isFeatured: products.isFeatured,
+      showOnJadaf: products.showOnJadaf,
       tags: products.tags,
       createdAt: products.createdAt,
       costPrice: products.costPrice,
@@ -200,6 +201,10 @@ export class DatabaseStorage implements IStorage {
 
     if (filters?.featured) {
       conditions.push(eq(products.isFeatured, true));
+    }
+
+    if (filters?.showOnJadaf) {
+      conditions.push(eq(products.showOnJadaf, true));
     }
 
     if (conditions.length > 0) {

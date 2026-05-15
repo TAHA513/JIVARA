@@ -1,0 +1,146 @@
+هوية التصميم:
+- Style: Luxury Dark UI
+- Direction: RTL Arabic
+- Brand: JADAF / جداف
+- Theme: أسود فاخر + ذهبي معدني + رمادي داكن
+- Corners: rounded-2xl
+- Shadows: ناعمة وداكنة
+- Borders: رفيعة بلون ذهبي شفاف
+
+الألوان:
+- الخلفية الأساسية: #050607
+- خلفية ثانية داكنة: #0B0D10
+- خلفية البطاقات: #111318
+- خلفية البطاقات الفاتحة قليلًا: #171A20
+- حدود البطاقات: rgba(212, 175, 55, 0.22)
+- الذهبي الأساسي: #D4AF37
+- الذهبي الفاتح: #F2C76E
+- الذهبي الداكن: #9C7428
+- النص الأبيض: #FFFFFF
+- النص الرئيسي: #F5F5F5
+- النص الثانوي: #B8B8B8
+- النص الخافت: #7A7A7A
+- خط فاصل: rgba(255,255,255,0.08)
+- Hover ذهبي شفاف: rgba(212,175,55,0.14)
+
+Gradients:
+- خلفية عامة:
+  linear-gradient(135deg, #050607 0%, #0B0D10 45%, #050607 100%)
+
+- البطاقات:
+  linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02))
+
+- الزر الذهبي:
+  linear-gradient(135deg, #F2C76E 0%, #D4AF37 45%, #9C7428 100%)
+
+- Hero Overlay:
+  linear-gradient(90deg, rgba(5,6,7,0.95) 0%, rgba(5,6,7,0.72) 48%, rgba(5,6,7,0.35) 100%)
+
+الخطوط:
+- Arabic Font: Cairo أو Tajawal
+- English Logo Font: Cinzel أو Playfair Display أو Trajan-like
+- Body Font Weight: 400 / 500
+- Titles Font Weight: 700 / 800
+
+الأبعاد:
+- Sidebar width: 260px
+- Page padding: 24px
+- Card radius: 18px إلى 24px
+- Button height: 48px
+- Header height: 72px
+- Hero height: 360px إلى 430px
+
+تصميم Header:
+- خلفية: rgba(5,6,7,0.88)
+- Blur: backdrop-blur-xl
+- Border bottom: 1px solid rgba(212,175,55,0.18)
+- Links لون أبيض، والفعال ذهبي
+- Active underline ذهبي
+
+تصميم Sidebar:
+- الخلفية: #070809
+- Border right: 1px solid rgba(212,175,55,0.18)
+- Logo ذهبي
+- العنصر النشط:
+  background: linear-gradient(135deg, rgba(212,175,55,0.28), rgba(156,116,40,0.16))
+  border: 1px solid rgba(212,175,55,0.45)
+  color: #F2C76E
+- العناصر العادية:
+  color: #D8D8D8
+- Hover:
+  background: rgba(212,175,55,0.10)
+
+Hero:
+- يمين: صورة/خلفية محل فاخر
+- يسار: النص
+- عنوان كبير:
+  JADAF
+  font-size: 72px desktop
+  color: #F2C76E
+  letter-spacing: 4px
+- تحتها:
+  جداف
+  font-size: 38px
+  color: #F2C76E
+- العنوان العربي:
+  تجربة متكاملة تجمع بين الجودة والاحترافية
+- الوصف:
+  ساعات - عطور - نظارات - جوارب - قبعات - إكسسوارات هواتف - صيانة - خطوط وخدمات - ماستر كارد - توصيل لكل العراق
+
+الأزرار:
+- الزر الأساسي:
+  background: linear-gradient(135deg, #F2C76E, #D4AF37, #9C7428)
+  color: #111111
+  font-weight: 700
+  border-radius: 12px
+- الزر الثانوي:
+  background: rgba(255,255,255,0.04)
+  border: 1px solid rgba(212,175,55,0.25)
+  color: #F5F5F5
+
+أقسام المنتجات:
+- ساعات
+- عطور
+- نظارات
+- جوارب
+- قبعات
+- إكسسوارات هواتف
+
+الخدمات:
+- صيانة الهواتف
+- خطوط وخدمات
+- ماستر كارد
+- توصيل لكل العراق
+
+أشياء محذوفة حاليًا:
+- الدورات
+- تصوير المنتجات
+- تصميم المواقع
+- إدارة الإعلانات
+- المتاجر الإلكترونية
+
+Bottom Feature Bar:
+- توصيل لكل العراق
+- دعم فني 24/7
+- جودة مضمونة
+- دفع آمن
+
+Icons:
+استخدم lucide-react:
+- Home
+- Watch
+- SprayCan أو Package
+- Glasses
+- Shirt
+- Headphones
+- Smartphone
+- Wrench
+- CreditCard
+- Truck
+- ShieldCheck
+- Lock
+- Phone
+- MapPin
+- Instagram
+- Search
+- ShoppingBag

@@ -45,6 +45,7 @@ export default function AdminProducts() {
     stock: "",
     isActive: true,
     isFeatured: false,
+    showOnJadaf: false,
     tags: [""],
   });
 
@@ -196,6 +197,7 @@ export default function AdminProducts() {
       stock: "",
       isActive: true,
       isFeatured: false,
+      showOnJadaf: false,
       tags: [""],
     });
   };
@@ -222,6 +224,7 @@ export default function AdminProducts() {
       stock: product.stock?.toString() || "",
       isActive: product.isActive ?? true,
       isFeatured: product.isFeatured ?? false,
+      showOnJadaf: product.showOnJadaf ?? false,
       tags: product.tags?.length ? product.tags : [""],
     });
     setIsDialogOpen(true);
@@ -682,6 +685,15 @@ export default function AdminProducts() {
                         onCheckedChange={(checked) => setFormData(prev => ({ ...prev, isFeatured: checked }))}
                       />
                       <Label htmlFor="isFeatured" className="arabic-text">منتج مميز</Label>
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                      <Switch
+                        id="showOnJadaf"
+                        checked={formData.showOnJadaf}
+                        onCheckedChange={(checked) => setFormData(prev => ({ ...prev, showOnJadaf: checked }))}
+                      />
+                      <Label htmlFor="showOnJadaf" className="arabic-text">إظهار في صفحة جداف</Label>
                     </div>
                   </div>
 

@@ -44,6 +44,7 @@ export const products = pgTable("products", {
   stock: integer("stock").default(0), // المخزون الحالي
   isActive: boolean("is_active").default(true),
   isFeatured: boolean("is_featured").default(false),
+  showOnJadaf: boolean("show_on_jadaf").default(false),
   tags: text("tags").array(),
   createdAt: timestamp("created_at").defaultNow(),
 });
@@ -228,6 +229,7 @@ export const insertProductSchema = createInsertSchema(products).pick({
   stock: true,
   isActive: true,
   isFeatured: true,
+  showOnJadaf: true,
   tags: true,
 });
 

@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import AdminSidebar from "@/components/admin/sidebar";
 import { useAdminAuth } from "@/hooks/use-admin-auth";
 import { useToast } from "@/hooks/use-toast";
-import { Copy, Check, Search, Link2, ExternalLink, TrendingUp, Package, Footprints, Store, Leaf, Watch, Baby } from "lucide-react";
+import { Copy, Check, Search, Link2, ExternalLink, TrendingUp, Package, Footprints, Store, Leaf, Watch, Baby, Crown } from "lucide-react";
 import type { Product } from "@shared/schema";
 
 export default function CampaignLinks() {
@@ -37,6 +37,7 @@ export default function CampaignLinks() {
   const [zt2Copied, setZt2Copied] = useState(false);
   const [kneePadQCopied, setKneePadQCopied] = useState(false);
   const [poedagarCopied, setPoedagarCopied] = useState(false);
+  const [jadafCopied, setJadafCopied] = useState(false);
 
   const { data: products = [], isLoading } = useQuery<Product[]>({
     queryKey: ["/api/products"],
@@ -127,6 +128,15 @@ export default function CampaignLinks() {
       setMamameCopied(true);
       toast({ title: "تم النسخ!", description: "رابط متجر الأطفال جاهز" });
       setTimeout(() => setMamameCopied(false), 2000);
+    });
+  };
+
+  const copyJadafLink = () => {
+    const link = `${baseUrl}/jadaf`;
+    navigator.clipboard.writeText(link).then(() => {
+      setJadafCopied(true);
+      toast({ title: "تم النسخ!", description: "رابط صفحة JADAF الفاخرة جاهز" });
+      setTimeout(() => setJadafCopied(false), 2000);
     });
   };
 
@@ -537,6 +547,49 @@ export default function CampaignLinks() {
                     variant="outline"
                     onClick={() => window.open(`${baseUrl}/mamame`, "_blank")}
                     className="h-8 px-3 text-xs arabic-text gap-1.5 border-pink-300 text-pink-700"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" /> معاينة
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* رابط صفحة JADAF — جداف الفاخرة */}
+        <div className="mb-5">
+          <Card className="border-2 bg-gradient-to-br from-zinc-900 to-black" style={{ borderColor: "rgba(212,175,55,0.45)" }}>
+            <CardContent className="p-3">
+              <div className="flex items-center gap-3">
+                <div className="w-14 h-14 rounded-lg flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg, #F2C76E, #D4AF37, #9C7428)" }}>
+                  <Crown className="w-6 h-6 text-black" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-sm arabic-text" style={{ color: "#F2C76E", letterSpacing: "1.5px" }}>JADAF • جداف 👑</p>
+                  <p className="text-xs arabic-text mt-0.5" style={{ color: "#D4AF37" }}>صفحة فاخرة | ساعات • عطور • نظارات • خدمات</p>
+                  <p className="text-xs mt-1 truncate font-mono" dir="ltr" style={{ color: "#B8B8B8" }}>
+                    {baseUrl}/jadaf
+                  </p>
+                </div>
+                <div className="flex flex-col gap-1.5 shrink-0">
+                  <Button
+                    size="sm"
+                    onClick={copyJadafLink}
+                    className={`h-8 px-3 text-xs arabic-text gap-1.5 text-black font-bold ${jadafCopied ? "opacity-90" : ""}`}
+                    style={{ background: "linear-gradient(135deg, #F2C76E, #D4AF37, #9C7428)" }}
+                  >
+                    {jadafCopied ? (
+                      <><Check className="w-3.5 h-3.5" /> تم النسخ</>
+                    ) : (
+                      <><Copy className="w-3.5 h-3.5" /> نسخ الرابط</>
+                    )}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => window.open(`${baseUrl}/jadaf`, "_blank")}
+                    className="h-8 px-3 text-xs arabic-text gap-1.5"
+                    style={{ borderColor: "rgba(212,175,55,0.45)", color: "#F2C76E", background: "transparent" }}
                   >
                     <ExternalLink className="w-3.5 h-3.5" /> معاينة
                   </Button>
