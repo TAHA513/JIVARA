@@ -12,21 +12,22 @@ export default function JadafLogo({ variant = "header", className = "" }: JadafL
     return (
       <div
         className={`flex flex-col items-center ${className}`}
-        style={{ transform: "translateX(40px)" }}
+        style={{ marginInlineStart: 100 }}
       >
         <img
           src={logoFull}
           alt="JADAF — جداف"
-          width={460}
-          height={460}
+          width={1536}
+          height={1267}
           loading="eager"
           decoding="sync"
           draggable={false}
           style={{
-            width: "min(460px, 82vw)",
+            width: "min(560px, 88vw)",
             height: "auto",
             display: "block",
             userSelect: "none",
+            imageRendering: "auto",
           }}
         />
       </div>
