@@ -7,6 +7,7 @@ import {
   Instagram, Search, ShoppingBag, Home, Sparkles, Crown,
 } from "lucide-react";
 import type { Product } from "@shared/schema";
+import JadafLogo from "@/components/jadaf-logo";
 
 const COLORS = {
   bg: "#050607",
@@ -99,30 +100,7 @@ export default function JadafPage() {
         }}
       >
         <div className="max-w-7xl mx-auto px-6 h-full flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div
-              className="w-11 h-11 rounded-xl flex items-center justify-center"
-              style={{
-                background: `linear-gradient(135deg, ${COLORS.goldLight}, ${COLORS.gold}, ${COLORS.goldDark})`,
-              }}
-            >
-              <Sparkles className="w-5 h-5 text-black" />
-            </div>
-            <div className="leading-tight">
-              <div
-                style={{
-                  fontFamily: "'Cinzel', 'Playfair Display', serif",
-                  letterSpacing: "3px",
-                  color: COLORS.goldLight,
-                  fontWeight: 800,
-                  fontSize: 22,
-                }}
-              >
-                JADAF
-              </div>
-              <div className="text-xs" style={{ color: COLORS.gold }}>جداف</div>
-            </div>
-          </div>
+          <JadafLogo variant="header" />
 
           <nav className="hidden md:flex items-center gap-7 text-sm">
             {[
@@ -191,27 +169,8 @@ export default function JadafPage() {
             >
               <Sparkles className="w-3.5 h-3.5" /> تجربة فاخرة تليق بك
             </div>
-            <h1
-              style={{
-                fontFamily: "'Cinzel', 'Playfair Display', serif",
-                fontSize: "clamp(48px, 9vw, 84px)",
-                fontWeight: 800,
-                letterSpacing: "4px",
-                color: COLORS.goldLight,
-                lineHeight: 1,
-              }}
-            >
-              JADAF
-            </h1>
-            <div
-              className="mt-2"
-              style={{
-                fontSize: "clamp(28px, 5vw, 42px)",
-                fontWeight: 800,
-                color: COLORS.gold,
-              }}
-            >
-              جداف
+            <div className="mb-2">
+              <JadafLogo variant="hero" className="items-start" />
             </div>
             <h2 className="mt-6 text-xl md:text-2xl font-bold" style={{ color: COLORS.textMain }}>
               تجربة متكاملة تجمع بين الجودة والاحترافية
@@ -484,18 +443,7 @@ export default function JadafPage() {
       <footer id="contact" className="max-w-7xl mx-auto px-6 py-12">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
           <div>
-            <div
-              style={{
-                fontFamily: "'Cinzel', 'Playfair Display', serif",
-                letterSpacing: "3px",
-                color: COLORS.goldLight,
-                fontWeight: 800,
-                fontSize: 24,
-              }}
-            >
-              JADAF
-            </div>
-            <div className="text-sm mt-1" style={{ color: COLORS.gold }}>جداف</div>
+            <JadafLogo variant="footer" />
             <p className="text-sm mt-4" style={{ color: COLORS.textSec }}>
               تجربة فاخرة تجمع بين الجودة والاحترافية — منتجات وخدمات منتقاة بعناية لكل عملائنا في العراق.
             </p>
