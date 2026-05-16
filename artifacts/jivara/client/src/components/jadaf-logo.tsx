@@ -18,15 +18,15 @@ export default function JadafLogo({ variant = "header", className = "" }: JadafL
             aspectRatio: "1536 / 1267",
           }}
         >
-          {/* Soft gold glow behind logo */}
+          {/* Very subtle gold halo — barely visible, large blur, low opacity */}
           <div
             aria-hidden="true"
             style={{
               position: "absolute",
-              inset: "-8%",
+              inset: "-25%",
               background:
-                "radial-gradient(ellipse at center, rgba(212,175,55,0.22) 0%, rgba(212,175,55,0.10) 35%, rgba(212,175,55,0) 70%)",
-              filter: "blur(28px)",
+                "radial-gradient(ellipse at center, rgba(212,175,55,0.06) 0%, rgba(212,175,55,0.03) 40%, rgba(212,175,55,0) 75%)",
+              filter: "blur(70px)",
               pointerEvents: "none",
               zIndex: 0,
             }}
