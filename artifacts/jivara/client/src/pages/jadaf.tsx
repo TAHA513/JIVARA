@@ -254,6 +254,14 @@ export default function JadafPage() {
               "linear-gradient(90deg, rgba(5,6,7,0.85) 0%, rgba(5,6,7,0.55) 50%, rgba(5,6,7,0.35) 100%)",
           }}
         />
+        {/* Bottom fade — blends hero into page background seamlessly */}
+        <div
+          className="absolute inset-x-0 bottom-0 pointer-events-none"
+          style={{
+            height: 160,
+            background: `linear-gradient(180deg, rgba(5,6,7,0) 0%, rgba(5,6,7,0.6) 55%, ${COLORS.bg} 100%)`,
+          }}
+        />
         <div className="relative max-w-7xl mx-auto px-6 py-12 md:py-24">
           {/* Mobile: centered stack with logo on top. Desktop: left-aligned column */}
           <div className="flex flex-col items-center md:items-start md:max-w-2xl text-center md:text-start">
