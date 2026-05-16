@@ -11,23 +11,45 @@ export default function JadafLogo({ variant = "header", className = "" }: JadafL
   if (variant === "hero") {
     return (
       <div className={`flex flex-col jadaf-hero-logo ${className}`}>
-        <img
-          src={logoFull}
-          alt="JADAF — جداف"
-          width={1536}
-          height={1267}
-          loading="eager"
-          decoding="sync"
-          draggable={false}
+        <div
           style={{
+            position: "relative",
             width: "min(560px, 82vw)",
             aspectRatio: "1536 / 1267",
-            height: "auto",
-            display: "block",
-            userSelect: "none",
-            imageRendering: "auto",
           }}
-        />
+        >
+          {/* Soft gold glow behind logo */}
+          <div
+            aria-hidden="true"
+            style={{
+              position: "absolute",
+              inset: "-8%",
+              background:
+                "radial-gradient(ellipse at center, rgba(212,175,55,0.22) 0%, rgba(212,175,55,0.10) 35%, rgba(212,175,55,0) 70%)",
+              filter: "blur(28px)",
+              pointerEvents: "none",
+              zIndex: 0,
+            }}
+          />
+          <img
+            src={logoFull}
+            alt="JADAF — جداف"
+            width={1536}
+            height={1267}
+            loading="eager"
+            decoding="sync"
+            draggable={false}
+            style={{
+              position: "relative",
+              zIndex: 1,
+              width: "100%",
+              height: "auto",
+              display: "block",
+              userSelect: "none",
+              imageRendering: "auto",
+            }}
+          />
+        </div>
         <style>{`
           @media (min-width: 768px) {
             .jadaf-hero-logo { margin-inline-start: 100px; }
@@ -43,12 +65,12 @@ export default function JadafLogo({ variant = "header", className = "" }: JadafL
         <img
           src={logoFull}
           alt="JADAF — جداف"
-          width={64}
-          height={64}
+          width={58}
+          height={58}
           loading="eager"
           decoding="sync"
           draggable={false}
-          style={{ height: 64, width: "auto", display: "block", userSelect: "none" }}
+          style={{ height: 58, width: "auto", display: "block", userSelect: "none" }}
         />
       </div>
     );
