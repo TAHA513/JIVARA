@@ -4,7 +4,7 @@ import { Link } from "wouter";
 import {
   Watch, SprayCan, Glasses, Shirt, Headphones, Smartphone,
   Wrench, CreditCard, Truck, ShieldCheck, Lock, Phone, MapPin,
-  Instagram, Search, ShoppingBag, Home, Sparkles, Crown,
+  Instagram, Search, ShoppingBag, Home, Sparkles, Crown, Menu, X, MessageCircle,
 } from "lucide-react";
 import type { Product } from "@shared/schema";
 import JadafLogo from "@/components/jadaf-logo";
@@ -48,6 +48,7 @@ const features = [
 
 export default function JadafPage() {
   const [search, setSearch] = useState("");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     document.title = "JADAF | جداف — تجربة فاخرة";
@@ -135,8 +136,72 @@ export default function JadafPage() {
             >
               <Phone className="w-4 h-4" /> اتصل بنا
             </a>
+
+            {/* Mobile WhatsApp icon */}
+            <a
+              href="https://wa.me/9647819966698"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="واتساب"
+              className="sm:hidden inline-flex items-center justify-center w-10 h-10 rounded-xl"
+              style={{
+                background: `linear-gradient(135deg, ${COLORS.goldLight}, ${COLORS.gold}, ${COLORS.goldDark})`,
+                color: "#111",
+              }}
+            >
+              <MessageCircle className="w-5 h-5" />
+            </a>
+
+            {/* Mobile menu toggle */}
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen((v) => !v)}
+              aria-label="القائمة"
+              className="md:hidden inline-flex items-center justify-center w-10 h-10 rounded-xl"
+              style={{
+                background: "rgba(255,255,255,0.04)",
+                border: `1px solid ${COLORS.goldBorder}`,
+                color: COLORS.goldLight,
+              }}
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
           </div>
         </div>
+
+        {/* Mobile dropdown nav */}
+        {mobileMenuOpen && (
+          <div
+            className="md:hidden"
+            style={{
+              background: "rgba(5,6,7,0.96)",
+              borderTop: `1px solid ${COLORS.goldBorder}`,
+              borderBottom: `1px solid ${COLORS.goldBorder}`,
+            }}
+          >
+            <nav className="max-w-7xl mx-auto px-6 py-3 flex flex-col">
+              {[
+                { label: "الرئيسية", href: "#home" },
+                { label: "المنتجات", href: "#products" },
+                { label: "الخدمات", href: "#services" },
+                { label: "تواصل", href: "#contact" },
+              ].map((l) => (
+                <a
+                  key={l.href}
+                  href={l.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="py-3 text-base font-bold"
+                  style={{
+                    color: COLORS.textMain,
+                    borderBottom: `1px solid rgba(212,175,55,0.10)`,
+                  }}
+                >
+                  {l.label}
+                </a>
+              ))}
+            </nav>
+          </div>
+        )}
       </header>
 
       {/* Hero */}
