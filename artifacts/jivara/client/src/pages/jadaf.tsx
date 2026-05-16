@@ -254,10 +254,11 @@ export default function JadafPage() {
               "linear-gradient(90deg, rgba(5,6,7,0.96) 0%, rgba(5,6,7,0.78) 48%, rgba(5,6,7,0.45) 100%)",
           }}
         />
-        <div className="relative max-w-7xl mx-auto px-6 py-16 md:py-24">
-          <div className="max-w-2xl">
+        <div className="relative max-w-7xl mx-auto px-6 py-12 md:py-24">
+          {/* Mobile: centered stack with logo on top. Desktop: left-aligned column */}
+          <div className="flex flex-col items-center md:items-start md:max-w-2xl text-center md:text-start">
             <div
-              className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs mb-6"
+              className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs mb-5"
               style={{
                 border: `1px solid ${COLORS.goldBorder}`,
                 color: COLORS.goldLight,
@@ -266,21 +267,25 @@ export default function JadafPage() {
             >
               <Sparkles className="w-3.5 h-3.5" /> تجربة فاخرة تليق بك
             </div>
-            <div className="mb-2">
-              <JadafLogo variant="hero" className="items-start" />
+
+            <div className="mb-4 md:mb-2 flex justify-center md:justify-start w-full">
+              <JadafLogo variant="hero" className="items-center md:items-start" />
             </div>
-            <h2 className="mt-6 text-xl md:text-2xl font-bold" style={{ color: COLORS.textMain }}>
+
+            <h2
+              className="mt-2 md:mt-6 text-xl md:text-2xl font-bold"
+              style={{ color: COLORS.textMain }}
+            >
               تجربة متكاملة تجمع بين الجودة والاحترافية
             </h2>
-            <p className="mt-3 text-base md:text-lg" style={{ color: COLORS.textSec }}>
-              ساعات — عطور — نظارات — جوارب — قبعات — إكسسوارات هواتف — صيانة — خطوط وخدمات — ماستر كارد — توصيل لكل العراق
-            </p>
-            <div className="mt-8 flex flex-wrap gap-3">
+
+            <div className="mt-6 md:mt-8 flex flex-wrap justify-center md:justify-start gap-3 w-full">
               <a
                 href="#products"
-                className="inline-flex items-center gap-2 px-6 rounded-xl font-bold"
+                className="inline-flex items-center justify-center gap-2 px-6 rounded-xl font-bold flex-1 sm:flex-none"
                 style={{
                   height: 48,
+                  minWidth: 140,
                   background: `linear-gradient(135deg, ${COLORS.goldLight}, ${COLORS.gold}, ${COLORS.goldDark})`,
                   color: "#111",
                   fontWeight: 700,
@@ -290,9 +295,10 @@ export default function JadafPage() {
               </a>
               <a
                 href="#services"
-                className="inline-flex items-center gap-2 px-6 rounded-xl"
+                className="inline-flex items-center justify-center gap-2 px-6 rounded-xl flex-1 sm:flex-none"
                 style={{
                   height: 48,
+                  minWidth: 140,
                   background: "rgba(255,255,255,0.04)",
                   border: `1px solid rgba(212,175,55,0.25)`,
                   color: COLORS.textMain,

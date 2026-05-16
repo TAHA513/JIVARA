@@ -10,10 +10,7 @@ interface JadafLogoProps {
 export default function JadafLogo({ variant = "header", className = "" }: JadafLogoProps) {
   if (variant === "hero") {
     return (
-      <div
-        className={`flex flex-col items-center ${className}`}
-        style={{ marginInlineStart: 100 }}
-      >
+      <div className={`flex flex-col jadaf-hero-logo ${className}`}>
         <img
           src={logoFull}
           alt="JADAF — جداف"
@@ -23,13 +20,18 @@ export default function JadafLogo({ variant = "header", className = "" }: JadafL
           decoding="sync"
           draggable={false}
           style={{
-            width: "min(560px, 88vw)",
+            width: "min(560px, 82vw)",
             height: "auto",
             display: "block",
             userSelect: "none",
             imageRendering: "auto",
           }}
         />
+        <style>{`
+          @media (min-width: 768px) {
+            .jadaf-hero-logo { margin-inline-start: 100px; }
+          }
+        `}</style>
       </div>
     );
   }
