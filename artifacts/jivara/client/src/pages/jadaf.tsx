@@ -9,6 +9,22 @@ import {
 import type { Product } from "@shared/schema";
 import JadafLogo from "@/components/jadaf-logo";
 
+function WhatsAppIcon({ className = "", size = 16 }: { className?: string; size?: number }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className={className}
+      aria-hidden="true"
+    >
+      <path d="M19.05 4.91A10 10 0 0 0 12 2a10 10 0 0 0-8.66 14.97L2 22l5.18-1.36A10 10 0 1 0 19.05 4.91zM12 20.13a8.13 8.13 0 0 1-4.14-1.13l-.3-.18-3.07.81.82-3-.2-.31A8.13 8.13 0 1 1 12 20.13zm4.46-6.09c-.24-.12-1.44-.71-1.67-.79-.22-.08-.39-.12-.55.12-.16.24-.63.79-.77.95-.14.16-.28.18-.52.06-.24-.12-1.02-.38-1.95-1.2-.72-.64-1.21-1.43-1.35-1.67-.14-.24-.02-.37.1-.49.1-.1.24-.28.36-.42.12-.14.16-.24.24-.4.08-.16.04-.3-.02-.42-.06-.12-.55-1.32-.75-1.81-.2-.48-.4-.41-.55-.42h-.47c-.16 0-.42.06-.64.3-.22.24-.84.82-.84 2 0 1.18.86 2.32.98 2.48.12.16 1.69 2.58 4.1 3.62.57.25 1.02.4 1.37.51.58.18 1.1.16 1.52.1.46-.07 1.44-.59 1.64-1.16.2-.57.2-1.06.14-1.16-.06-.1-.22-.16-.46-.28z" />
+    </svg>
+  );
+}
+
 const COLORS = {
   bg: "#050607",
   bg2: "#0B0D10",
@@ -103,9 +119,9 @@ export default function JadafPage() {
         <div className="max-w-7xl mx-auto px-6 h-full flex items-center justify-between gap-4">
           <JadafLogo variant="header" />
 
-          <nav className="hidden md:flex items-center gap-7 text-sm">
+          <nav className="hidden md:flex items-center gap-8 text-sm">
             {[
-              { label: "الرئيسية", href: "#home" },
+              { label: "الرئيسية", href: "#home", active: true },
               { label: "المنتجات", href: "#products" },
               { label: "الخدمات", href: "#services" },
               { label: "تواصل", href: "#contact" },
@@ -113,12 +129,28 @@ export default function JadafPage() {
               <a
                 key={l.href}
                 href={l.href}
-                className="transition-colors"
-                style={{ color: COLORS.textMain }}
+                className="transition-colors relative py-1"
+                style={{
+                  color: l.active ? COLORS.goldLight : COLORS.textMain,
+                  fontWeight: l.active ? 700 : 500,
+                }}
                 onMouseEnter={(e) => (e.currentTarget.style.color = COLORS.goldLight)}
-                onMouseLeave={(e) => (e.currentTarget.style.color = COLORS.textMain)}
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.color = l.active ? COLORS.goldLight : COLORS.textMain)
+                }
               >
                 {l.label}
+                {l.active && (
+                  <span
+                    className="absolute left-0 right-0 bottom-0 mx-auto"
+                    style={{
+                      height: 2,
+                      width: "70%",
+                      background: `linear-gradient(90deg, transparent, ${COLORS.gold}, transparent)`,
+                      borderRadius: 2,
+                    }}
+                  />
+                )}
               </a>
             ))}
           </nav>
@@ -134,7 +166,7 @@ export default function JadafPage() {
                 color: "#111",
               }}
             >
-              <Phone className="w-4 h-4" /> اتصل بنا
+              <WhatsAppIcon size={16} /> اتصل بنا
             </a>
 
             {/* Mobile WhatsApp icon */}
@@ -149,7 +181,7 @@ export default function JadafPage() {
                 color: "#111",
               }}
             >
-              <MessageCircle className="w-5 h-5" />
+              <WhatsAppIcon size={20} />
             </a>
 
             {/* Mobile menu toggle */}
