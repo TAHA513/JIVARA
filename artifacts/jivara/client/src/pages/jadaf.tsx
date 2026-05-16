@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import type { Product } from "@shared/schema";
 import JadafLogo from "@/components/jadaf-logo";
+import heroBg from "@assets/jadaf-hero-bg.png";
 
 function WhatsAppIcon({ className = "", size = 16 }: { className?: string; size?: number }) {
   return (
@@ -241,8 +242,7 @@ export default function JadafPage() {
         <div
           className="absolute inset-0"
           style={{
-            backgroundImage:
-              "url(https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1920&q=80)",
+            backgroundImage: `url(${heroBg})`,
             backgroundSize: "cover",
             backgroundPosition: "center",
           }}
@@ -251,7 +251,7 @@ export default function JadafPage() {
           className="absolute inset-0"
           style={{
             background:
-              "linear-gradient(90deg, rgba(5,6,7,0.96) 0%, rgba(5,6,7,0.78) 48%, rgba(5,6,7,0.45) 100%)",
+              "linear-gradient(90deg, rgba(5,6,7,0.85) 0%, rgba(5,6,7,0.55) 50%, rgba(5,6,7,0.35) 100%)",
           }}
         />
         <div className="relative max-w-7xl mx-auto px-6 py-12 md:py-24">

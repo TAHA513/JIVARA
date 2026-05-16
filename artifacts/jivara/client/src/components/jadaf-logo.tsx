@@ -21,6 +21,7 @@ export default function JadafLogo({ variant = "header", className = "" }: JadafL
           draggable={false}
           style={{
             width: "min(560px, 82vw)",
+            aspectRatio: "1536 / 1267",
             height: "auto",
             display: "block",
             userSelect: "none",
