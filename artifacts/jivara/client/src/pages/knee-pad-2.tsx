@@ -9,11 +9,16 @@ import { CheckCircle, Shield, Star, Package, Truck, Phone, MapPin, ChevronLeft, 
 import img1 from "@assets/file_0000000022c071f4a274a31c002dd13d_1779401856249.png";
 import img2 from "@assets/file_0000000069c87246a682ef9ecf7a8e92_1779401871135.png";
 import img3 from "@assets/file_00000000c45071f498fac69cffdab2ce_1779401885440.png";
+import img4 from "@assets/file_000000008ad471f4b6116e20c4feab2b_1779403820874.png";
+import img5 from "@assets/file_00000000fef071fd9bc20622cc6610d3_1779403820898.png";
+import img6 from "@assets/file_000000003f3471fd927bde5f0b4989b3_1779403820911.png";
+import img7 from "@assets/file_00000000f93872439dd6ebb6886d5e73_1779403820930.png";
+import img8 from "@assets/file_00000000ad2071f487dcece9d1e336e4_1779403820946.png";
 
 const PRICE_IQD = 25000;
 const WHATSAPP = "9647819966698";
 
-const IMAGES = [img1, img2, img3];
+const IMAGES = [img1, img2, img3, img4, img5, img6, img7, img8];
 
 const TICKER_ITEMS = [
   "🛡️ واقي ركبة للأطفال — حماية ناعمة 100%",
