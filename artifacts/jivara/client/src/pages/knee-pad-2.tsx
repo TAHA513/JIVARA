@@ -6,19 +6,14 @@ import { validateIraqiPhone } from "@/lib/form-validation";
 import { apiRequest } from "@/lib/queryClient";
 import { pixelViewContent, pixelInitiateCheckout, pixelPurchase, tiktokViewContent, tiktokInitiateCheckout, tiktokPurchase } from "@/lib/pixel";
 import { CheckCircle, Shield, Star, Package, Truck, Phone, MapPin, ChevronLeft, ChevronRight, Clock } from "lucide-react";
-import img1 from "@assets/FB_IMG_1776099592559_1776099656603.jpg";
-import img2 from "@assets/FB_IMG_1776099580057_1776099656627.jpg";
-import img3 from "@assets/FB_IMG_1776099582181_1776099656649.jpg";
-import img4 from "@assets/FB_IMG_1776099583780_1776099656665.jpg";
-import img5 from "@assets/FB_IMG_1776099585315_1776099656684.jpg";
-import img6 from "@assets/FB_IMG_1776099587363_1776099656701.jpg";
-import img7 from "@assets/FB_IMG_1776099589061_1776099656716.jpg";
-import img8 from "@assets/FB_IMG_1776099590577_1776099656732.jpg";
+import img1 from "@assets/file_0000000022c071f4a274a31c002dd13d_1779401856249.png";
+import img2 from "@assets/file_0000000069c87246a682ef9ecf7a8e92_1779401871135.png";
+import img3 from "@assets/file_00000000c45071f498fac69cffdab2ce_1779401885440.png";
 
 const PRICE_IQD = 25000;
 const WHATSAPP = "9647819966698";
 
-const IMAGES = [img1, img2, img3, img4, img5, img6, img7, img8];
+const IMAGES = [img1, img2, img3];
 
 const TICKER_ITEMS = [
   "🛡️ واقي ركبة للأطفال — حماية ناعمة 100%",
@@ -61,6 +56,7 @@ export default function KneePad2Page() {
   const [city, setCity] = useState("");
   const [address, setAddress] = useState("");
   const [qty, setQty] = useState(1);
+  const [gender, setGender] = useState<"ولد" | "بنت" | "">("");
   const [submitted, setSubmitted] = useState(false);
   const [progress, setProgress] = useState(0);
   const progressRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -126,7 +122,7 @@ export default function KneePad2Page() {
         customerPhone: phone,
         shippingAddress: address || city,
         city: city || "العراق",
-        notes: `مصدر: واقي ركبة | الكمية: ${qty} | المحافظة: ${city}`,
+        notes: `مصدر: واقي ركبة | الكمية: ${qty} | المحافظة: ${city} | جنس الطفل: ${gender}`,
         totalAmount: String(PRICE_IQD * qty),
         landingPage: "/knee-pad",
         fbclid: getFbclid(),
@@ -169,6 +165,10 @@ export default function KneePad2Page() {
     }
     if (!city.trim()) {
       toast({ title: "❌ المحافظة مطلوبة", description: "الرجاء اختيار محافظتك", variant: "destructive" });
+      return;
+    }
+    if (!gender) {
+      toast({ title: "❌ جنس الطفل مطلوب", description: "الرجاء تحديد ولد أو بنت", variant: "destructive" });
       return;
     }
     orderMutation.mutate();
@@ -461,6 +461,29 @@ export default function KneePad2Page() {
                 ))}
               </select>
               {submitted && !city && <p className="text-yellow-300 text-xs mt-1">المحافظة مطلوبة</p>}
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold mb-1 text-pink-100">جنس الطفل *</label>
+              <div className="flex gap-3">
+                {(["ولد", "بنت"] as const).map(g => (
+                  <button
+                    key={g}
+                    type="button"
+                    onClick={() => setGender(g)}
+                    className={`flex-1 py-3 rounded-xl font-black text-lg transition-all border-2 ${
+                      gender === g
+                        ? g === "ولد"
+                          ? "bg-blue-500 border-blue-300 text-white shadow-lg scale-105"
+                          : "bg-pink-400 border-pink-200 text-white shadow-lg scale-105"
+                        : "bg-white/20 border-white/30 text-white hover:bg-white/30"
+                    }`}
+                  >
+                    {g === "ولد" ? "👦 ولد" : "👧 بنت"}
+                  </button>
+                ))}
+              </div>
+              {submitted && !gender && <p className="text-yellow-300 text-xs mt-1">الرجاء تحديد جنس الطفل</p>}
             </div>
 
             <div>
