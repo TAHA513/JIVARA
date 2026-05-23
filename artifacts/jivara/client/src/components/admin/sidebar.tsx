@@ -6,7 +6,7 @@ import {
   Tag, Megaphone, Link2, Zap, TrendingUp, CreditCard, FileText,
   Bot, Palette, Settings, LogOut, Store, Menu, X, Target, Truck,
   ChevronDown, ChevronUp, Star, MessageCircle, Radio,
-  Warehouse, RotateCcw, Receipt, Bell, ShieldCheck
+  Warehouse, RotateCcw, Receipt, Bell, ShieldCheck, ShoppingCart
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 
@@ -27,6 +27,7 @@ const navGroups: NavGroup[] = [
     label: "التشغيل اليومي",
     defaultOpen: true,
     items: [
+      { title: "الكاشير 🏪",    href: "/admin/cashier",    icon: ShoppingCart },
       { title: "الطلبات",      href: "/admin/orders",     icon: ShoppingBag },
       { title: "المنتجات",     href: "/admin/products",   icon: Package },
       { title: "المخزون",      href: "/admin/inventory",  icon: Warehouse },

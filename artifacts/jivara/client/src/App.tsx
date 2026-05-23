@@ -76,6 +76,7 @@ import ReturnsPage from "@/pages/admin/returns";
 import ExpensesPage from "@/pages/admin/expenses";
 import NotificationsPage from "@/pages/admin/notifications";
 import PermissionsPage from "@/pages/admin/permissions";
+import CashierPage from "@/pages/admin/cashier";
 import { useLocation } from "wouter";
 import { useEffect } from "react";
 
@@ -168,6 +169,7 @@ function App() {
                   <Route path="/admin/expenses" component={ExpensesPage} />
                   <Route path="/admin/notifications" component={NotificationsPage} />
                   <Route path="/admin/permissions" component={PermissionsPage} />
+                  <Route path="/admin/cashier" component={CashierPage} />
                   <Route path="/admin" component={AdminDashboard} />
                 </Switch>
               ) : (
