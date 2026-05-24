@@ -501,15 +501,6 @@ ${labelsHtml}
                   طباعة ملصقات حرارية {selected.size > 0 ? `(${selected.size})` : ""}
                 </Button>
                 <Button
-                  onClick={handlePrint}
-                  variant="outline"
-                  className="border-blue-600 text-blue-700 hover:bg-blue-50"
-                  data-testid="button-print"
-                >
-                  <Printer className="w-4 h-4 ml-2" />
-                  طباعة A4 {selected.size > 0 ? `(${selected.size})` : ""}
-                </Button>
-                <Button
                   onClick={handleSendToAlwaseet}
                   disabled={sendToAlwaseet.isPending}
                   className="bg-amber-600 hover:bg-amber-700 text-white"
