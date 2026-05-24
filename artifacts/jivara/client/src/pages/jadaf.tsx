@@ -6,7 +6,7 @@ import {
   Wrench, CreditCard, Truck, ShieldCheck, Lock, Phone, MapPin,
   Instagram, Search, ShoppingBag, Home, Sparkles, Crown, Menu, X, MessageCircle,
 } from "lucide-react";
-import type { Product } from "@shared/schema";
+import type { Product, Category } from "@shared/schema";
 import JadafLogo from "@/components/jadaf-logo";
 import heroBg from "@assets/jadaf-hero-bg.png";
 
@@ -40,14 +40,36 @@ const COLORS = {
   textDim: "#7A7A7A",
 };
 
-const productCategories = [
-  { id: "watches", label: "ساعات", Icon: Watch },
-  { id: "perfumes", label: "عطور", Icon: SprayCan },
-  { id: "glasses", label: "نظارات", Icon: Glasses },
-  { id: "socks", label: "جوارب", Icon: Shirt },
-  { id: "caps", label: "قبعات", Icon: Crown },
-  { id: "phone-accessories", label: "إكسسوارات هواتف", Icon: Headphones },
-];
+// Icon mapping by category slug (fallback: ShoppingBag)
+const CATEGORY_ICONS: Record<string, typeof Watch> = {
+  watches: Watch,
+  "women-watches": Watch,
+  "smart-watches": Watch,
+  "watch-bands": Watch,
+  perfumes: SprayCan,
+  sunglasses: Glasses,
+  glasses: Glasses,
+  "men-socks": Shirt,
+  socks: Shirt,
+  "formal-shoes": Shirt,
+  "men-underwear": Shirt,
+  caps: Crown,
+  accessories: Crown,
+  "phone-accessories": Headphones,
+  earphones: Headphones,
+  speakers: Headphones,
+  microphones: Headphones,
+  cables: Smartphone,
+  chargers: Smartphone,
+  "power-banks": Smartphone,
+  "ups-batteries": Smartphone,
+  "phone-protection": ShieldCheck,
+  stands: Wrench,
+  cameras: Sparkles,
+  "ring-lights": Sparkles,
+  "mouse-tech": Wrench,
+  "home-goods": Home,
+};
 
 const services = [
   { label: "صيانة الهواتف", Icon: Wrench, desc: "إصلاح احترافي وضمان جودة" },
@@ -66,6 +88,7 @@ const features = [
 export default function JadafPage() {
   const [search, setSearch] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
 
   useEffect(() => {
     document.title = "JADAF | جداف — تجربة فاخرة";
@@ -80,17 +103,46 @@ export default function JadafPage() {
     },
   });
 
+  const { data: categories = [] } = useQuery<Category[]>({
+    queryKey: ["/api/categories"],
+    queryFn: async () => {
+      const res = await fetch("/api/categories");
+      if (!res.ok) throw new Error("failed");
+      return res.json();
+    },
+  });
+
+  // Categories that actually have visible products on Jadaf
+  const visibleCategories = useMemo(() => {
+    const ids = new Set(products.map((p) => p.categoryId).filter(Boolean));
+    return categories.filter((c) => ids.has(c.id) && c.isActive !== false);
+  }, [categories, products]);
+
   const filteredProducts = useMemo(() => {
-    if (!search.trim()) return products;
-    const q = search.trim().toLowerCase();
-    return products.filter(
-      (p) =>
-        p.name.toLowerCase().includes(q) ||
-        p.nameAr.includes(search) ||
-        (p.description?.toLowerCase().includes(q) ?? false) ||
-        (p.descriptionAr?.includes(search) ?? false)
-    );
-  }, [products, search]);
+    // Base: search filter
+    let list = products;
+    if (search.trim()) {
+      const q = search.trim().toLowerCase();
+      list = list.filter(
+        (p) =>
+          p.name.toLowerCase().includes(q) ||
+          p.nameAr.includes(search) ||
+          (p.description?.toLowerCase().includes(q) ?? false) ||
+          (p.descriptionAr?.includes(search) ?? false)
+      );
+    }
+    // Category selection: show ALL products in that category
+    if (selectedCategoryId !== null) {
+      return list.filter((p) => p.categoryId === selectedCategoryId);
+    }
+    // Default: show only ONE per category (featured)
+    return list.filter((p) => p.isFeatured);
+  }, [products, search, selectedCategoryId]);
+
+  const selectedCategoryName = useMemo(() => {
+    if (selectedCategoryId === null) return null;
+    return categories.find((c) => c.id === selectedCategoryId)?.nameAr ?? null;
+  }, [selectedCategoryId, categories]);
 
   const formatPrice = (price: string | number) => {
     const n = typeof price === "string" ? parseFloat(price) : price;
@@ -352,23 +404,18 @@ export default function JadafPage() {
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-          {productCategories.map(({ id, label, Icon }) => (
-            <div
-              key={id}
+          {/* "All" pill — clears category filter */}
+          {selectedCategoryId !== null && (
+            <button
+              type="button"
+              onClick={() => setSelectedCategoryId(null)}
               className="group rounded-2xl p-5 flex flex-col items-center justify-center gap-3 cursor-pointer transition-all"
               style={{
-                background: "linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02))",
-                border: `1px solid ${COLORS.goldBorder}`,
+                background: "linear-gradient(135deg, rgba(212,175,55,0.18), rgba(156,116,40,0.08))",
+                border: `1px solid rgba(212,175,55,0.45)`,
                 minHeight: 130,
               }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = "rgba(212,175,55,0.10)";
-                e.currentTarget.style.borderColor = "rgba(212,175,55,0.45)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = "linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02))";
-                e.currentTarget.style.borderColor = COLORS.goldBorder;
-              }}
+              data-testid="button-clear-category"
             >
               <div
                 className="w-12 h-12 rounded-xl flex items-center justify-center"
@@ -377,23 +424,77 @@ export default function JadafPage() {
                   border: `1px solid rgba(212,175,55,0.35)`,
                 }}
               >
-                <Icon className="w-6 h-6" style={{ color: COLORS.goldLight }} />
+                <Sparkles className="w-6 h-6" style={{ color: COLORS.goldLight }} />
               </div>
-              <span className="text-sm font-bold" style={{ color: COLORS.textMain }}>{label}</span>
-            </div>
-          ))}
+              <span className="text-sm font-bold" style={{ color: COLORS.textMain }}>عرض المختارة</span>
+            </button>
+          )}
+          {visibleCategories.map((cat) => {
+            const Icon = (cat.slug && CATEGORY_ICONS[cat.slug]) || ShoppingBag;
+            const isSelected = selectedCategoryId === cat.id;
+            return (
+              <button
+                type="button"
+                key={cat.id}
+                onClick={() => setSelectedCategoryId(isSelected ? null : cat.id)}
+                className="group rounded-2xl p-5 flex flex-col items-center justify-center gap-3 cursor-pointer transition-all"
+                style={{
+                  background: isSelected
+                    ? "linear-gradient(135deg, rgba(212,175,55,0.22), rgba(156,116,40,0.10))"
+                    : "linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02))",
+                  border: isSelected
+                    ? `1px solid rgba(212,175,55,0.55)`
+                    : `1px solid ${COLORS.goldBorder}`,
+                  minHeight: 130,
+                }}
+                data-testid={`button-category-${cat.slug}`}
+              >
+                <div
+                  className="w-12 h-12 rounded-xl flex items-center justify-center"
+                  style={{
+                    background: "linear-gradient(135deg, rgba(212,175,55,0.28), rgba(156,116,40,0.16))",
+                    border: `1px solid rgba(212,175,55,0.35)`,
+                  }}
+                >
+                  <Icon className="w-6 h-6" style={{ color: COLORS.goldLight }} />
+                </div>
+                <span className="text-sm font-bold text-center" style={{ color: COLORS.textMain }}>
+                  {cat.nameAr}
+                </span>
+              </button>
+            );
+          })}
         </div>
       </section>
 
       {/* Products */}
       <section className="max-w-7xl mx-auto px-6 pb-14">
-        <div className="mb-6">
-          <h3 className="text-2xl md:text-3xl font-extrabold" style={{ color: COLORS.goldLight }}>
-            منتجات مختارة
-          </h3>
-          <p className="text-sm mt-1" style={{ color: COLORS.textSec }}>
-            تشكيلة فاخرة من قطعنا المنتقاة
-          </p>
+        <div className="mb-6 flex items-end justify-between flex-wrap gap-3">
+          <div>
+            <h3 className="text-2xl md:text-3xl font-extrabold" style={{ color: COLORS.goldLight }}>
+              {selectedCategoryName ? `منتجات: ${selectedCategoryName}` : "منتجات مختارة"}
+            </h3>
+            <p className="text-sm mt-1" style={{ color: COLORS.textSec }}>
+              {selectedCategoryName
+                ? `كل منتجات قسم ${selectedCategoryName}`
+                : "منتج واحد مميز من كل قسم — اختر قسماً لرؤية كل منتجاته"}
+            </p>
+          </div>
+          {selectedCategoryId !== null && (
+            <button
+              type="button"
+              onClick={() => setSelectedCategoryId(null)}
+              className="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-sm font-bold"
+              style={{
+                background: "rgba(255,255,255,0.06)",
+                border: `1px solid ${COLORS.goldBorder}`,
+                color: COLORS.textMain,
+              }}
+              data-testid="button-reset-filter"
+            >
+              <X className="w-4 h-4" /> عودة للمختارة
+            </button>
+          )}
         </div>
 
         {isLoading ? (
