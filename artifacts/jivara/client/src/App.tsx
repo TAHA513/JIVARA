@@ -84,7 +84,7 @@ function App() {
   const [location] = useLocation();
   const isAdminRoute = location.startsWith('/admin');
   const isBuyRoute = location.startsWith('/buy');
-  const isBundleRoute = location.startsWith('/bundle') || location === '/bamboo' || location === '/bamboo-p' || location === '/mamame' || location === '/shoes-easy' || location === '/watches-easy' || location === '/watches-b' || location === '/shoes-b' || location === '/zt' || location === '/zt2' || location === '/naturalwalker' || location === '/naturalwalker2' || location === '/knee-pad' || location === '/knee-pad-q' || location === '/knee-pad-2' || location === '/bullcaptain-belt' || location === '/poedagar-watch' || location === '/boxer-men' || location === '/socks-uae' || location === '/socks-iq' || location === '/socks-pack' || location === '/bamboo-socks' || location === '/jadaf' || location === '/supplier' || location === '/pack';
+  const isBundleRoute = location.startsWith('/bundle') || location === '/bamboo' || location === '/bamboo-p' || location === '/mamame' || location === '/shoes-easy' || location === '/watches-easy' || location === '/watches-b' || location === '/shoes-b' || location === '/zt' || location === '/zt2' || location === '/naturalwalker' || location === '/naturalwalker2' || location === '/knee-pad' || location === '/knee-pad-q' || location === '/knee-pad-2' || location === '/bullcaptain-belt' || location === '/poedagar-watch' || location === '/boxer-men' || location === '/socks-uae' || location === '/socks-iq' || location === '/socks-pack' || location === '/bamboo-socks' || location === '/jadaf' || location.startsWith('/jadaf/') || location === '/supplier' || location === '/pack';
   const isShopRoute = location === '/shop';
   
   // استعادة التمرير إلى الأعلى عند تغيير الصفحة (حل مشكلة عدم فتح المنتج من الأعلى)
@@ -131,6 +131,7 @@ function App() {
                   <Route path="/socks-pack" component={SocksPackPage} />
                   <Route path="/bamboo-socks" component={BambooSocksPage} />
                   <Route path="/jadaf" component={JadafPage} />
+                  <Route path="/jadaf/product/:id" component={ProductDetail} />
                   <Route path="/supplier" component={SupplierPage} />
                 </Switch>
               ) : isBuyRoute ? (

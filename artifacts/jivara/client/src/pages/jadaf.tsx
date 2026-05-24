@@ -780,7 +780,7 @@ export default function JadafPage() {
             {filteredProducts.map((product) => {
               const img = product.images?.[0];
               return (
-                <Link key={product.id} href={`/product/${product.id}`}>
+                <Link key={product.id} href={`/jadaf/product/${product.id}`}>
                   <div
                     className="group rounded-2xl overflow-hidden cursor-pointer transition-all"
                     style={{
