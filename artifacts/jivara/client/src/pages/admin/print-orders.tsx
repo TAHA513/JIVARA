@@ -25,7 +25,7 @@ import AdminSidebar from "@/components/admin/sidebar";
 import { useAdminAuth } from "@/hooks/use-admin-auth";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { Printer, Truck, Calendar, ClipboardList, RefreshCw, Tag } from "lucide-react";
+import { Printer, Truck, Calendar, ClipboardList, RefreshCw, Tag, XCircle } from "lucide-react";
 import type { Order } from "@shared/schema";
 
 type RangePreset = "today" | "yesterday" | "week" | "month" | "custom" | "all";
@@ -230,7 +230,9 @@ export default function PrintOrdersPage() {
     const total = parseFloat(o.totalAmount).toLocaleString();
     const src = landingPageLabel(o.landingPage);
     const safeId = String(o.id);
-    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=110x110&margin=2&data=${encodeURIComponent(safeId)}`;
+    const awCode = o.alwaseetQrId || "";
+    const printCode = awCode || safeId;
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=110x110&margin=2&data=${encodeURIComponent(printCode)}`;
     const date = new Date(o.createdAt || Date.now()).toLocaleDateString("en-GB");
     return `<div class="label">
   <div class="head">
@@ -240,9 +242,11 @@ export default function PrintOrdersPage() {
   </div>
   <div class="mid">
     <img class="qr" src="${qrUrl}" alt="QR"/>
-    <div class="ordernum">#${safeId}</div>
+    <div class="numblock">
+      ${awCode ? `<div class="awnum">${awCode}</div><div class="intnum">طلب #${safeId}</div>` : `<div class="ordernum">#${safeId}</div>`}
+    </div>
   </div>
-  <div class="bcwrap"><svg class="bc" data-code="${safeId}"></svg></div>
+  <div class="bcwrap"><svg class="bc" data-code="${printCode}"></svg></div>
   <div class="info">
     <div class="irow"><span class="lbl">الاسم</span><span class="val">${o.customerName || "—"}</span></div>
     <div class="irow"><span class="lbl">الهاتف</span><span class="val phone" dir="ltr">${o.customerPhone || "—"}</span></div>
@@ -292,8 +296,10 @@ export default function PrintOrdersPage() {
   /* QR + رقم الطلب */
   .mid { display:flex; align-items:center; gap:3mm; flex-shrink:0; }
   .qr  { width:22mm; height:22mm; display:block; flex-shrink:0; }
-  .ordernum { flex:1; text-align:center; font-size:22pt; font-weight:900;
-              border:2px solid #000; padding:1.5mm; letter-spacing:1px; }
+  .numblock { flex:1; text-align:center; border:2px solid #000; padding:1.5mm; }
+  .ordernum { font-size:22pt; font-weight:900; letter-spacing:1px; }
+  .awnum  { font-size:20pt; font-weight:900; letter-spacing:1px; }
+  .intnum { font-size:8pt; color:#555; margin-top:0.5mm; }
 
   /* باركود */
   .bcwrap { text-align:center; flex-shrink:0; }
@@ -624,15 +630,37 @@ ${labelsHtml}
                               )}
                             </TableCell>
                             <TableCell>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => printSingleLabel(o)}
-                                data-testid={`button-print-row-${o.id}`}
-                                title="طباعة ملصق هذا الطلب"
-                              >
-                                <Printer className="w-4 h-4" />
-                              </Button>
+                              <div className="flex gap-1">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => printSingleLabel(o)}
+                                  data-testid={`button-print-row-${o.id}`}
+                                  title="طباعة ملصق هذا الطلب"
+                                >
+                                  <Printer className="w-4 h-4" />
+                                </Button>
+                                {o.alwaseetQrId && (
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="border-red-400 text-red-600 hover:bg-red-50"
+                                    title={`إلغاء من الوسيط (كود: ${o.alwaseetQrId})`}
+                                    onClick={async () => {
+                                      if (!confirm(`إلغاء شحنة الوسيط رقم ${o.alwaseetQrId} للطلب #${o.id}؟`)) return;
+                                      try {
+                                        await apiRequest("POST", `/api/alwaseet/cancel/${o.id}`, {});
+                                        toast({ title: "تم إلغاء الشحنة من الوسيط" });
+                                        queryClient.invalidateQueries({ queryKey: ["/api/orders"] });
+                                      } catch {
+                                        toast({ title: "فشل الإلغاء", variant: "destructive" });
+                                      }
+                                    }}
+                                  >
+                                    <XCircle className="w-4 h-4" />
+                                  </Button>
+                                )}
+                              </div>
                             </TableCell>
                           </TableRow>
                         );

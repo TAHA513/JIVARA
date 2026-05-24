@@ -991,6 +991,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // إلغاء شحنة من الوسيط + مسح كود الوسيط من الطلب
+  app.post("/api/alwaseet/cancel/:orderId", requireAdmin, async (req: AuthRequest, res) => {
+    try {
+      const orderId = parseInt(req.params.orderId);
+      const ourOrders = await storage.getOrders();
+      const order = ourOrders.find((o: any) => o.id === orderId);
+      if (!order) return res.status(404).json({ success: false, message: 'الطلب غير موجود' });
+
+      const awId = (order as any).alwaseetQrId;
+      let awResult = { success: true, message: 'لا يوجد كود وسيط لهذا الطلب' };
+
+      if (awId) {
+        const { cancelAlwaseetShipment } = await import('./alwaseet-service');
+        awResult = await cancelAlwaseetShipment(awId);
+      }
+
+      // امسح بيانات الوسيط من الطلب في قاعدة البيانات
+      await db.update(orders).set({
+        alwaseetQrId: null,
+        alwaseetStatus: 'ملغي',
+        alwaseetSyncAt: new Date(),
+      }).where(eq(orders.id, orderId));
+
+      res.json({ success: true, message: awResult.message });
+    } catch (err: any) {
+      res.status(500).json({ success: false, message: err.message });
+    }
+  });
+
   // WhatsApp Setup Endpoints
   app.post("/api/whatsapp/request-code", async (req, res) => {
     try {

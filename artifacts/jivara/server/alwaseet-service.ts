@@ -118,6 +118,30 @@ export async function createAlwaseetShipment(order: {
   }
 }
 
+// ---- إلغاء شحنة من الوسيط ----
+export async function cancelAlwaseetShipment(awId: string): Promise<{ success: boolean; message: string }> {
+  try {
+    const token = await getToken();
+    if (!token) return { success: false, message: 'بيانات الدخول غير مضبوطة' };
+
+    const form = new FormData();
+    form.append('order_id', awId);
+
+    const res = await fetch(`${BASE_URL}/cancel-order?token=${token}`, { method: 'POST', body: form });
+    const data = await res.json() as any;
+
+    if (data.status) {
+      console.log(`✅ الوسيط: تم إلغاء الشحنة ${awId}`);
+      return { success: true, message: 'تم إلغاء الشحنة من الوسيط' };
+    }
+    console.error(`❌ الوسيط: فشل إلغاء الشحنة ${awId} —`, data.msg);
+    return { success: false, message: data.msg || 'فشل إلغاء الشحنة' };
+  } catch (err: any) {
+    console.error('❌ الوسيط: خطأ في إلغاء الشحنة —', err.message);
+    return { success: false, message: 'خطأ: ' + err.message };
+  }
+}
+
 // ---- تحقق من إعداد الإرسال التلقائي ----
 export async function isAutoCreateEnabled(): Promise<boolean> {
   try {
