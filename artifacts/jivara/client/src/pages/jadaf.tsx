@@ -11,6 +11,18 @@ import type { Product, Category } from "@shared/schema";
 import JadafLogo from "@/components/jadaf-logo";
 import heroBg from "@assets/jadaf-hero-bg.png";
 
+// Bulk-import category stock images (slug-named .jpg files)
+const CATEGORY_IMAGE_MODULES = import.meta.glob<{ default: string }>(
+  "@assets/stock_images/*.jpg",
+  { eager: true },
+);
+const CATEGORY_IMAGES: Record<string, string> = Object.fromEntries(
+  Object.entries(CATEGORY_IMAGE_MODULES).map(([path, mod]) => {
+    const slug = path.split("/").pop()!.replace(/\.jpg$/, "");
+    return [slug, mod.default];
+  }),
+);
+
 function WhatsAppIcon({ className = "", size = 16 }: { className?: string; size?: number }) {
   return (
     <svg
@@ -629,13 +641,14 @@ export default function JadafPage() {
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
               {categoriesInSelectedGroup.map((cat) => {
                 const Icon = (cat.slug && CATEGORY_ICONS[cat.slug]) || ShoppingBag;
+                const imgSrc = cat.slug ? CATEGORY_IMAGES[cat.slug] : undefined;
                 const isSelected = selectedCategoryId === cat.id;
                 return (
                   <button
                     type="button"
                     key={cat.id}
                     onClick={() => setSelectedCategoryId(isSelected ? null : cat.id)}
-                    className="rounded-2xl p-5 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all min-h-[170px]"
+                    className="rounded-2xl p-3 flex flex-col items-center justify-start gap-2 cursor-pointer transition-all"
                     style={{
                       background: isSelected
                         ? "linear-gradient(135deg, rgba(212,175,55,0.22), rgba(156,116,40,0.10))"
@@ -647,19 +660,28 @@ export default function JadafPage() {
                     data-testid={`button-category-${cat.slug}`}
                   >
                     <div
-                      className="w-14 h-14 rounded-xl flex items-center justify-center mb-2"
+                      className="w-full aspect-square rounded-xl overflow-hidden flex items-center justify-center"
                       style={{
-                        background: "linear-gradient(135deg, rgba(212,175,55,0.28), rgba(156,116,40,0.16))",
-                        border: `1px solid rgba(212,175,55,0.35)`,
+                        background: "linear-gradient(135deg, rgba(212,175,55,0.10), rgba(0,0,0,0.4))",
+                        border: `1px solid rgba(212,175,55,0.25)`,
                       }}
                     >
-                      <Icon className="w-7 h-7" style={{ color: COLORS.goldLight }} />
+                      {imgSrc ? (
+                        <img
+                          src={imgSrc}
+                          alt={cat.nameAr}
+                          loading="lazy"
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <Icon className="w-8 h-8" style={{ color: COLORS.goldLight }} />
+                      )}
                     </div>
-                    <span className="text-base font-bold text-center line-clamp-1" style={{ color: COLORS.textMain }}>
+                    <span className="text-sm font-bold text-center line-clamp-1 mt-1" style={{ color: COLORS.textMain }}>
                       {cat.nameAr}
                     </span>
                     {cat.descriptionAr && (
-                      <span className="text-xs text-center line-clamp-1" style={{ color: COLORS.textSec }}>
+                      <span className="text-[11px] text-center line-clamp-1" style={{ color: COLORS.textSec }}>
                         {cat.descriptionAr}
                       </span>
                     )}

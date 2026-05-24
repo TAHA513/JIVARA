@@ -17,3 +17,153 @@ id = "iIfSGpuyCg4gNr745m1q7"
 uri = "file://knee-pad-orders.csv"
 type = "table"
 title = "طلبات واقي الركبة للأطفال — 85 طلب"
+
+[[outputs]]
+id = "aYpGZ9acGfRfJKQ7_4pJz"
+uri = "file://attached_assets/stock_images/cables.jpg"
+type = "image"
+title = "usb charging cable wire on dark background"
+
+[[outputs]]
+id = "qlT2IOQcLHdUj5b1AbwFr"
+uri = "file://attached_assets/stock_images/chargers.jpg"
+type = "image"
+title = "phone charger adapter on dark background"
+
+[[outputs]]
+id = "9MwDd8R9OgnQdQcWP4Z-x"
+uri = "file://attached_assets/stock_images/earphones.jpg"
+type = "image"
+title = "wireless earbuds bluetooth on dark background"
+
+[[outputs]]
+id = "f0eMgx0j6fEgXlUaEPKE3"
+uri = "file://attached_assets/stock_images/power-banks.jpg"
+type = "image"
+title = "portable power bank battery on dark background"
+
+[[outputs]]
+id = "dcHIMun49Mo2KhKLSgz9d"
+uri = "file://attached_assets/stock_images/ups-batteries.jpg"
+type = "image"
+title = "ups battery backup unit on dark background"
+
+[[outputs]]
+id = "b6jenwhVKdgEQMW6rM7Vl"
+uri = "file://attached_assets/stock_images/speakers.jpg"
+type = "image"
+title = "bluetooth speaker on dark background"
+
+[[outputs]]
+id = "AtLwnDWQU8WWQnEv6Jkr6"
+uri = "file://attached_assets/stock_images/stands.jpg"
+type = "image"
+title = "phone holder stand on dark background"
+
+[[outputs]]
+id = "bqC3SsxZB7yy1q5A2Toh4"
+uri = "file://attached_assets/stock_images/microphones.jpg"
+type = "image"
+title = "studio microphone on dark background"
+
+[[outputs]]
+id = "x7W39tirXJCRuSdVs-XG8"
+uri = "file://attached_assets/stock_images/ring-lights.jpg"
+type = "image"
+title = "ring light selfie lamp on dark background"
+
+[[outputs]]
+id = "XjmDJc2_aK_S2-i_QyI0-"
+uri = "file://attached_assets/stock_images/cameras.jpg"
+type = "image"
+title = "professional dslr camera on dark background"
+
+[[outputs]]
+id = "--fJkMFYS3oxWTpf39ceC"
+uri = "file://attached_assets/stock_images/mouse-tech.jpg"
+type = "image"
+title = "computer mouse gaming on dark background"
+
+[[outputs]]
+id = "zBiLLZ8KwSo6SFCywf1Vd"
+uri = "file://attached_assets/stock_images/watch-bands.jpg"
+type = "image"
+title = "watch strap band leather on dark background"
+
+[[outputs]]
+id = "cdWT4krs9sn-GcCRFh6oc"
+uri = "file://attached_assets/stock_images/phone-accessories.jpg"
+type = "image"
+title = "phone accessories collection on dark background"
+
+[[outputs]]
+id = "MrPzGwTaveOBcLE5yY4UN"
+uri = "file://attached_assets/stock_images/watches.jpg"
+type = "image"
+title = "luxury wrist watch on dark background"
+
+[[outputs]]
+id = "nWk5sA9x9rYTj13l3bj36"
+uri = "file://attached_assets/stock_images/women-watches.jpg"
+type = "image"
+title = "elegant women wrist watch on dark background"
+
+[[outputs]]
+id = "H8Mn2pnQtl8zirfRmP7Fc"
+uri = "file://attached_assets/stock_images/formal-shoes.jpg"
+type = "image"
+title = "classic formal leather shoes on dark background"
+
+[[outputs]]
+id = "8nh7omqcGoFAhdaJ9RMCK"
+uri = "file://attached_assets/stock_images/men-socks.jpg"
+type = "image"
+title = "mens dress socks pair on dark background"
+
+[[outputs]]
+id = "p-FIwt1ay0IOP6JB670tk"
+uri = "file://attached_assets/stock_images/socks.jpg"
+type = "image"
+title = "colorful cotton socks on dark background"
+
+[[outputs]]
+id = "TjTtYdKMcCQ3usZhFEmrp"
+uri = "file://attached_assets/stock_images/men-underwear.jpg"
+type = "image"
+title = "mens boxer underwear folded on dark background"
+
+[[outputs]]
+id = "BkMhMfxkgSc7GJPuR0AWP"
+uri = "file://attached_assets/stock_images/caps.jpg"
+type = "image"
+title = "baseball cap hat on dark background"
+
+[[outputs]]
+id = "hVgnyywO2mB3XPgyWUDkv"
+uri = "file://attached_assets/stock_images/accessories.jpg"
+type = "image"
+title = "fashion accessories jewelry on dark background"
+
+[[outputs]]
+id = "Nvjnrnc8qQUdn7ZqY8RMW"
+uri = "file://attached_assets/stock_images/perfumes.jpg"
+type = "image"
+title = "luxury perfume bottle on dark background"
+
+[[outputs]]
+id = "c6D_dHVsrZQL0Io4bTcly"
+uri = "file://attached_assets/stock_images/sunglasses.jpg"
+type = "image"
+title = "sunglasses fashion eyewear on dark background"
+
+[[outputs]]
+id = "dyW8DshSK7Vvlfq-k9c9M"
+uri = "file://attached_assets/stock_images/glasses.jpg"
+type = "image"
+title = "eyeglasses spectacles frames on dark background"
+
+[[outputs]]
+id = "Bo2qgRQzkrMFAXrhDUGbQ"
+uri = "file://attached_assets/stock_images/home-goods.jpg"
+type = "image"
+title = "modern home decor items on dark background"
