@@ -27,6 +27,26 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { Printer, Truck, Calendar, ClipboardList, RefreshCw, Tag } from "lucide-react";
 import type { Order } from "@shared/schema";
+import JsBarcode from "jsbarcode";
+
+function generateBarcodeSvg(code: string): string {
+  const xmlSerializer = new XMLSerializer();
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  try {
+    JsBarcode(svg, code, {
+      format: "CODE128",
+      displayValue: true,
+      height: 120,
+      width: 3,
+      margin: 0,
+      fontSize: 28,
+    });
+    return xmlSerializer.serializeToString(svg);
+  } catch (e) {
+    console.error("barcode generation error", e);
+    return `<svg xmlns="http://www.w3.org/2000/svg"><text>${code}</text></svg>`;
+  }
+}
 
 type RangePreset = "today" | "yesterday" | "week" | "month" | "custom" | "all";
 
@@ -217,9 +237,10 @@ export default function PrintOrdersPage() {
 
   const buildLabelHtml = (o: Order): string => {
     const safeId = String(o.id);
+    const barcodeSvg = generateBarcodeSvg(safeId);
     return `<div class="label">
   <div class="num">#${safeId}</div>
-  <div class="bcwrap"><svg class="bc" data-code="${safeId}"></svg></div>
+  <div class="bcwrap">${barcodeSvg}</div>
 </div>`;
   };
 
@@ -238,8 +259,6 @@ export default function PrintOrdersPage() {
   const openLabelWindow = (labelsHtml: string, count: number) => {
     const html = `<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8">
 <title>&nbsp;</title>
-<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 <style>
   @page { size: 100mm 150mm; margin: 0; }
   * { box-sizing: border-box; font-family: 'Tajawal','Cairo',Arial,sans-serif;
@@ -255,19 +274,7 @@ export default function PrintOrdersPage() {
 </style></head><body>
 ${labelsHtml}
 <script>
-  function renderAndPrint() {
-    if (typeof JsBarcode === 'undefined') {
-      setTimeout(renderAndPrint, 200);
-      return;
-    }
-    document.querySelectorAll('svg.bc').forEach(function(svg){
-      try { JsBarcode(svg, svg.getAttribute('data-code'),
-        { format:"CODE128", displayValue:true, height:120, width:3, margin:0, fontSize:28 }); }
-      catch(e) { console.error('barcode err', e); }
-    });
-    setTimeout(function(){ window.print(); }, 400);
-  }
-  window.addEventListener('load', renderAndPrint);
+  window.addEventListener('load', function(){ setTimeout(function(){ window.print(); }, 200); });
   window.onafterprint = function(){ window.close(); };
 </script></body></html>`;
     const w = window.open("", "_blank", "width=400,height=700");
