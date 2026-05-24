@@ -71,7 +71,7 @@ export default function SocksIqPage() {
         fbclid: getFbclid(),
         utmSource: getUtm("utm_source") || "facebook",
         utmCampaign: getUtm("utm_campaign"),
-        items: [{ productId: PRODUCT_ID, quantity: qty * 5, price: String(PRICE), name: "Bamboo Socks 5 pairs", nameAr: "جوارب بامبو 5 أزواج" }],
+        items: [{ productId: PRODUCT_ID, quantity: qty, price: String(PRICE), name: "Bamboo Socks (Box of 5 pairs)", nameAr: "جوارب بامبو — بوكس (5 أزواج)" }],
       });
     },
     onSuccess: async (data: any) => {

@@ -150,10 +150,10 @@ export default function ZtBambooPage() {
         utmCampaign: getUtm("utm_campaign"),
         items: [{
           productId: PRODUCT_ID,
-          quantity: qty * 5,
+          quantity: qty,
           price: String(PRICE_IQD),
-          name: "ZT Bamboo British Socks",
-          nameAr: "جوارب بامبو البريطانية ZT",
+          name: "ZT Bamboo British Socks (Box of 5)",
+          nameAr: "جوارب بامبو البريطانية ZT — بوكس (5 أزواج)",
         }],
       });
     },

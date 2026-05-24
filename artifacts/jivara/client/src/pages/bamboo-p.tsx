@@ -133,10 +133,10 @@ export default function BambooPPage() {
         utmCampaign: getUtm("utm_campaign"),
         items: [{
           productId: PRODUCT_ID,
-          quantity: qty * 5,
+          quantity: qty,
           price: String(PRICE_IQD),
-          name: "Bamboo British Socks",
-          nameAr: "جوارب بامبو البريطانية",
+          name: "Bamboo British Socks (Box of 5)",
+          nameAr: "جوارب بامبو البريطانية — بوكس (5 أزواج)",
         }],
       });
     },
