@@ -621,6 +621,16 @@ export default function JadafPage() {
                 <X className="w-3.5 h-3.5" /> إغلاق
               </button>
             </div>
+            {/* Swipe hint for sub-categories */}
+            <div
+              className="flex items-center justify-center gap-2 mb-3 text-xs font-bold select-none"
+              style={{ color: COLORS.goldLight }}
+            >
+              <ChevronRight className="w-4 h-4 jd-swipe-hint-r" />
+              <MoveHorizontal className="w-4 h-4 opacity-80" />
+              <span>اسحب يميناً أو يساراً لرؤية كل الأقسام</span>
+              <ChevronLeft className="w-4 h-4 jd-swipe-hint-l" />
+            </div>
             <div className="relative">
               <div
                 className="pointer-events-none absolute top-0 bottom-3 right-12 w-10 z-10"
