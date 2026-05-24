@@ -505,16 +505,7 @@ export default function JadafPage() {
         </div>
 
         {/* LEVEL 1: top-level groups (always visible) */}
-        <div className="relative">
-          {/* edge fades to hint more content */}
-          <div
-            className="pointer-events-none absolute top-0 bottom-3 right-12 w-10 z-10"
-            style={{ background: `linear-gradient(to left, ${COLORS.bg}, transparent)` }}
-          />
-          <div
-            className="pointer-events-none absolute top-0 bottom-3 left-12 w-10 z-10"
-            style={{ background: `linear-gradient(to right, ${COLORS.bg}, transparent)` }}
-          />
+        <div className="relative px-12">
           {/* Right arrow (scrolls right since dir=rtl, visually right) */}
           <button
             type="button"
@@ -547,7 +538,7 @@ export default function JadafPage() {
           </button>
         <div
           ref={groupsScrollRef}
-          className="flex gap-3 overflow-x-auto pb-3 px-12 snap-x snap-mandatory scroll-smooth"
+          className="flex gap-3 overflow-x-auto pb-3 snap-x snap-mandatory scroll-smooth"
           style={{
             scrollbarWidth: "thin",
             scrollbarColor: `${COLORS.goldDark} transparent`,
@@ -631,15 +622,7 @@ export default function JadafPage() {
               <span>اسحب يميناً أو يساراً لرؤية كل الأقسام</span>
               <ChevronLeft className="w-4 h-4 jd-swipe-hint-l" />
             </div>
-            <div className="relative">
-              <div
-                className="pointer-events-none absolute top-0 bottom-3 right-12 w-10 z-10"
-                style={{ background: `linear-gradient(to left, ${COLORS.bg}, transparent)` }}
-              />
-              <div
-                className="pointer-events-none absolute top-0 bottom-3 left-12 w-10 z-10"
-                style={{ background: `linear-gradient(to right, ${COLORS.bg}, transparent)` }}
-              />
+            <div className="relative px-12">
               <button
                 type="button"
                 onClick={() => scrollStrip(subcatsScrollRef, "right")}
@@ -670,7 +653,7 @@ export default function JadafPage() {
               </button>
             <div
               ref={subcatsScrollRef}
-              className="flex gap-3 overflow-x-auto pb-3 px-12 snap-x snap-mandatory scroll-smooth"
+              className="flex gap-3 overflow-x-auto pb-3 snap-x snap-mandatory scroll-smooth"
               style={{
                 scrollbarWidth: "thin",
                 scrollbarColor: `${COLORS.goldDark} transparent`,
