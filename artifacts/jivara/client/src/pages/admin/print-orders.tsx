@@ -169,9 +169,13 @@ export default function PrintOrdersPage() {
   };
 
   const ordersToPrint = useMemo(() => {
-    if (selected.size === 0) return filteredOrders;
     return filteredOrders.filter((o) => selected.has(o.id));
   }, [filteredOrders, selected]);
+
+  const printSingleLabel = (o: Order) => {
+    const labelsHtml = buildLabelHtml(o);
+    openLabelWindow(labelsHtml, 1);
+  };
 
   const printAreaRef = useRef<HTMLDivElement>(null);
 
@@ -260,13 +264,19 @@ export default function PrintOrdersPage() {
 
   const handlePrintLabels = () => {
     if (ordersToPrint.length === 0) {
-      toast({ title: "لا توجد طلبات للطباعة", variant: "destructive" });
+      toast({
+        title: "لم تحدد أي طلب",
+        description: "حدد الطلبات أولاً من القائمة ثم اضغط طباعة",
+        variant: "destructive",
+      });
       return;
     }
-    const labelsHtml = ordersToPrint.map(buildLabelHtml).join("");
-    const count = ordersToPrint.length;
+    openLabelWindow(ordersToPrint.map(buildLabelHtml).join(""), ordersToPrint.length);
+  };
+
+  const openLabelWindow = (labelsHtml: string, count: number) => {
     const html = `<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8">
-<title>طباعة ${count} ملصق</title>
+<title>&nbsp;</title>
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 <style>
@@ -565,6 +575,7 @@ ${labelsHtml}
                         <TableHead className="arabic-text">المنتجات</TableHead>
                         <TableHead className="arabic-text">المجموع</TableHead>
                         <TableHead className="arabic-text">الوسيط</TableHead>
+                        <TableHead className="arabic-text">طباعة</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -624,6 +635,17 @@ ${labelsHtml}
                                   لم يرسل
                                 </Badge>
                               )}
+                            </TableCell>
+                            <TableCell>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => printSingleLabel(o)}
+                                data-testid={`button-print-row-${o.id}`}
+                                title="طباعة ملصق هذا الطلب"
+                              >
+                                <Printer className="w-4 h-4" />
+                              </Button>
                             </TableCell>
                           </TableRow>
                         );
