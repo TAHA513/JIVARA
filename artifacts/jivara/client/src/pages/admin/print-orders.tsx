@@ -255,23 +255,19 @@ export default function PrintOrdersPage() {
 </style></head><body>
 ${labelsHtml}
 <script>
-  document.querySelectorAll('svg.bc').forEach(function(svg){
-    try { JsBarcode(svg, svg.getAttribute('data-code'),
-      { format:"CODE128", displayValue:true, height:120, width:3, margin:0, fontSize:28 }); }
-    catch(e) { console.error('barcode err', e); }
-  });
-  var qrPromises = [];
-  document.querySelectorAll('canvas.qrc').forEach(function(cv){
-    qrPromises.push(new Promise(function(res){
-      try { QRCode.toCanvas(cv, cv.getAttribute('data-code'),
-        { width: 90, margin: 0, errorCorrectionLevel: 'M' },
-        function(err){ if (err) console.error('qr err', err); res(); }); }
-      catch(e) { console.error('qr ex', e); res(); }
-    }));
-  });
-  Promise.all(qrPromises).then(function(){
-    setTimeout(function(){ window.print(); }, 300);
-  });
+  function renderAndPrint() {
+    if (typeof JsBarcode === 'undefined') {
+      setTimeout(renderAndPrint, 200);
+      return;
+    }
+    document.querySelectorAll('svg.bc').forEach(function(svg){
+      try { JsBarcode(svg, svg.getAttribute('data-code'),
+        { format:"CODE128", displayValue:true, height:120, width:3, margin:0, fontSize:28 }); }
+      catch(e) { console.error('barcode err', e); }
+    });
+    setTimeout(function(){ window.print(); }, 400);
+  }
+  window.addEventListener('load', renderAndPrint);
   window.onafterprint = function(){ window.close(); };
 </script></body></html>`;
     const w = window.open("", "_blank", "width=400,height=700");
