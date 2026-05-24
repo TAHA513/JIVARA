@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import {
@@ -146,6 +146,14 @@ export default function JadafPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
+  const groupsScrollRef = useRef<HTMLDivElement>(null);
+  const subcatsScrollRef = useRef<HTMLDivElement>(null);
+  const scrollStrip = (ref: React.RefObject<HTMLDivElement | null>, dir: "left" | "right") => {
+    const el = ref.current;
+    if (!el) return;
+    const amount = Math.max(160, Math.floor(el.clientWidth * 0.7));
+    el.scrollBy({ left: dir === "left" ? -amount : amount, behavior: "smooth" });
+  };
 
   useEffect(() => {
     document.title = "JADAF | جداف — تجربة فاخرة";
@@ -500,15 +508,46 @@ export default function JadafPage() {
         <div className="relative">
           {/* edge fades to hint more content */}
           <div
-            className="pointer-events-none absolute top-0 bottom-3 right-0 w-10 z-10"
+            className="pointer-events-none absolute top-0 bottom-3 right-12 w-10 z-10"
             style={{ background: `linear-gradient(to left, ${COLORS.bg}, transparent)` }}
           />
           <div
-            className="pointer-events-none absolute top-0 bottom-3 left-0 w-10 z-10"
+            className="pointer-events-none absolute top-0 bottom-3 left-12 w-10 z-10"
             style={{ background: `linear-gradient(to right, ${COLORS.bg}, transparent)` }}
           />
+          {/* Right arrow (scrolls right since dir=rtl, visually right) */}
+          <button
+            type="button"
+            onClick={() => scrollStrip(groupsScrollRef, "right")}
+            aria-label="السابق"
+            className="absolute top-1/2 -translate-y-1/2 right-0 z-20 w-10 h-10 rounded-full flex items-center justify-center jd-swipe-hint-r"
+            style={{
+              background: `linear-gradient(135deg, ${COLORS.gold}, ${COLORS.goldDark})`,
+              color: "#0a0a0a",
+              boxShadow: "0 4px 14px rgba(0,0,0,0.5)",
+            }}
+            data-testid="button-scroll-groups-right"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
+          {/* Left arrow */}
+          <button
+            type="button"
+            onClick={() => scrollStrip(groupsScrollRef, "left")}
+            aria-label="التالي"
+            className="absolute top-1/2 -translate-y-1/2 left-0 z-20 w-10 h-10 rounded-full flex items-center justify-center jd-swipe-hint-l"
+            style={{
+              background: `linear-gradient(135deg, ${COLORS.gold}, ${COLORS.goldDark})`,
+              color: "#0a0a0a",
+              boxShadow: "0 4px 14px rgba(0,0,0,0.5)",
+            }}
+            data-testid="button-scroll-groups-left"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
         <div
-          className="flex gap-3 overflow-x-auto pb-3 -mx-6 px-6 snap-x snap-mandatory scroll-smooth"
+          ref={groupsScrollRef}
+          className="flex gap-3 overflow-x-auto pb-3 px-12 snap-x snap-mandatory scroll-smooth"
           style={{
             scrollbarWidth: "thin",
             scrollbarColor: `${COLORS.goldDark} transparent`,
@@ -582,8 +621,46 @@ export default function JadafPage() {
                 <X className="w-3.5 h-3.5" /> إغلاق
               </button>
             </div>
+            <div className="relative">
+              <div
+                className="pointer-events-none absolute top-0 bottom-3 right-12 w-10 z-10"
+                style={{ background: `linear-gradient(to left, ${COLORS.bg}, transparent)` }}
+              />
+              <div
+                className="pointer-events-none absolute top-0 bottom-3 left-12 w-10 z-10"
+                style={{ background: `linear-gradient(to right, ${COLORS.bg}, transparent)` }}
+              />
+              <button
+                type="button"
+                onClick={() => scrollStrip(subcatsScrollRef, "right")}
+                aria-label="السابق"
+                className="absolute top-1/2 -translate-y-1/2 right-0 z-20 w-9 h-9 rounded-full flex items-center justify-center jd-swipe-hint-r"
+                style={{
+                  background: `linear-gradient(135deg, ${COLORS.gold}, ${COLORS.goldDark})`,
+                  color: "#0a0a0a",
+                  boxShadow: "0 4px 14px rgba(0,0,0,0.5)",
+                }}
+                data-testid="button-scroll-subcats-right"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => scrollStrip(subcatsScrollRef, "left")}
+                aria-label="التالي"
+                className="absolute top-1/2 -translate-y-1/2 left-0 z-20 w-9 h-9 rounded-full flex items-center justify-center jd-swipe-hint-l"
+                style={{
+                  background: `linear-gradient(135deg, ${COLORS.gold}, ${COLORS.goldDark})`,
+                  color: "#0a0a0a",
+                  boxShadow: "0 4px 14px rgba(0,0,0,0.5)",
+                }}
+                data-testid="button-scroll-subcats-left"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
             <div
-              className="flex gap-3 overflow-x-auto pb-3 -mx-6 px-6 snap-x snap-mandatory scroll-smooth"
+              ref={subcatsScrollRef}
+              className="flex gap-3 overflow-x-auto pb-3 px-12 snap-x snap-mandatory scroll-smooth"
               style={{
                 scrollbarWidth: "thin",
                 scrollbarColor: `${COLORS.goldDark} transparent`,
@@ -627,6 +704,7 @@ export default function JadafPage() {
                   </button>
                 );
               })}
+            </div>
             </div>
           </div>
         )}
