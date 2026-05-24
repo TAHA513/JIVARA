@@ -227,38 +227,31 @@ export default function PrintOrdersPage() {
           `<div class="prow"><span class="pname">${it.nameAr || it.name || ""}</span><span class="pqty">×${it.quantity}</span></div>`,
       )
       .join("");
-    const totalQty = items.reduce((s, it) => s + (it.quantity || 0), 0);
     const total = parseFloat(o.totalAmount).toLocaleString();
     const src = landingPageLabel(o.landingPage);
     const safeId = String(o.id);
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=110x110&margin=2&data=${encodeURIComponent(safeId)}`;
+    const date = new Date(o.createdAt || Date.now()).toLocaleDateString("en-GB");
     return `<div class="label">
   <div class="head">
-    <div class="brand">جيفارا للتسوق</div>
-    <div class="date">${new Date(o.createdAt || Date.now()).toLocaleDateString("en-GB")}</div>
+    <span class="brand">جيفارا</span>
+    <span class="date">${date}</span>
+    <span class="src">${src}</span>
   </div>
-  <div class="topbar">
-    <div class="qrbox">
-      <canvas class="qrc" data-code="${safeId}"></canvas>
-      <div class="qrlabel">امسح الطلب</div>
-    </div>
-    <div class="qrid-big">
-      <div class="qrid-label">رقم الطلب</div>
-      <div class="qrid-num">#${safeId}</div>
-    </div>
+  <div class="mid">
+    <img class="qr" src="${qrUrl}" alt="QR"/>
+    <div class="ordernum">#${safeId}</div>
   </div>
   <div class="bcwrap"><svg class="bc" data-code="${safeId}"></svg></div>
-  <div class="row"><b>الاسم:</b><span>${o.customerName || "—"}</span></div>
-  <div class="row"><b>الهاتف:</b><span style="font-weight:bold;font-size:15px" dir="ltr">${o.customerPhone || "—"}</span></div>
-  <div class="row"><b>المحافظة:</b><span>${o.city || "—"}</span></div>
-  <div class="row"><b>العنوان:</b><span>${o.shippingAddress || "—"}</span></div>
-  <div class="row"><b>المصدر:</b><span>${src}</span></div>
-  <div class="products">
-    <div class="ptitle">📦 المنتجات (${totalQty} قطعة)</div>
-    ${itemsRows || '<div class="prow"><span>—</span></div>'}
+  <div class="info">
+    <div class="irow"><span class="lbl">الاسم</span><span class="val">${o.customerName || "—"}</span></div>
+    <div class="irow"><span class="lbl">الهاتف</span><span class="val phone" dir="ltr">${o.customerPhone || "—"}</span></div>
+    <div class="irow"><span class="lbl">المحافظة</span><span class="val">${o.city || "—"}</span></div>
+    <div class="irow"><span class="lbl">العنوان</span><span class="val">${o.shippingAddress || "—"}</span></div>
   </div>
-  ${o.notes ? `<div class="notes"><b>ملاحظة:</b> ${o.notes}</div>` : ""}
-  <div class="price">${total} د.ع</div>
-  <div class="foot">جيفارا • #${safeId}</div>
+  <div class="products">${itemsRows || "<span>—</span>"}</div>
+  ${o.notes ? `<div class="notes">ملاحظة: ${o.notes}</div>` : ""}
+  <div class="total">${total} د.ع</div>
 </div>`;
   };
 
@@ -278,61 +271,64 @@ export default function PrintOrdersPage() {
     const html = `<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8">
 <title>&nbsp;</title>
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 <style>
   @page { size: 100mm 150mm; margin: 0; }
-  * { box-sizing: border-box; font-family: 'Tajawal','Cairo',Arial,sans-serif;
-      margin:0; padding:0; }
-  html, body { width:100mm; height:150mm; background:#fff; color:#000; overflow:hidden; }
-  .label { width:100mm; height:150mm; padding:3mm; overflow:hidden;
-           display:flex; flex-direction:column; gap:2mm;
-           page-break-after:always; page-break-inside:avoid; break-after:page; break-inside:avoid; }
+  * { box-sizing:border-box; margin:0; padding:0;
+      font-family:'Tajawal','Cairo',Arial,sans-serif; }
+  html,body { width:100mm; height:150mm; overflow:hidden; background:#fff; color:#000; }
+  .label { width:100mm; height:150mm; padding:4mm 4mm 3mm 4mm;
+           display:flex; flex-direction:column; gap:2.5mm;
+           page-break-after:always; break-after:page;
+           page-break-inside:avoid; break-inside:avoid; overflow:hidden; }
   .label:last-child { page-break-after:auto; break-after:auto; }
+
+  /* رأس الملصق */
   .head { display:flex; justify-content:space-between; align-items:center;
-          border-bottom:1px solid #000; padding-bottom:1mm; flex-shrink:0; }
-  .brand { font-size:11pt; font-weight:900; }
-  .date { font-size:7pt; }
-  .topbar { display:flex; align-items:center; gap:2mm; flex-shrink:0; }
-  .qrbox { text-align:center; flex-shrink:0; }
-  .qrc { width:18mm; height:18mm; display:block; }
-  .qrid-big { flex:1; text-align:center; border:1px solid #000; padding:2mm 1mm; }
-  .qrid-label { font-size:7pt; }
-  .qrid-num { font-size:14pt; font-weight:900; }
+          border-bottom:1.5px solid #000; padding-bottom:1.5mm; flex-shrink:0; }
+  .brand { font-size:13pt; font-weight:900; }
+  .date  { font-size:8pt; color:#333; }
+  .src   { font-size:8pt; color:#555; }
+
+  /* QR + رقم الطلب */
+  .mid { display:flex; align-items:center; gap:3mm; flex-shrink:0; }
+  .qr  { width:22mm; height:22mm; display:block; flex-shrink:0; }
+  .ordernum { flex:1; text-align:center; font-size:22pt; font-weight:900;
+              border:2px solid #000; padding:1.5mm; letter-spacing:1px; }
+
+  /* باركود */
   .bcwrap { text-align:center; flex-shrink:0; }
-  .bcwrap svg { width:60mm; height:12mm; }
-  .row { display:flex; gap:2mm; font-size:8.5pt; line-height:1.25; flex-shrink:0; }
-  .row b { min-width:14mm; display:inline-block; font-weight:700; }
-  .row span { flex:1; overflow:hidden; text-overflow:ellipsis; }
-  .products { padding:1.5mm; border:1px solid #000; flex:1 1 auto;
-              overflow:hidden; min-height:0; }
-  .ptitle { font-size:8pt; font-weight:900; border-bottom:1px dashed #555;
-            padding-bottom:1mm; margin-bottom:1mm; }
-  .prow { display:flex; justify-content:space-between; font-size:8pt; padding:0.5mm 0; }
-  .pname { font-weight:700; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .pqty { font-weight:900; min-width:8mm; text-align:left; }
-  .price { font-size:13pt; font-weight:900; text-align:center; padding:1.5mm;
-           border:1.5px solid #000; flex-shrink:0; }
-  .notes { font-size:7pt; padding:1mm; flex-shrink:0; }
+  .bcwrap svg { width:88mm; height:13mm; }
+
+  /* معلومات العميل */
+  .info { display:flex; flex-direction:column; gap:1mm; flex-shrink:0; }
+  .irow { display:flex; gap:2mm; font-size:10pt; line-height:1.3; }
+  .lbl  { font-weight:900; min-width:18mm; flex-shrink:0; }
+  .val  { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .phone{ font-weight:900; font-size:11pt; }
+
+  /* المنتجات */
+  .products { border:1px solid #000; padding:1.5mm; overflow:hidden;
+              min-height:0; flex:1 1 auto; }
+  .prow { display:flex; justify-content:space-between; font-size:9.5pt;
+          padding:0.5mm 0; border-bottom:1px dotted #ccc; }
+  .prow:last-child { border-bottom:none; }
+  .pname{ font-weight:700; flex:1; white-space:nowrap;
+          overflow:hidden; text-overflow:ellipsis; }
+  .pqty { font-weight:900; min-width:10mm; text-align:left; }
+
+  /* ملاحظة + الإجمالي */
+  .notes { font-size:8pt; padding:1mm; flex-shrink:0; }
+  .total { font-size:16pt; font-weight:900; text-align:center;
+           border:2px solid #000; padding:1.5mm; flex-shrink:0; }
 </style></head><body>
 ${labelsHtml}
 <script>
   document.querySelectorAll('svg.bc').forEach(function(svg){
     try { JsBarcode(svg, svg.getAttribute('data-code'),
-      { format:"CODE128", displayValue:true, height:40, width:2, margin:0, fontSize:14 }); }
+      { format:"CODE128", displayValue:true, height:36, width:2, margin:0, fontSize:12 }); }
     catch(e) { console.error('barcode err', e); }
   });
-  var qrPromises = [];
-  document.querySelectorAll('canvas.qrc').forEach(function(cv){
-    qrPromises.push(new Promise(function(res){
-      try { QRCode.toCanvas(cv, cv.getAttribute('data-code'),
-        { width: 90, margin: 0, errorCorrectionLevel: 'M' },
-        function(err){ if (err) console.error('qr err', err); res(); }); }
-      catch(e) { console.error('qr ex', e); res(); }
-    }));
-  });
-  Promise.all(qrPromises).then(function(){
-    setTimeout(function(){ window.print(); }, 300);
-  });
+  setTimeout(function(){ window.print(); }, 800);
   window.onafterprint = function(){ window.close(); };
 </script></body></html>`;
     const w = window.open("", "_blank", "width=400,height=700");
