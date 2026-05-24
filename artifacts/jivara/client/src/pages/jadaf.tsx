@@ -71,6 +71,61 @@ const CATEGORY_ICONS: Record<string, typeof Watch> = {
   "home-goods": Home,
 };
 
+// Top-level groups → which sub-category slugs belong inside
+const CATEGORY_GROUPS: Array<{
+  id: string;
+  label: string;
+  Icon: typeof Watch;
+  slugs: string[];
+}> = [
+  {
+    id: "phones",
+    label: "الهواتف والإكسسوارات",
+    Icon: Smartphone,
+    slugs: [
+      "phone-protection",
+      "chargers",
+      "cables",
+      "earphones",
+      "power-banks",
+      "ups-batteries",
+      "speakers",
+      "stands",
+      "microphones",
+      "ring-lights",
+      "cameras",
+      "mouse-tech",
+      "smart-watches",
+      "watch-bands",
+      "phone-accessories",
+    ],
+  },
+  {
+    id: "fashion",
+    label: "الأزياء والساعات",
+    Icon: Crown,
+    slugs: [
+      "watches",
+      "women-watches",
+      "formal-shoes",
+      "men-socks",
+      "socks",
+      "men-underwear",
+      "caps",
+      "accessories",
+      "perfumes",
+      "sunglasses",
+      "glasses",
+    ],
+  },
+  {
+    id: "home",
+    label: "المنزل والأثاث",
+    Icon: Home,
+    slugs: ["home-goods"],
+  },
+];
+
 const services = [
   { label: "صيانة الهواتف", Icon: Wrench, desc: "إصلاح احترافي وضمان جودة" },
   { label: "خطوط وخدمات", Icon: Smartphone, desc: "تفعيل وإدارة الخطوط" },
@@ -89,6 +144,7 @@ export default function JadafPage() {
   const [search, setSearch] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
+  const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
 
   useEffect(() => {
     document.title = "JADAF | جداف — تجربة فاخرة";
@@ -118,6 +174,26 @@ export default function JadafPage() {
     return categories.filter((c) => ids.has(c.id) && c.isActive !== false);
   }, [categories, products]);
 
+  // Groups that have at least one visible category
+  const visibleGroups = useMemo(() => {
+    const visibleSlugs = new Set(visibleCategories.map((c) => c.slug));
+    return CATEGORY_GROUPS.filter((g) => g.slugs.some((s) => visibleSlugs.has(s)));
+  }, [visibleCategories]);
+
+  // Categories inside the currently selected group (if any)
+  const categoriesInSelectedGroup = useMemo(() => {
+    if (!selectedGroupId) return [];
+    const group = CATEGORY_GROUPS.find((g) => g.id === selectedGroupId);
+    if (!group) return [];
+    const set = new Set(group.slugs);
+    return visibleCategories.filter((c) => set.has(c.slug));
+  }, [selectedGroupId, visibleCategories]);
+
+  const selectedGroupLabel = useMemo(() => {
+    if (!selectedGroupId) return null;
+    return CATEGORY_GROUPS.find((g) => g.id === selectedGroupId)?.label ?? null;
+  }, [selectedGroupId]);
+
   const filteredProducts = useMemo(() => {
     // Base: search filter
     let list = products;
@@ -135,9 +211,14 @@ export default function JadafPage() {
     if (selectedCategoryId !== null) {
       return list.filter((p) => p.categoryId === selectedCategoryId);
     }
-    // Default: show only ONE per category (featured)
+    // Group selection (no specific cat): show featured products inside the group
+    if (selectedGroupId !== null) {
+      const groupCatIds = new Set(categoriesInSelectedGroup.map((c) => c.id));
+      return list.filter((p) => p.isFeatured && p.categoryId && groupCatIds.has(p.categoryId));
+    }
+    // Default: show only ONE per category (featured) across all groups
     return list.filter((p) => p.isFeatured);
-  }, [products, search, selectedCategoryId]);
+  }, [products, search, selectedCategoryId, selectedGroupId, categoriesInSelectedGroup]);
 
   const selectedCategoryName = useMemo(() => {
     if (selectedCategoryId === null) return null;
@@ -403,6 +484,7 @@ export default function JadafPage() {
           </div>
         </div>
 
+        {/* LEVEL 1: top-level groups (always visible) */}
         <div
           className="flex gap-3 overflow-x-auto pb-3 -mx-6 px-6 snap-x snap-mandatory scroll-smooth"
           style={{
@@ -412,69 +494,119 @@ export default function JadafPage() {
           }}
           dir="rtl"
         >
-          {/* "All" pill — clears category filter */}
-          {selectedCategoryId !== null && (
-            <button
-              type="button"
-              onClick={() => setSelectedCategoryId(null)}
-              className="shrink-0 snap-start rounded-2xl p-4 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all"
-              style={{
-                background: "linear-gradient(135deg, rgba(212,175,55,0.18), rgba(156,116,40,0.08))",
-                border: `1px solid rgba(212,175,55,0.45)`,
-                width: 120,
-                height: 130,
-              }}
-              data-testid="button-clear-category"
-            >
-              <div
-                className="w-12 h-12 rounded-xl flex items-center justify-center"
-                style={{
-                  background: "linear-gradient(135deg, rgba(212,175,55,0.28), rgba(156,116,40,0.16))",
-                  border: `1px solid rgba(212,175,55,0.35)`,
-                }}
-              >
-                <Sparkles className="w-6 h-6" style={{ color: COLORS.goldLight }} />
-              </div>
-              <span className="text-xs font-bold" style={{ color: COLORS.textMain }}>عرض المختارة</span>
-            </button>
-          )}
-          {visibleCategories.map((cat) => {
-            const Icon = (cat.slug && CATEGORY_ICONS[cat.slug]) || ShoppingBag;
-            const isSelected = selectedCategoryId === cat.id;
+          {visibleGroups.map((g) => {
+            const isSelected = selectedGroupId === g.id;
+            const Icon = g.Icon;
             return (
               <button
                 type="button"
-                key={cat.id}
-                onClick={() => setSelectedCategoryId(isSelected ? null : cat.id)}
+                key={g.id}
+                onClick={() => {
+                  setSelectedGroupId(isSelected ? null : g.id);
+                  setSelectedCategoryId(null);
+                }}
                 className="shrink-0 snap-start rounded-2xl p-4 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all"
                 style={{
                   background: isSelected
-                    ? "linear-gradient(135deg, rgba(212,175,55,0.22), rgba(156,116,40,0.10))"
+                    ? "linear-gradient(135deg, rgba(212,175,55,0.28), rgba(156,116,40,0.14))"
                     : "linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02))",
                   border: isSelected
-                    ? `1px solid rgba(212,175,55,0.55)`
+                    ? `2px solid rgba(212,175,55,0.65)`
                     : `1px solid ${COLORS.goldBorder}`,
-                  width: 120,
-                  height: 130,
+                  width: 150,
+                  height: 140,
                 }}
-                data-testid={`button-category-${cat.slug}`}
+                data-testid={`button-group-${g.id}`}
               >
                 <div
-                  className="w-12 h-12 rounded-xl flex items-center justify-center"
+                  className="w-14 h-14 rounded-xl flex items-center justify-center"
                   style={{
-                    background: "linear-gradient(135deg, rgba(212,175,55,0.28), rgba(156,116,40,0.16))",
-                    border: `1px solid rgba(212,175,55,0.35)`,
+                    background: "linear-gradient(135deg, rgba(212,175,55,0.32), rgba(156,116,40,0.18))",
+                    border: `1px solid rgba(212,175,55,0.45)`,
                   }}
                 >
-                  <Icon className="w-6 h-6" style={{ color: COLORS.goldLight }} />
+                  <Icon className="w-7 h-7" style={{ color: COLORS.goldLight }} />
                 </div>
-                <span className="text-xs font-bold text-center line-clamp-2" style={{ color: COLORS.textMain }}>
-                  {cat.nameAr}
+                <span className="text-sm font-bold text-center line-clamp-2" style={{ color: COLORS.textMain }}>
+                  {g.label}
                 </span>
               </button>
             );
           })}
         </div>
+
+        {/* LEVEL 2: sub-categories of selected group */}
+        {selectedGroupId && categoriesInSelectedGroup.length > 0 && (
+          <div className="mt-5 pt-5 border-t" style={{ borderColor: COLORS.goldBorder }}>
+            <div className="flex items-center justify-between mb-3 gap-3">
+              <h4 className="text-base md:text-lg font-bold" style={{ color: COLORS.goldLight }}>
+                أقسام {selectedGroupLabel}
+              </h4>
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedGroupId(null);
+                  setSelectedCategoryId(null);
+                }}
+                className="inline-flex items-center gap-1.5 px-3 h-8 rounded-lg text-xs font-bold"
+                style={{
+                  background: "rgba(255,255,255,0.04)",
+                  border: `1px solid ${COLORS.goldBorder}`,
+                  color: COLORS.textSec,
+                }}
+                data-testid="button-close-group"
+              >
+                <X className="w-3.5 h-3.5" /> إغلاق
+              </button>
+            </div>
+            <div
+              className="flex gap-3 overflow-x-auto pb-3 -mx-6 px-6 snap-x snap-mandatory scroll-smooth"
+              style={{
+                scrollbarWidth: "thin",
+                scrollbarColor: `${COLORS.goldDark} transparent`,
+                WebkitOverflowScrolling: "touch",
+              }}
+              dir="rtl"
+            >
+              {categoriesInSelectedGroup.map((cat) => {
+                const Icon = (cat.slug && CATEGORY_ICONS[cat.slug]) || ShoppingBag;
+                const isSelected = selectedCategoryId === cat.id;
+                return (
+                  <button
+                    type="button"
+                    key={cat.id}
+                    onClick={() => setSelectedCategoryId(isSelected ? null : cat.id)}
+                    className="shrink-0 snap-start rounded-2xl p-4 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all"
+                    style={{
+                      background: isSelected
+                        ? "linear-gradient(135deg, rgba(212,175,55,0.22), rgba(156,116,40,0.10))"
+                        : "linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02))",
+                      border: isSelected
+                        ? `1px solid rgba(212,175,55,0.55)`
+                        : `1px solid ${COLORS.goldBorder}`,
+                      width: 110,
+                      height: 120,
+                    }}
+                    data-testid={`button-category-${cat.slug}`}
+                  >
+                    <div
+                      className="w-10 h-10 rounded-xl flex items-center justify-center"
+                      style={{
+                        background: "linear-gradient(135deg, rgba(212,175,55,0.28), rgba(156,116,40,0.16))",
+                        border: `1px solid rgba(212,175,55,0.35)`,
+                      }}
+                    >
+                      <Icon className="w-5 h-5" style={{ color: COLORS.goldLight }} />
+                    </div>
+                    <span className="text-xs font-bold text-center line-clamp-2" style={{ color: COLORS.textMain }}>
+                      {cat.nameAr}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </section>
 
       {/* Products */}
