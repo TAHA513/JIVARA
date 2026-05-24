@@ -5,6 +5,7 @@ import {
   Watch, SprayCan, Glasses, Shirt, Headphones, Smartphone,
   Wrench, CreditCard, Truck, ShieldCheck, Lock, Phone, MapPin,
   Instagram, Search, ShoppingBag, Home, Sparkles, Crown, Menu, X, MessageCircle,
+  ChevronLeft, ChevronRight, MoveHorizontal,
 } from "lucide-react";
 import type { Product, Category } from "@shared/schema";
 import JadafLogo from "@/components/jadaf-logo";
@@ -484,7 +485,28 @@ export default function JadafPage() {
           </div>
         </div>
 
+        {/* Swipe hint */}
+        <div
+          className="flex items-center justify-center gap-2 mb-3 text-xs font-bold select-none"
+          style={{ color: COLORS.goldLight }}
+        >
+          <ChevronRight className="w-4 h-4 jd-swipe-hint-r" />
+          <MoveHorizontal className="w-4 h-4 opacity-80" />
+          <span>اسحب يميناً أو يساراً لرؤية كل الأقسام</span>
+          <ChevronLeft className="w-4 h-4 jd-swipe-hint-l" />
+        </div>
+
         {/* LEVEL 1: top-level groups (always visible) */}
+        <div className="relative">
+          {/* edge fades to hint more content */}
+          <div
+            className="pointer-events-none absolute top-0 bottom-3 right-0 w-10 z-10"
+            style={{ background: `linear-gradient(to left, ${COLORS.bg}, transparent)` }}
+          />
+          <div
+            className="pointer-events-none absolute top-0 bottom-3 left-0 w-10 z-10"
+            style={{ background: `linear-gradient(to right, ${COLORS.bg}, transparent)` }}
+          />
         <div
           className="flex gap-3 overflow-x-auto pb-3 -mx-6 px-6 snap-x snap-mandatory scroll-smooth"
           style={{
@@ -533,6 +555,7 @@ export default function JadafPage() {
               </button>
             );
           })}
+        </div>
         </div>
 
         {/* LEVEL 2: sub-categories of selected group */}

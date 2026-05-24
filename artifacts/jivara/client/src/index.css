@@ -363,4 +363,14 @@ img {
   .animate-bounce-x {
     animation: bounceX 1.4s ease-in-out infinite;
   }
+  @keyframes jdSwipeR {
+    0%, 100% { transform: translateX(0); opacity: 0.6; }
+    50% { transform: translateX(6px); opacity: 1; }
+  }
+  @keyframes jdSwipeL {
+    0%, 100% { transform: translateX(0); opacity: 0.6; }
+    50% { transform: translateX(-6px); opacity: 1; }
+  }
+  .jd-swipe-hint-r { animation: jdSwipeR 1.4s ease-in-out infinite; }
+  .jd-swipe-hint-l { animation: jdSwipeL 1.4s ease-in-out infinite; }
 }
