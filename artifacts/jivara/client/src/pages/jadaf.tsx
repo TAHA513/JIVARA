@@ -138,7 +138,7 @@ const CATEGORY_GROUPS: Array<{
     id: "fashion",
     label: "الأزياء والساعات",
     Icon: Crown,
-    emoji: "👑",
+    emoji: "👗",
     slugs: [
       "watches",
       "women-watches",
