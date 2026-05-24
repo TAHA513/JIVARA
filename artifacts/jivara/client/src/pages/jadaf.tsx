@@ -108,12 +108,14 @@ const CATEGORY_GROUPS: Array<{
   id: string;
   label: string;
   Icon: typeof Watch;
+  emoji: string;
   slugs: string[];
 }> = [
   {
     id: "phones",
     label: "الهواتف والإكسسوارات",
     Icon: Smartphone,
+    emoji: "📱",
     slugs: [
       "phone-protection",
       "chargers",
@@ -136,6 +138,7 @@ const CATEGORY_GROUPS: Array<{
     id: "fashion",
     label: "الأزياء والساعات",
     Icon: Crown,
+    emoji: "👑",
     slugs: [
       "watches",
       "women-watches",
@@ -154,6 +157,7 @@ const CATEGORY_GROUPS: Array<{
     id: "home",
     label: "المنزل والأثاث",
     Icon: Home,
+    emoji: "🏠",
     slugs: ["home-goods"],
   },
 ];
@@ -579,7 +583,6 @@ export default function JadafPage() {
         >
           {visibleGroups.map((g) => {
             const isSelected = selectedGroupId === g.id;
-            const Icon = g.Icon;
             return (
               <button
                 type="button"
@@ -602,13 +605,14 @@ export default function JadafPage() {
                 data-testid={`button-group-${g.id}`}
               >
                 <div
-                  className="w-14 h-14 rounded-xl flex items-center justify-center"
+                  className="w-14 h-14 rounded-xl flex items-center justify-center text-3xl"
                   style={{
                     background: "linear-gradient(135deg, rgba(212,175,55,0.32), rgba(156,116,40,0.18))",
                     border: `1px solid rgba(212,175,55,0.45)`,
                   }}
+                  aria-hidden="true"
                 >
-                  <Icon className="w-7 h-7" style={{ color: COLORS.goldLight }} />
+                  {g.emoji}
                 </div>
                 <span className="text-sm font-bold text-center line-clamp-2" style={{ color: COLORS.textMain }}>
                   {g.label}
