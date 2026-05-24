@@ -11,17 +11,36 @@ import type { Product, Category } from "@shared/schema";
 import JadafLogo from "@/components/jadaf-logo";
 import heroBg from "@assets/jadaf-hero-bg.png";
 
-// Bulk-import category stock images (slug-named .jpg files)
-const CATEGORY_IMAGE_MODULES = import.meta.glob<{ default: string }>(
-  "@assets/stock_images/*.jpg",
-  { eager: true },
-);
-const CATEGORY_IMAGES: Record<string, string> = Object.fromEntries(
-  Object.entries(CATEGORY_IMAGE_MODULES).map(([path, mod]) => {
-    const slug = path.split("/").pop()!.replace(/\.jpg$/, "");
-    return [slug, mod.default];
-  }),
-);
+// Colorful emoji per category slug
+const CATEGORY_EMOJI: Record<string, string> = {
+  "phone-protection": "🛡️",
+  chargers: "🔌",
+  cables: "🔗",
+  earphones: "🎧",
+  "power-banks": "🔋",
+  "ups-batteries": "🔋",
+  speakers: "🔊",
+  stands: "📲",
+  microphones: "🎤",
+  "ring-lights": "💡",
+  cameras: "📷",
+  "mouse-tech": "🖱️",
+  "smart-watches": "⌚",
+  "watch-bands": "⌚",
+  "phone-accessories": "📱",
+  watches: "⌚",
+  "women-watches": "⌚",
+  "formal-shoes": "👞",
+  "men-socks": "🧦",
+  socks: "🧦",
+  "men-underwear": "🩲",
+  caps: "🧢",
+  accessories: "👑",
+  perfumes: "🧴",
+  sunglasses: "🕶️",
+  glasses: "👓",
+  "home-goods": "🏠",
+};
 
 function WhatsAppIcon({ className = "", size = 16 }: { className?: string; size?: number }) {
   return (
@@ -640,15 +659,14 @@ export default function JadafPage() {
             </p>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
               {categoriesInSelectedGroup.map((cat) => {
-                const Icon = (cat.slug && CATEGORY_ICONS[cat.slug]) || ShoppingBag;
-                const imgSrc = cat.slug ? CATEGORY_IMAGES[cat.slug] : undefined;
+                const emoji = (cat.slug && CATEGORY_EMOJI[cat.slug]) || "🛍️";
                 const isSelected = selectedCategoryId === cat.id;
                 return (
                   <button
                     type="button"
                     key={cat.id}
                     onClick={() => setSelectedCategoryId(isSelected ? null : cat.id)}
-                    className="rounded-2xl p-3 flex flex-col items-center justify-start gap-2 cursor-pointer transition-all"
+                    className="rounded-2xl p-4 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all min-h-[150px]"
                     style={{
                       background: isSelected
                         ? "linear-gradient(135deg, rgba(212,175,55,0.22), rgba(156,116,40,0.10))"
@@ -660,24 +678,16 @@ export default function JadafPage() {
                     data-testid={`button-category-${cat.slug}`}
                   >
                     <div
-                      className="w-full aspect-square rounded-xl overflow-hidden flex items-center justify-center"
+                      className="w-16 h-16 rounded-2xl flex items-center justify-center text-4xl mb-1"
                       style={{
-                        background: "linear-gradient(135deg, rgba(212,175,55,0.10), rgba(0,0,0,0.4))",
-                        border: `1px solid rgba(212,175,55,0.25)`,
+                        background: "linear-gradient(135deg, rgba(212,175,55,0.20), rgba(156,116,40,0.08))",
+                        border: `1px solid rgba(212,175,55,0.35)`,
                       }}
+                      aria-hidden="true"
                     >
-                      {imgSrc ? (
-                        <img
-                          src={imgSrc}
-                          alt={cat.nameAr}
-                          loading="lazy"
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <Icon className="w-8 h-8" style={{ color: COLORS.goldLight }} />
-                      )}
+                      {emoji}
                     </div>
-                    <span className="text-sm font-bold text-center line-clamp-1 mt-1" style={{ color: COLORS.textMain }}>
+                    <span className="text-sm font-bold text-center line-clamp-1" style={{ color: COLORS.textMain }}>
                       {cat.nameAr}
                     </span>
                     {cat.descriptionAr && (
