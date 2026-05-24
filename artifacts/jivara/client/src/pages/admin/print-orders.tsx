@@ -270,46 +270,51 @@ export default function PrintOrdersPage() {
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 <style>
-  @page { size: 100mm 150mm; margin: 3mm; }
+  @page { size: 100mm 150mm; margin: 2mm; }
   * { box-sizing: border-box; font-family: 'Tajawal','Cairo',Arial,sans-serif; }
-  body { margin:0; padding:6px; color:#000; background:#fff; }
-  .label { border:2px solid #000; padding:8px; page-break-after: always; }
+  html, body { margin:0; padding:0; color:#000; background:#fff; }
+  .label { width: 96mm; height: 146mm; padding:3mm; page-break-after: always;
+           page-break-inside: avoid; overflow: hidden;
+           display: flex; flex-direction: column; border:1.5px solid #000; }
   .label:last-child { page-break-after: auto; }
   .head { display:flex; justify-content:space-between; align-items:center;
-          border-bottom:1.5px dashed #000; padding-bottom:4px; margin-bottom:6px; }
-  .brand { font-size:15px; font-weight:900; }
-  .date { font-size:10px; }
-  .topbar { display:flex; align-items:center; gap:6px; margin-bottom:5px; }
+          border-bottom:1px dashed #000; padding-bottom:2px; margin-bottom:3px;
+          flex-shrink:0; }
+  .brand { font-size:13px; font-weight:900; }
+  .date { font-size:9px; }
+  .topbar { display:flex; align-items:center; gap:4px; margin-bottom:3px; flex-shrink:0; }
   .qrbox { text-align:center; flex-shrink:0; }
-  .qrc { width:90px; height:90px; display:block; }
-  .qrlabel { font-size:9px; margin-top:2px; color:#333; }
-  .qrid-big { flex:1; text-align:center; border:2px solid #000; border-radius:6px;
-              padding:6px 4px; }
-  .qrid-label { font-size:9px; color:#444; margin-bottom:2px; }
-  .qrid-num { font-size:20px; font-weight:900; letter-spacing:1px; }
-  .bcwrap { text-align:center; margin:4px 0 6px; }
-  .bcwrap svg { width:100%; max-width:280px; height:45px; }
-  .row { display:flex; gap:4px; margin:2px 0; font-size:12px; }
-  .row b { min-width:55px; display:inline-block; font-weight:700; }
-  .products { margin-top:6px; padding:5px; border:1.5px solid #000; border-radius:5px; }
-  .ptitle { font-size:12px; font-weight:900; margin-bottom:4px;
-            border-bottom:1px dashed #555; padding-bottom:3px; }
-  .prow { display:flex; justify-content:space-between; font-size:12px;
-          padding:2px 0; border-bottom:1px dotted #ccc; }
+  .qrc { width:70px; height:70px; display:block; }
+  .qrlabel { font-size:8px; margin-top:1px; color:#333; }
+  .qrid-big { flex:1; text-align:center; border:1.5px solid #000; border-radius:4px;
+              padding:4px 2px; }
+  .qrid-label { font-size:8px; color:#444; margin-bottom:1px; }
+  .qrid-num { font-size:18px; font-weight:900; letter-spacing:1px; }
+  .bcwrap { text-align:center; margin:2px 0 3px; flex-shrink:0; }
+  .bcwrap svg { width:100%; max-width:260px; height:45px; }
+  .row { display:flex; gap:3px; margin:1px 0; font-size:11px; line-height:1.3; }
+  .row b { min-width:50px; display:inline-block; font-weight:700; }
+  .products { margin-top:3px; padding:3px; border:1px solid #000; border-radius:3px;
+              flex:1; overflow:hidden; }
+  .ptitle { font-size:10px; font-weight:900; margin-bottom:2px;
+            border-bottom:1px dashed #555; padding-bottom:2px; }
+  .prow { display:flex; justify-content:space-between; font-size:10px;
+          padding:1px 0; border-bottom:1px dotted #ccc; }
   .prow:last-child { border-bottom:none; }
-  .pname { font-weight:700; flex:1; }
-  .pqty { font-weight:900; min-width:36px; text-align:left; }
-  .price { font-size:18px; font-weight:900; text-align:center; padding:6px;
-           border:2px solid #000; margin-top:6px; border-radius:5px; }
-  .notes { font-size:11px; padding:3px; border-top:1px dashed #555; margin-top:5px; }
-  .foot { text-align:center; font-size:9px; margin-top:5px; color:#444; }
+  .pname { font-weight:700; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .pqty { font-weight:900; min-width:30px; text-align:left; }
+  .price { font-size:16px; font-weight:900; text-align:center; padding:3px;
+           border:1.5px solid #000; margin-top:3px; border-radius:3px; flex-shrink:0; }
+  .notes { font-size:9px; padding:2px; border-top:1px dashed #555; margin-top:2px;
+           flex-shrink:0; }
+  .foot { text-align:center; font-size:8px; margin-top:2px; color:#444; flex-shrink:0; }
   @media print { body { padding:0 } }
 </style></head><body>
 ${labelsHtml}
 <script>
   document.querySelectorAll('svg.bc').forEach(function(svg){
     try { JsBarcode(svg, svg.getAttribute('data-code'),
-      { format:"CODE128", displayValue:false, height:45, width:2, margin:0 }); }
+      { format:"CODE128", displayValue:true, height:40, width:2, margin:0, fontSize:14 }); }
     catch(e) { console.error('barcode err', e); }
   });
   var qrPromises = [];
