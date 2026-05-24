@@ -25,7 +25,7 @@ import AdminSidebar from "@/components/admin/sidebar";
 import { useAdminAuth } from "@/hooks/use-admin-auth";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { Printer, Truck, Calendar, ClipboardList, RefreshCw } from "lucide-react";
+import { Printer, Truck, Calendar, ClipboardList, RefreshCw, Tag } from "lucide-react";
 import type { Order } from "@shared/schema";
 
 type RangePreset = "today" | "yesterday" | "week" | "month" | "custom" | "all";
@@ -211,6 +211,133 @@ export default function PrintOrdersPage() {
     setTimeout(() => window.print(), 150);
   };
 
+  const buildLabelHtml = (o: Order): string => {
+    const items = ((o as any).items as Array<{
+      nameAr: string;
+      name: string;
+      quantity: number;
+    }>) || [];
+    const itemsRows = items
+      .map(
+        (it) =>
+          `<div class="prow"><span class="pname">${it.nameAr || it.name || ""}</span><span class="pqty">×${it.quantity}</span></div>`,
+      )
+      .join("");
+    const totalQty = items.reduce((s, it) => s + (it.quantity || 0), 0);
+    const total = parseFloat(o.totalAmount).toLocaleString();
+    const src = landingPageLabel(o.landingPage);
+    const safeId = String(o.id);
+    return `<div class="label">
+  <div class="head">
+    <div class="brand">جيفارا للتسوق</div>
+    <div class="date">${new Date(o.createdAt || Date.now()).toLocaleDateString("en-GB")}</div>
+  </div>
+  <div class="topbar">
+    <div class="qrbox">
+      <canvas class="qrc" data-code="${safeId}"></canvas>
+      <div class="qrlabel">امسح الطلب</div>
+    </div>
+    <div class="qrid-big">
+      <div class="qrid-label">رقم الطلب</div>
+      <div class="qrid-num">#${safeId}</div>
+    </div>
+  </div>
+  <div class="bcwrap"><svg class="bc" data-code="${safeId}"></svg></div>
+  <div class="row"><b>الاسم:</b><span>${o.customerName || "—"}</span></div>
+  <div class="row"><b>الهاتف:</b><span style="font-weight:bold;font-size:15px" dir="ltr">${o.customerPhone || "—"}</span></div>
+  <div class="row"><b>المحافظة:</b><span>${o.city || "—"}</span></div>
+  <div class="row"><b>العنوان:</b><span>${o.shippingAddress || "—"}</span></div>
+  <div class="row"><b>المصدر:</b><span>${src}</span></div>
+  <div class="products">
+    <div class="ptitle">📦 المنتجات (${totalQty} قطعة)</div>
+    ${itemsRows || '<div class="prow"><span>—</span></div>'}
+  </div>
+  ${o.notes ? `<div class="notes"><b>ملاحظة:</b> ${o.notes}</div>` : ""}
+  <div class="price">${total} د.ع</div>
+  <div class="foot">جيفارا • #${safeId}</div>
+</div>`;
+  };
+
+  const handlePrintLabels = () => {
+    if (ordersToPrint.length === 0) {
+      toast({ title: "لا توجد طلبات للطباعة", variant: "destructive" });
+      return;
+    }
+    const labelsHtml = ordersToPrint.map(buildLabelHtml).join("");
+    const count = ordersToPrint.length;
+    const html = `<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8">
+<title>طباعة ${count} ملصق</title>
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<style>
+  @page { size: 80mm auto; margin: 2mm; }
+  * { box-sizing: border-box; font-family: 'Tajawal','Cairo',Arial,sans-serif; }
+  body { margin:0; padding:4px; color:#000; background:#fff; width: 76mm; }
+  .label { padding:6px; page-break-after: always; border-bottom: 1px dashed #999; }
+  .label:last-child { page-break-after: auto; border-bottom: none; }
+  .head { display:flex; justify-content:space-between; align-items:center;
+          border-bottom:1.5px dashed #000; padding-bottom:4px; margin-bottom:6px; }
+  .brand { font-size:15px; font-weight:900; }
+  .date { font-size:10px; }
+  .topbar { display:flex; align-items:center; gap:6px; margin-bottom:5px; }
+  .qrbox { text-align:center; flex-shrink:0; }
+  .qrc { width:90px; height:90px; display:block; }
+  .qrlabel { font-size:9px; margin-top:2px; color:#333; }
+  .qrid-big { flex:1; text-align:center; border:2px solid #000; border-radius:6px;
+              padding:6px 4px; }
+  .qrid-label { font-size:9px; color:#444; margin-bottom:2px; }
+  .qrid-num { font-size:20px; font-weight:900; letter-spacing:1px; }
+  .bcwrap { text-align:center; margin:4px 0 6px; }
+  .bcwrap svg { width:100%; max-width:280px; height:45px; }
+  .row { display:flex; gap:4px; margin:2px 0; font-size:12px; }
+  .row b { min-width:55px; display:inline-block; font-weight:700; }
+  .products { margin-top:6px; padding:5px; border:1.5px solid #000; border-radius:5px; }
+  .ptitle { font-size:12px; font-weight:900; margin-bottom:4px;
+            border-bottom:1px dashed #555; padding-bottom:3px; }
+  .prow { display:flex; justify-content:space-between; font-size:12px;
+          padding:2px 0; border-bottom:1px dotted #ccc; }
+  .prow:last-child { border-bottom:none; }
+  .pname { font-weight:700; flex:1; }
+  .pqty { font-weight:900; min-width:36px; text-align:left; }
+  .price { font-size:18px; font-weight:900; text-align:center; padding:6px;
+           border:2px solid #000; margin-top:6px; border-radius:5px; }
+  .notes { font-size:11px; padding:3px; border-top:1px dashed #555; margin-top:5px; }
+  .foot { text-align:center; font-size:9px; margin-top:5px; color:#444; }
+  @media print { body { padding:0 } }
+</style></head><body>
+${labelsHtml}
+<script>
+  document.querySelectorAll('svg.bc').forEach(function(svg){
+    try { JsBarcode(svg, svg.getAttribute('data-code'),
+      { format:"CODE128", displayValue:false, height:45, width:2, margin:0 }); }
+    catch(e) { console.error('barcode err', e); }
+  });
+  var qrPromises = [];
+  document.querySelectorAll('canvas.qrc').forEach(function(cv){
+    qrPromises.push(new Promise(function(res){
+      try { QRCode.toCanvas(cv, cv.getAttribute('data-code'),
+        { width: 90, margin: 0, errorCorrectionLevel: 'M' },
+        function(err){ if (err) console.error('qr err', err); res(); }); }
+      catch(e) { console.error('qr ex', e); res(); }
+    }));
+  });
+  Promise.all(qrPromises).then(function(){
+    setTimeout(function(){ window.print(); }, 300);
+  });
+  window.onafterprint = function(){ window.close(); };
+</script></body></html>`;
+    const w = window.open("", "_blank", "width=400,height=700");
+    if (!w) {
+      toast({
+        title: "السماح بالنوافذ المنبثقة مطلوب",
+        variant: "destructive",
+      });
+      return;
+    }
+    w.document.write(html);
+    w.document.close();
+  };
+
   const sendToAlwaseet = useMutation({
     mutationFn: async (orderId: number) => {
       const res = await apiRequest("POST", `/api/alwaseet/send/${orderId}`, {});
@@ -357,12 +484,21 @@ export default function PrintOrdersPage() {
 
               <div className="flex flex-wrap items-center gap-2 mt-4 pt-4 border-t">
                 <Button
+                  onClick={handlePrintLabels}
+                  className="bg-green-600 hover:bg-green-700 text-white"
+                  data-testid="button-print-labels"
+                >
+                  <Tag className="w-4 h-4 ml-2" />
+                  طباعة ملصقات حرارية {selected.size > 0 ? `(${selected.size})` : ""}
+                </Button>
+                <Button
                   onClick={handlePrint}
-                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                  variant="outline"
+                  className="border-blue-600 text-blue-700 hover:bg-blue-50"
                   data-testid="button-print"
                 >
                   <Printer className="w-4 h-4 ml-2" />
-                  طباعة {selected.size > 0 ? `(${selected.size} محدد)` : "كل المعروض"}
+                  طباعة A4 {selected.size > 0 ? `(${selected.size})` : ""}
                 </Button>
                 <Button
                   onClick={handleSendToAlwaseet}
