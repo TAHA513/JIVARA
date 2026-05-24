@@ -403,17 +403,26 @@ export default function JadafPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div
+          className="flex gap-3 overflow-x-auto pb-3 -mx-6 px-6 snap-x snap-mandatory scroll-smooth"
+          style={{
+            scrollbarWidth: "thin",
+            scrollbarColor: `${COLORS.goldDark} transparent`,
+            WebkitOverflowScrolling: "touch",
+          }}
+          dir="rtl"
+        >
           {/* "All" pill — clears category filter */}
           {selectedCategoryId !== null && (
             <button
               type="button"
               onClick={() => setSelectedCategoryId(null)}
-              className="group rounded-2xl p-5 flex flex-col items-center justify-center gap-3 cursor-pointer transition-all"
+              className="shrink-0 snap-start rounded-2xl p-4 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all"
               style={{
                 background: "linear-gradient(135deg, rgba(212,175,55,0.18), rgba(156,116,40,0.08))",
                 border: `1px solid rgba(212,175,55,0.45)`,
-                minHeight: 130,
+                width: 120,
+                height: 130,
               }}
               data-testid="button-clear-category"
             >
@@ -426,7 +435,7 @@ export default function JadafPage() {
               >
                 <Sparkles className="w-6 h-6" style={{ color: COLORS.goldLight }} />
               </div>
-              <span className="text-sm font-bold" style={{ color: COLORS.textMain }}>عرض المختارة</span>
+              <span className="text-xs font-bold" style={{ color: COLORS.textMain }}>عرض المختارة</span>
             </button>
           )}
           {visibleCategories.map((cat) => {
@@ -437,7 +446,7 @@ export default function JadafPage() {
                 type="button"
                 key={cat.id}
                 onClick={() => setSelectedCategoryId(isSelected ? null : cat.id)}
-                className="group rounded-2xl p-5 flex flex-col items-center justify-center gap-3 cursor-pointer transition-all"
+                className="shrink-0 snap-start rounded-2xl p-4 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all"
                 style={{
                   background: isSelected
                     ? "linear-gradient(135deg, rgba(212,175,55,0.22), rgba(156,116,40,0.10))"
@@ -445,7 +454,8 @@ export default function JadafPage() {
                   border: isSelected
                     ? `1px solid rgba(212,175,55,0.55)`
                     : `1px solid ${COLORS.goldBorder}`,
-                  minHeight: 130,
+                  width: 120,
+                  height: 130,
                 }}
                 data-testid={`button-category-${cat.slug}`}
               >
@@ -458,7 +468,7 @@ export default function JadafPage() {
                 >
                   <Icon className="w-6 h-6" style={{ color: COLORS.goldLight }} />
                 </div>
-                <span className="text-sm font-bold text-center" style={{ color: COLORS.textMain }}>
+                <span className="text-xs font-bold text-center line-clamp-2" style={{ color: COLORS.textMain }}>
                   {cat.nameAr}
                 </span>
               </button>
