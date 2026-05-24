@@ -273,9 +273,9 @@ export default function PrintOrdersPage() {
   @page { size: 100mm 150mm; margin: 0; }
   * { box-sizing: border-box; font-family: 'Tajawal','Cairo',Arial,sans-serif; }
   html, body { margin:0; padding:0; color:#000; background:#fff; }
-  .label { width: 100mm; height: 150mm; padding:4mm; page-break-after: always;
-           page-break-inside: avoid; overflow: hidden;
-           display: flex; flex-direction: column; border:1.5px solid #000; }
+  .label { width: 98mm; height: 148mm; padding:3mm; page-break-after: always;
+           page-break-inside: avoid; overflow: hidden; break-inside: avoid;
+           display: flex; flex-direction: column; }
   .label:last-child { page-break-after: auto; }
   .head { display:flex; justify-content:space-between; align-items:center;
           border-bottom:1px dashed #000; padding-bottom:2px; margin-bottom:3px;
