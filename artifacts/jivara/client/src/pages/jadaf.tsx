@@ -511,7 +511,7 @@ export default function JadafPage() {
             type="button"
             onClick={() => scrollStrip(groupsScrollRef, "right")}
             aria-label="السابق"
-            className="absolute top-1/2 -translate-y-1/2 right-0 z-20 w-10 h-10 rounded-full flex items-center justify-center jd-swipe-hint-r"
+            className="absolute top-9 -translate-y-1/2 right-0 z-20 w-8 h-8 rounded-full flex items-center justify-center jd-swipe-hint-r"
             style={{
               background: `linear-gradient(135deg, ${COLORS.gold}, ${COLORS.goldDark})`,
               color: "#0a0a0a",
@@ -526,7 +526,7 @@ export default function JadafPage() {
             type="button"
             onClick={() => scrollStrip(groupsScrollRef, "left")}
             aria-label="التالي"
-            className="absolute top-1/2 -translate-y-1/2 left-0 z-20 w-10 h-10 rounded-full flex items-center justify-center jd-swipe-hint-l"
+            className="absolute top-9 -translate-y-1/2 left-0 z-20 w-8 h-8 rounded-full flex items-center justify-center jd-swipe-hint-l"
             style={{
               background: `linear-gradient(135deg, ${COLORS.gold}, ${COLORS.goldDark})`,
               color: "#0a0a0a",
