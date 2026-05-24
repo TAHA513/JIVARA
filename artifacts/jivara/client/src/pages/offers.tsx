@@ -8,7 +8,7 @@ import type { Product } from "@shared/schema";
 
 export default function Offers() {
   const { data: products = [], isLoading } = useQuery<Product[]>({
-    queryKey: ["/api/products"],
+    queryKey: ["/api/products?showOnJivara=true"],
   });
 
   const { data: settings = [] } = useQuery<Array<{key: string, value: string}>>({

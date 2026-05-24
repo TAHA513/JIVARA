@@ -26,12 +26,14 @@ export default function Products() {
   const { data: products = [], isLoading } = useQuery<Product[]>({
     queryKey: ["/api/products", {
       categoryId: selectedCategory === "all" ? undefined : parseInt(selectedCategory),
-      search: searchQuery || undefined
+      search: searchQuery || undefined,
+      showOnJivara: true,
     }],
     queryFn: async () => {
       const params = new URLSearchParams();
       if (selectedCategory !== "all") params.append("categoryId", selectedCategory);
       if (searchQuery) params.append("search", searchQuery);
+      params.append("showOnJivara", "true");
       
       const response = await fetch(`/api/products?${params}`);
       if (!response.ok) throw new Error("Failed to fetch products");

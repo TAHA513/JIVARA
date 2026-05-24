@@ -45,6 +45,7 @@ export const products = pgTable("products", {
   isActive: boolean("is_active").default(true),
   isFeatured: boolean("is_featured").default(false),
   showOnJadaf: boolean("show_on_jadaf").default(false),
+  showOnJivara: boolean("show_on_jivara").default(true),
   tags: text("tags").array(),
   createdAt: timestamp("created_at").defaultNow(),
 });
@@ -230,6 +231,7 @@ export const insertProductSchema = createInsertSchema(products).pick({
   isActive: true,
   isFeatured: true,
   showOnJadaf: true,
+  showOnJivara: true,
   tags: true,
 });
 

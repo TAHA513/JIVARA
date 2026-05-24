@@ -30,7 +30,7 @@ export default function ShopPage() {
   const AUTO_DISCOUNT_AMT = 25000;
   const [customerInfo, setCustomerInfo] = useState({ name: "", phone: "", city: "", address: "" });
 
-  const { data: products = [], isLoading } = useQuery<Product[]>({ queryKey: ["/api/products"] });
+  const { data: products = [], isLoading } = useQuery<Product[]>({ queryKey: ["/api/products?showOnJivara=true"] });
   const { data: settings = [] } = useQuery<StoreSetting[]>({ queryKey: ["/api/settings"] });
   const whatsapp = settings.find(s => s.key === "whatsapp_number")?.value || "9647819966698";
   const storeName = settings.find(s => s.key === "store_name")?.value || "جيفارا للتسوق";

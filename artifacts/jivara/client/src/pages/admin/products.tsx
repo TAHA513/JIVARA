@@ -46,6 +46,7 @@ export default function AdminProducts() {
     isActive: true,
     isFeatured: false,
     showOnJadaf: false,
+    showOnJivara: true,
     tags: [""],
   });
 
@@ -198,6 +199,7 @@ export default function AdminProducts() {
       isActive: true,
       isFeatured: false,
       showOnJadaf: false,
+      showOnJivara: true,
       tags: [""],
     });
   };
@@ -225,6 +227,7 @@ export default function AdminProducts() {
       isActive: product.isActive ?? true,
       isFeatured: product.isFeatured ?? false,
       showOnJadaf: product.showOnJadaf ?? false,
+      showOnJivara: product.showOnJivara ?? true,
       tags: product.tags?.length ? product.tags : [""],
     });
     setIsDialogOpen(true);
@@ -694,6 +697,15 @@ export default function AdminProducts() {
                         onCheckedChange={(checked) => setFormData(prev => ({ ...prev, showOnJadaf: checked }))}
                       />
                       <Label htmlFor="showOnJadaf" className="arabic-text">إظهار في صفحة جداف</Label>
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                      <Switch
+                        id="showOnJivara"
+                        checked={formData.showOnJivara}
+                        onCheckedChange={(checked) => setFormData(prev => ({ ...prev, showOnJivara: checked }))}
+                      />
+                      <Label htmlFor="showOnJivara" className="arabic-text">إظهار في صفحة جيفارا</Label>
                     </div>
                   </div>
 

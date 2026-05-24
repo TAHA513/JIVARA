@@ -33,7 +33,7 @@ export interface IStorage {
   deleteCategory(id: number): Promise<boolean>;
 
   // Products
-  getProducts(filters?: { categoryId?: number; search?: string; featured?: boolean; showOnJadaf?: boolean }): Promise<Product[]>;
+  getProducts(filters?: { categoryId?: number; search?: string; featured?: boolean; showOnJadaf?: boolean; showOnJivara?: boolean }): Promise<Product[]>;
   getProduct(id: number): Promise<Product | undefined>;
   getProductsBySkus(skus: string[]): Promise<Product[]>;
   createProduct(product: InsertProduct): Promise<Product>;
@@ -306,7 +306,7 @@ export class MemStorage implements IStorage {
   }
 
   // Products
-  async getProducts(filters?: { categoryId?: number; search?: string; featured?: boolean; showOnJadaf?: boolean }): Promise<Product[]> {
+  async getProducts(filters?: { categoryId?: number; search?: string; featured?: boolean; showOnJadaf?: boolean; showOnJivara?: boolean }): Promise<Product[]> {
     let products = Array.from(this.products.values()).filter(p => p.isActive);
     
     if (filters?.categoryId) {
@@ -329,6 +329,10 @@ export class MemStorage implements IStorage {
 
     if (filters?.showOnJadaf) {
       products = products.filter(p => p.showOnJadaf);
+    }
+
+    if (filters?.showOnJivara) {
+      products = products.filter(p => p.showOnJivara !== false);
     }
     
     return products;

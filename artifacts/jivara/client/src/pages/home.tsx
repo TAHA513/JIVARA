@@ -34,7 +34,7 @@ export default function Home() {
     }
   };
   const { data: featuredProducts = [], isLoading: productsLoading } = useQuery<Product[]>({
-    queryKey: ["/api/products?featured=true"],
+    queryKey: ["/api/products?featured=true&showOnJivara=true"],
   });
 
   const { data: categories = [] } = useQuery<Category[]>({
