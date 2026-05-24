@@ -299,7 +299,7 @@ export default function PrintOrdersPage() {
   .qrid-label { font-size:7pt; }
   .qrid-num { font-size:14pt; font-weight:900; }
   .bcwrap { text-align:center; flex-shrink:0; }
-  .bcwrap svg { width:60mm; height:12mm; }
+  .bcwrap svg { width:70mm; height:18mm; display:inline-block; }
   .row { display:flex; gap:2mm; font-size:8.5pt; line-height:1.25; flex-shrink:0; }
   .row b { min-width:14mm; display:inline-block; font-weight:700; }
   .row span { flex:1; overflow:hidden; text-overflow:ellipsis; }
@@ -318,7 +318,8 @@ ${labelsHtml}
 <script>
   document.querySelectorAll('svg.bc').forEach(function(svg){
     try { JsBarcode(svg, svg.getAttribute('data-code'),
-      { format:"CODE128", displayValue:true, height:40, width:2, margin:0, fontSize:14 }); }
+      { format:"CODE128", displayValue:true, height:45, width:2, margin:2,
+        fontSize:18, textMargin:2, font:"Arial", fontOptions:"bold", textAlign:"center" }); }
     catch(e) { console.error('barcode err', e); }
   });
   var qrPromises = [];
