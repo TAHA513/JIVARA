@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -173,12 +173,42 @@ export default function PrintOrdersPage() {
     return filteredOrders.filter((o) => selected.has(o.id));
   }, [filteredOrders, selected]);
 
+  const printAreaRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if ((window as any).JsBarcode) return;
+    const s = document.createElement("script");
+    s.src = "https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js";
+    s.async = true;
+    document.body.appendChild(s);
+  }, []);
+
+  const renderBarcodes = () => {
+    const JsBarcode = (window as any).JsBarcode;
+    if (!JsBarcode || !printAreaRef.current) return;
+    printAreaRef.current.querySelectorAll("svg.order-barcode").forEach((svg) => {
+      try {
+        JsBarcode(svg, svg.getAttribute("data-code") || "0", {
+          format: "CODE128",
+          displayValue: true,
+          height: 60,
+          width: 2,
+          margin: 0,
+          fontSize: 16,
+        });
+      } catch (e) {
+        console.error("barcode err", e);
+      }
+    });
+  };
+
   const handlePrint = () => {
     if (ordersToPrint.length === 0) {
       toast({ title: "لا توجد طلبات للطباعة", variant: "destructive" });
       return;
     }
-    window.print();
+    renderBarcodes();
+    setTimeout(() => window.print(), 150);
   };
 
   const sendToAlwaseet = useMutation({
@@ -473,7 +503,7 @@ export default function PrintOrdersPage() {
       </div>
 
       {/* Print area */}
-      <div className="print-area" dir="rtl">
+      <div className="print-area" dir="rtl" ref={printAreaRef}>
         {ordersToPrint.map((o) => {
           const items = (o as any).items as Array<{
             nameAr: string;
@@ -501,12 +531,21 @@ export default function PrintOrdersPage() {
                   marginBottom: 12,
                   display: "flex",
                   justifyContent: "space-between",
+                  alignItems: "center",
                 }}
               >
                 <h2 style={{ fontSize: 22, margin: 0 }}>
                   طلب #{o.id}
                 </h2>
                 <div style={{ fontSize: 12 }}>{createdAt}</div>
+              </div>
+
+              <div style={{ textAlign: "center", marginBottom: 12 }}>
+                <svg
+                  className="order-barcode"
+                  data-code={String(o.id)}
+                  style={{ maxWidth: 320, height: 70 }}
+                />
               </div>
 
               <table style={{ width: "100%", fontSize: 14, marginBottom: 12 }}>
