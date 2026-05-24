@@ -270,7 +270,7 @@ export default function PrintOrdersPage() {
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 <style>
-  @page { size: A6; margin: 5mm; }
+  @page { size: 100mm 150mm; margin: 3mm; }
   * { box-sizing: border-box; font-family: 'Tajawal','Cairo',Arial,sans-serif; }
   body { margin:0; padding:6px; color:#000; background:#fff; }
   .label { border:2px solid #000; padding:8px; page-break-after: always; }
