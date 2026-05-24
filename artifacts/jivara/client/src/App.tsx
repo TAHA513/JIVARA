@@ -24,6 +24,7 @@ import AdminDashboard from "@/pages/admin/dashboard";
 import AdminProducts from "@/pages/admin/products";
 import AdminCategories from "@/pages/admin/categories";
 import AdminOrders from "@/pages/admin/orders";
+import AdminPrintOrders from "@/pages/admin/print-orders";
 import AdminCustomers from "@/pages/admin/customers";
 import AdminSettings from "@/pages/admin/settings";
 import AdminReports from "@/pages/admin/reports";
@@ -147,6 +148,7 @@ function App() {
                   <Route path="/admin/products" component={AdminProducts} />
                   <Route path="/admin/categories" component={AdminCategories} />
                   <Route path="/admin/orders" component={AdminOrders} />
+                  <Route path="/admin/print-orders" component={AdminPrintOrders} />
                   <Route path="/admin/customers" component={AdminCustomers} />
                   <Route path="/admin/theme-gallery" component={ThemeGallery} />
                   <Route path="/admin/settings" component={AdminSettings} />
