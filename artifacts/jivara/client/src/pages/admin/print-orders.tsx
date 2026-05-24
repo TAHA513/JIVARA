@@ -271,44 +271,38 @@ export default function PrintOrdersPage() {
 <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 <style>
   @page { size: 100mm 150mm; margin: 0; }
-  * { box-sizing: border-box; font-family: 'Tajawal','Cairo',Arial,sans-serif; }
-  html, body { margin:0; padding:0; color:#000; background:#fff; }
-  .label { width: 98mm; height: 148mm; padding:3mm; page-break-after: always;
-           page-break-inside: avoid; overflow: hidden; break-inside: avoid;
-           display: flex; flex-direction: column; }
-  .label:last-child { page-break-after: auto; }
+  * { box-sizing: border-box; font-family: 'Tajawal','Cairo',Arial,sans-serif;
+      margin:0; padding:0; }
+  html, body { width:100mm; height:150mm; background:#fff; color:#000; overflow:hidden; }
+  .label { width:100mm; height:150mm; padding:3mm; overflow:hidden;
+           display:flex; flex-direction:column; gap:2mm;
+           page-break-after:always; page-break-inside:avoid; break-after:page; break-inside:avoid; }
+  .label:last-child { page-break-after:auto; break-after:auto; }
   .head { display:flex; justify-content:space-between; align-items:center;
-          border-bottom:1px dashed #000; padding-bottom:2px; margin-bottom:3px;
-          flex-shrink:0; }
-  .brand { font-size:13px; font-weight:900; }
-  .date { font-size:9px; }
-  .topbar { display:flex; align-items:center; gap:4px; margin-bottom:3px; flex-shrink:0; }
+          border-bottom:1px solid #000; padding-bottom:1mm; flex-shrink:0; }
+  .brand { font-size:11pt; font-weight:900; }
+  .date { font-size:7pt; }
+  .topbar { display:flex; align-items:center; gap:2mm; flex-shrink:0; }
   .qrbox { text-align:center; flex-shrink:0; }
-  .qrc { width:70px; height:70px; display:block; }
-  .qrlabel { font-size:8px; margin-top:1px; color:#333; }
-  .qrid-big { flex:1; text-align:center; border:1.5px solid #000; border-radius:4px;
-              padding:4px 2px; }
-  .qrid-label { font-size:8px; color:#444; margin-bottom:1px; }
-  .qrid-num { font-size:18px; font-weight:900; letter-spacing:1px; }
-  .bcwrap { text-align:center; margin:2px 0 3px; flex-shrink:0; }
-  .bcwrap svg { width:100%; max-width:260px; height:45px; }
-  .row { display:flex; gap:3px; margin:1px 0; font-size:11px; line-height:1.3; }
-  .row b { min-width:50px; display:inline-block; font-weight:700; }
-  .products { margin-top:3px; padding:3px; border:1px solid #000; border-radius:3px;
-              flex:1; overflow:hidden; }
-  .ptitle { font-size:10px; font-weight:900; margin-bottom:2px;
-            border-bottom:1px dashed #555; padding-bottom:2px; }
-  .prow { display:flex; justify-content:space-between; font-size:10px;
-          padding:1px 0; border-bottom:1px dotted #ccc; }
-  .prow:last-child { border-bottom:none; }
+  .qrc { width:18mm; height:18mm; display:block; }
+  .qrid-big { flex:1; text-align:center; border:1px solid #000; padding:2mm 1mm; }
+  .qrid-label { font-size:7pt; }
+  .qrid-num { font-size:14pt; font-weight:900; }
+  .bcwrap { text-align:center; flex-shrink:0; }
+  .bcwrap svg { width:60mm; height:12mm; }
+  .row { display:flex; gap:2mm; font-size:8.5pt; line-height:1.25; flex-shrink:0; }
+  .row b { min-width:14mm; display:inline-block; font-weight:700; }
+  .row span { flex:1; overflow:hidden; text-overflow:ellipsis; }
+  .products { padding:1.5mm; border:1px solid #000; flex:1 1 auto;
+              overflow:hidden; min-height:0; }
+  .ptitle { font-size:8pt; font-weight:900; border-bottom:1px dashed #555;
+            padding-bottom:1mm; margin-bottom:1mm; }
+  .prow { display:flex; justify-content:space-between; font-size:8pt; padding:0.5mm 0; }
   .pname { font-weight:700; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .pqty { font-weight:900; min-width:30px; text-align:left; }
-  .price { font-size:16px; font-weight:900; text-align:center; padding:3px;
-           border:1.5px solid #000; margin-top:3px; border-radius:3px; flex-shrink:0; }
-  .notes { font-size:9px; padding:2px; border-top:1px dashed #555; margin-top:2px;
-           flex-shrink:0; }
-  .foot { text-align:center; font-size:8px; margin-top:2px; color:#444; flex-shrink:0; }
-  @media print { body { padding:0 } }
+  .pqty { font-weight:900; min-width:8mm; text-align:left; }
+  .price { font-size:13pt; font-weight:900; text-align:center; padding:1.5mm;
+           border:1.5px solid #000; flex-shrink:0; }
+  .notes { font-size:7pt; padding:1mm; flex-shrink:0; }
 </style></head><body>
 ${labelsHtml}
 <script>
