@@ -57,6 +57,7 @@ import SocksIqPage from "@/pages/socks-iq";
 import SocksPackPage from "@/pages/socks-pack";
 import BambooSocksPage from "@/pages/bamboo-socks";
 import JadafPage from "@/pages/jadaf";
+import JadafProductDetail from "@/pages/jadaf-product-detail";
 import ShopPage from "@/pages/shop";
 import SupplierPage from "@/pages/supplier";
 import CampaignLinks from "@/pages/admin/campaign-links";
@@ -131,7 +132,7 @@ function App() {
                   <Route path="/socks-pack" component={SocksPackPage} />
                   <Route path="/bamboo-socks" component={BambooSocksPage} />
                   <Route path="/jadaf" component={JadafPage} />
-                  <Route path="/jadaf/product/:id" component={ProductDetail} />
+                  <Route path="/jadaf/product/:id" component={JadafProductDetail} />
                   <Route path="/supplier" component={SupplierPage} />
                 </Switch>
               ) : isBuyRoute ? (
