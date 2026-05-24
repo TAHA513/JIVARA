@@ -498,7 +498,7 @@ ${labelsHtml}
                   data-testid="button-print-labels"
                 >
                   <Tag className="w-4 h-4 ml-2" />
-                  طباعة ملصقات حرارية {selected.size > 0 ? `(${selected.size})` : ""}
+                  طباعة {selected.size > 0 ? `(${selected.size})` : ""}
                 </Button>
                 <Button
                   onClick={handleSendToAlwaseet}
