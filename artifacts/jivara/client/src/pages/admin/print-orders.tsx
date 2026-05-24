@@ -270,11 +270,11 @@ export default function PrintOrdersPage() {
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 <style>
-  @page { size: 80mm auto; margin: 2mm; }
+  @page { size: A6; margin: 5mm; }
   * { box-sizing: border-box; font-family: 'Tajawal','Cairo',Arial,sans-serif; }
-  body { margin:0; padding:4px; color:#000; background:#fff; width: 76mm; }
-  .label { padding:6px; page-break-after: always; border-bottom: 1px dashed #999; }
-  .label:last-child { page-break-after: auto; border-bottom: none; }
+  body { margin:0; padding:6px; color:#000; background:#fff; }
+  .label { border:2px solid #000; padding:8px; page-break-after: always; }
+  .label:last-child { page-break-after: auto; }
   .head { display:flex; justify-content:space-between; align-items:center;
           border-bottom:1.5px dashed #000; padding-bottom:4px; margin-bottom:6px; }
   .brand { font-size:15px; font-weight:900; }
