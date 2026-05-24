@@ -588,79 +588,45 @@ export default function JadafPage() {
         </div>
         </div>
 
-        {/* LEVEL 2: sub-categories of selected group */}
+        {/* LEVEL 2: sub-categories of selected group — grid layout */}
         {selectedGroupId && categoriesInSelectedGroup.length > 0 && (
-          <div className="mt-5 pt-5 border-t" style={{ borderColor: COLORS.goldBorder }}>
-            <div className="flex items-center justify-between mb-3 gap-3">
-              <h4 className="text-base md:text-lg font-bold" style={{ color: COLORS.goldLight }}>
-                أقسام {selectedGroupLabel}
-              </h4>
+          <div className="mt-6 pt-5 border-t" style={{ borderColor: COLORS.goldBorder }}>
+            <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
+              <div className="flex items-center gap-3">
+                <h4 className="text-base md:text-lg font-bold" style={{ color: COLORS.goldLight }}>
+                  أقسام {selectedGroupLabel}
+                </h4>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedGroupId(null);
+                    setSelectedCategoryId(null);
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 h-8 rounded-lg text-xs font-bold"
+                  style={{
+                    background: "rgba(255,255,255,0.04)",
+                    border: `1px solid ${COLORS.goldBorder}`,
+                    color: COLORS.textSec,
+                  }}
+                  data-testid="button-close-group"
+                >
+                  <X className="w-3.5 h-3.5" /> إغلاق
+                </button>
+              </div>
               <button
                 type="button"
-                onClick={() => {
-                  setSelectedGroupId(null);
-                  setSelectedCategoryId(null);
-                }}
-                className="inline-flex items-center gap-1.5 px-3 h-8 rounded-lg text-xs font-bold"
-                style={{
-                  background: "rgba(255,255,255,0.04)",
-                  border: `1px solid ${COLORS.goldBorder}`,
-                  color: COLORS.textSec,
-                }}
-                data-testid="button-close-group"
+                onClick={() => setSelectedCategoryId(null)}
+                className="inline-flex items-center gap-1 text-xs font-bold"
+                style={{ color: COLORS.goldLight }}
+                data-testid="button-show-all-subcats"
               >
-                <X className="w-3.5 h-3.5" /> إغلاق
+                عرض الكل <ChevronLeft className="w-3.5 h-3.5" />
               </button>
             </div>
-            {/* Swipe hint for sub-categories */}
-            <div
-              className="flex items-center justify-center gap-2 mb-3 text-xs font-bold select-none"
-              style={{ color: COLORS.goldLight }}
-            >
-              <ChevronRight className="w-4 h-4 jd-swipe-hint-r" />
-              <MoveHorizontal className="w-4 h-4 opacity-80" />
-              <span>اسحب يميناً أو يساراً لرؤية كل الأقسام</span>
-              <ChevronLeft className="w-4 h-4 jd-swipe-hint-l" />
-            </div>
-            <div className="relative px-12">
-              <button
-                type="button"
-                onClick={() => scrollStrip(subcatsScrollRef, "right")}
-                aria-label="السابق"
-                className="absolute top-1/2 -translate-y-1/2 right-0 z-20 w-9 h-9 rounded-full flex items-center justify-center jd-swipe-hint-r"
-                style={{
-                  background: `linear-gradient(135deg, ${COLORS.gold}, ${COLORS.goldDark})`,
-                  color: "#0a0a0a",
-                  boxShadow: "0 4px 14px rgba(0,0,0,0.5)",
-                }}
-                data-testid="button-scroll-subcats-right"
-              >
-                <ChevronRight className="w-4 h-4" />
-              </button>
-              <button
-                type="button"
-                onClick={() => scrollStrip(subcatsScrollRef, "left")}
-                aria-label="التالي"
-                className="absolute top-1/2 -translate-y-1/2 left-0 z-20 w-9 h-9 rounded-full flex items-center justify-center jd-swipe-hint-l"
-                style={{
-                  background: `linear-gradient(135deg, ${COLORS.gold}, ${COLORS.goldDark})`,
-                  color: "#0a0a0a",
-                  boxShadow: "0 4px 14px rgba(0,0,0,0.5)",
-                }}
-                data-testid="button-scroll-subcats-left"
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </button>
-            <div
-              ref={subcatsScrollRef}
-              className="flex gap-3 overflow-x-auto pb-3 snap-x snap-mandatory scroll-smooth"
-              style={{
-                scrollbarWidth: "thin",
-                scrollbarColor: `${COLORS.goldDark} transparent`,
-                WebkitOverflowScrolling: "touch",
-              }}
-              dir="rtl"
-            >
+            <p className="text-xs mb-4" style={{ color: COLORS.textSec }}>
+              اختر ما يناسبك من الفئات الفرعية
+            </p>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
               {categoriesInSelectedGroup.map((cat) => {
                 const Icon = (cat.slug && CATEGORY_ICONS[cat.slug]) || ShoppingBag;
                 const isSelected = selectedCategoryId === cat.id;
@@ -669,7 +635,7 @@ export default function JadafPage() {
                     type="button"
                     key={cat.id}
                     onClick={() => setSelectedCategoryId(isSelected ? null : cat.id)}
-                    className="shrink-0 snap-start rounded-2xl p-4 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all"
+                    className="rounded-2xl p-4 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all min-h-[140px]"
                     style={{
                       background: isSelected
                         ? "linear-gradient(135deg, rgba(212,175,55,0.22), rgba(156,116,40,0.10))"
@@ -677,27 +643,29 @@ export default function JadafPage() {
                       border: isSelected
                         ? `1px solid rgba(212,175,55,0.55)`
                         : `1px solid ${COLORS.goldBorder}`,
-                      width: 110,
-                      height: 120,
                     }}
                     data-testid={`button-category-${cat.slug}`}
                   >
                     <div
-                      className="w-10 h-10 rounded-xl flex items-center justify-center"
+                      className="w-12 h-12 rounded-xl flex items-center justify-center mb-1"
                       style={{
                         background: "linear-gradient(135deg, rgba(212,175,55,0.28), rgba(156,116,40,0.16))",
                         border: `1px solid rgba(212,175,55,0.35)`,
                       }}
                     >
-                      <Icon className="w-5 h-5" style={{ color: COLORS.goldLight }} />
+                      <Icon className="w-6 h-6" style={{ color: COLORS.goldLight }} />
                     </div>
-                    <span className="text-xs font-bold text-center line-clamp-2" style={{ color: COLORS.textMain }}>
+                    <span className="text-sm font-bold text-center line-clamp-1" style={{ color: COLORS.textMain }}>
                       {cat.nameAr}
                     </span>
+                    {cat.descriptionAr && (
+                      <span className="text-[11px] text-center line-clamp-1" style={{ color: COLORS.textSec }}>
+                        {cat.descriptionAr}
+                      </span>
+                    )}
                   </button>
                 );
               })}
-            </div>
             </div>
           </div>
         )}
