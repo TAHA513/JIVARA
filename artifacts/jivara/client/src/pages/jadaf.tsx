@@ -635,7 +635,7 @@ export default function JadafPage() {
                     type="button"
                     key={cat.id}
                     onClick={() => setSelectedCategoryId(isSelected ? null : cat.id)}
-                    className="rounded-2xl p-4 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all min-h-[140px]"
+                    className="rounded-2xl p-5 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all min-h-[170px]"
                     style={{
                       background: isSelected
                         ? "linear-gradient(135deg, rgba(212,175,55,0.22), rgba(156,116,40,0.10))"
@@ -647,19 +647,19 @@ export default function JadafPage() {
                     data-testid={`button-category-${cat.slug}`}
                   >
                     <div
-                      className="w-12 h-12 rounded-xl flex items-center justify-center mb-1"
+                      className="w-14 h-14 rounded-xl flex items-center justify-center mb-2"
                       style={{
                         background: "linear-gradient(135deg, rgba(212,175,55,0.28), rgba(156,116,40,0.16))",
                         border: `1px solid rgba(212,175,55,0.35)`,
                       }}
                     >
-                      <Icon className="w-6 h-6" style={{ color: COLORS.goldLight }} />
+                      <Icon className="w-7 h-7" style={{ color: COLORS.goldLight }} />
                     </div>
-                    <span className="text-sm font-bold text-center line-clamp-1" style={{ color: COLORS.textMain }}>
+                    <span className="text-base font-bold text-center line-clamp-1" style={{ color: COLORS.textMain }}>
                       {cat.nameAr}
                     </span>
                     {cat.descriptionAr && (
-                      <span className="text-[11px] text-center line-clamp-1" style={{ color: COLORS.textSec }}>
+                      <span className="text-xs text-center line-clamp-1" style={{ color: COLORS.textSec }}>
                         {cat.descriptionAr}
                       </span>
                     )}
