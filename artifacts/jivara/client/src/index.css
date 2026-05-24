@@ -373,4 +373,6 @@ img {
   }
   .jd-swipe-hint-r { animation: jdSwipeR 1.4s ease-in-out infinite; }
   .jd-swipe-hint-l { animation: jdSwipeL 1.4s ease-in-out infinite; }
+  .jd-no-scrollbar::-webkit-scrollbar { display: none; }
+  .jd-no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 }

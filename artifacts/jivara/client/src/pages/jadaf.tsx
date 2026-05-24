@@ -202,6 +202,39 @@ export default function JadafPage() {
     document.title = "JADAF | جداف — تجربة فاخرة";
   }, []);
 
+  // Auto-scroll the top-level groups strip so the customer notices it
+  useEffect(() => {
+    const el = groupsScrollRef.current;
+    if (!el) return;
+    let dir: 1 | -1 = 1;
+    let paused = false;
+    const onEnter = () => { paused = true; };
+    const onLeave = () => { paused = false; };
+    el.addEventListener("mouseenter", onEnter);
+    el.addEventListener("mouseleave", onLeave);
+    el.addEventListener("touchstart", onEnter, { passive: true });
+    el.addEventListener("touchend", onLeave);
+    const id = window.setInterval(() => {
+      const node = groupsScrollRef.current;
+      if (!node || paused) return;
+      const max = node.scrollWidth - node.clientWidth;
+      if (max <= 4) return;
+      const step = Math.max(100, Math.floor(node.clientWidth * 0.5));
+      // In RTL, scrollLeft is negative or zero in some browsers; use abs comparison
+      const cur = Math.abs(node.scrollLeft);
+      if (dir === 1 && cur + step >= max) dir = -1;
+      else if (dir === -1 && cur <= 4) dir = 1;
+      node.scrollBy({ left: dir === 1 ? step : -step, behavior: "smooth" });
+    }, 2800);
+    return () => {
+      window.clearInterval(id);
+      el.removeEventListener("mouseenter", onEnter);
+      el.removeEventListener("mouseleave", onLeave);
+      el.removeEventListener("touchstart", onEnter);
+      el.removeEventListener("touchend", onLeave);
+    };
+  }, []);
+
   const { data: products = [], isLoading } = useQuery<Product[]>({
     queryKey: ["/api/products", { showOnJadaf: true }],
     queryFn: async () => {
@@ -536,25 +569,14 @@ export default function JadafPage() {
           </div>
         </div>
 
-        {/* Swipe hint */}
-        <div
-          className="flex items-center justify-center gap-2 mb-3 text-xs font-bold select-none"
-          style={{ color: COLORS.goldLight }}
-        >
-          <ChevronRight className="w-4 h-4 jd-swipe-hint-r" />
-          <MoveHorizontal className="w-4 h-4 opacity-80" />
-          <span>اسحب يميناً أو يساراً لرؤية كل الأقسام</span>
-          <ChevronLeft className="w-4 h-4 jd-swipe-hint-l" />
-        </div>
-
         {/* LEVEL 1: top-level groups (always visible) */}
-        <div className="relative px-12">
+        <div className="relative px-10">
           {/* Right arrow (scrolls right since dir=rtl, visually right) */}
           <button
             type="button"
             onClick={() => scrollStrip(groupsScrollRef, "right")}
             aria-label="السابق"
-            className="absolute top-9 -translate-y-1/2 right-0 z-20 w-8 h-8 rounded-full flex items-center justify-center jd-swipe-hint-r"
+            className="absolute top-1/2 -translate-y-1/2 right-0 z-20 w-7 h-7 rounded-full flex items-center justify-center jd-swipe-hint-r"
             style={{
               background: `linear-gradient(135deg, ${COLORS.gold}, ${COLORS.goldDark})`,
               color: "#0a0a0a",
@@ -569,7 +591,7 @@ export default function JadafPage() {
             type="button"
             onClick={() => scrollStrip(groupsScrollRef, "left")}
             aria-label="التالي"
-            className="absolute top-9 -translate-y-1/2 left-0 z-20 w-8 h-8 rounded-full flex items-center justify-center jd-swipe-hint-l"
+            className="absolute top-1/2 -translate-y-1/2 left-0 z-20 w-7 h-7 rounded-full flex items-center justify-center jd-swipe-hint-l"
             style={{
               background: `linear-gradient(135deg, ${COLORS.gold}, ${COLORS.goldDark})`,
               color: "#0a0a0a",
@@ -581,10 +603,9 @@ export default function JadafPage() {
           </button>
         <div
           ref={groupsScrollRef}
-          className="flex gap-3 overflow-x-auto pb-3 snap-x snap-mandatory scroll-smooth"
+          className="flex gap-2 overflow-x-auto snap-x snap-mandatory scroll-smooth jd-no-scrollbar"
           style={{
-            scrollbarWidth: "thin",
-            scrollbarColor: `${COLORS.goldDark} transparent`,
+            scrollbarWidth: "none",
             WebkitOverflowScrolling: "touch",
           }}
           dir="rtl"
@@ -599,7 +620,7 @@ export default function JadafPage() {
                   setSelectedGroupId(isSelected ? null : g.id);
                   setSelectedCategoryId(null);
                 }}
-                className="shrink-0 snap-start rounded-2xl p-4 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all"
+                className="shrink-0 snap-start rounded-xl p-2 flex flex-col items-center justify-center gap-1.5 cursor-pointer transition-all"
                 style={{
                   background: isSelected
                     ? "linear-gradient(135deg, rgba(212,175,55,0.28), rgba(156,116,40,0.14))"
@@ -607,13 +628,13 @@ export default function JadafPage() {
                   border: isSelected
                     ? `2px solid rgba(212,175,55,0.65)`
                     : `1px solid ${COLORS.goldBorder}`,
-                  width: 150,
-                  height: 140,
+                  width: 96,
+                  height: 96,
                 }}
                 data-testid={`button-group-${g.id}`}
               >
                 <div
-                  className="w-14 h-14 rounded-xl flex items-center justify-center text-3xl"
+                  className="w-10 h-10 rounded-lg flex items-center justify-center text-2xl"
                   style={{
                     background: "linear-gradient(135deg, rgba(212,175,55,0.32), rgba(156,116,40,0.18))",
                     border: `1px solid rgba(212,175,55,0.45)`,
@@ -622,7 +643,7 @@ export default function JadafPage() {
                 >
                   {g.emoji}
                 </div>
-                <span className="text-sm font-bold text-center line-clamp-2" style={{ color: COLORS.textMain }}>
+                <span className="text-[11px] font-bold text-center line-clamp-1" style={{ color: COLORS.textMain }}>
                   {g.label}
                 </span>
               </button>
