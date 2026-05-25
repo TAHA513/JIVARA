@@ -86,7 +86,7 @@ export async function createAlwaseetShipment(order: {
     const totalQty = order.items.reduce((s, i) => s + (i.quantity || 1), 0);
     const productNames = order.items.map(i => i.nameAr || i.name || 'منتج').join(' + ');
     const price = Math.round(parseFloat(String(order.totalAmount)));
-    const invoiceRef = `ORD-${order.id}`;
+    const invoiceRef = `ORD-${order.id}-${Math.floor(Date.now() / 1000)}`;
 
     const form = new FormData();
     form.append('client_mobile', phone);
