@@ -386,7 +386,7 @@ ${labelsHtml}
 
   const { data: regionsData, isFetching: regionsLoading } = useQuery({
     queryKey: ["/api/alwaseet/regions", cityIdForDialog],
-    queryFn: () => apiRequest("GET", `/api/alwaseet/regions/${cityIdForDialog}`),
+    queryFn: () => apiRequest("GET", `/api/alwaseet/regions/${cityIdForDialog}`).then(r => r.json()),
     enabled: !!regionDialog && cityIdForDialog > 0,
     staleTime: 1000 * 60 * 60,
   });
