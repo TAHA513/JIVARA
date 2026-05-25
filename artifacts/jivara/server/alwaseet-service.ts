@@ -292,21 +292,34 @@ export async function refreshRegionsForCity(cityId: number, token: string): Prom
   return 0;
 }
 
+// كلمات عامة في العناوين لا تدل على منطقة جغرافية
+const COMMON_ADDR_WORDS = new Set([
+  'شارع','زقاق','حاره','سكه','طريق','جاده','دربونه',
+  'قرب','بجانب','خلف','امام','مقابل','بعد','قبل','عند',
+  'بيت','منزل','دار','عماره','بناية','طابق','شقه',
+  'محله','حي','ناحيه','مركز','ملجا',
+  'خدمي','خدميه','اهلي','اهليه','تجاري','تجاريه',
+  'جامع','مسجد','مدرسه','مستشفي','مستوصف','سوق',
+  'اول','ثاني','ثالث','رابع','خامس',
+  'شمال','جنوب','شرق','غرب',
+  'رقم','بيت','منطقه',
+]);
+
 // ابحث عن أفضل منطقة تطابق النص الحر
 // المنطق:
 //   1. قسّم كلاً من العنوان واسم المنطقة إلى كلمات منفصلة ونطبّعها
-//   2. ابحث عن تطابق كلمة من العنوان مع كلمة من المنطقة (مساواة تامة أو احتواء)
-//   3. الحد الأدنى 4 أحرف لكل كلمة لتجنب المطابقات الخاطئة
+//   2. تجاهل الكلمات العامة (شارع، قرب، جامع...)
+//   3. ابحث عن تطابق كلمة من العنوان مع كلمة من المنطقة (مساواة تامة أو احتواء)
 async function smartRegionId(cityId: number, defaultRegionId: number, addressText: string, token: string): Promise<{ regionId: number; matched: boolean }> {
   if (!addressText) return { regionId: defaultRegionId, matched: false };
   const regions = await getRegionsForCity(cityId, token);
   if (!regions.length) return { regionId: defaultRegionId, matched: false };
 
-  // كلمات العنوان المطبّعة (حد أدنى 4 أحرف)
+  // كلمات العنوان المطبّعة، مع تجاهل الكلمات العامة والكلمات القصيرة
   const addrWords = addressText.trim()
     .split(/[\s,\/،\-\xa0]+/)
     .map(normalizeAr)
-    .filter(w => w.length >= 4);
+    .filter(w => w.length >= 4 && !COMMON_ADDR_WORDS.has(w));
 
   // ابحث: أي كلمة من العنوان تتطابق مع أي كلمة من اسم المنطقة
   for (const aw of addrWords) {
