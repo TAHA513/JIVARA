@@ -104,7 +104,16 @@ export async function createAlwaseetShipment(order: {
       }
       return s + qty;
     }, 0);
-    const productNames = order.items.map(i => i.nameAr || i.name || 'منتج').join(' + ');
+    const productNames = order.items.map(i => {
+      const name = (i.nameAr || i.name || '').toLowerCase();
+      const isSockItem = /جوارب|بامبو|sock/i.test(name);
+      const isBoxFormat = /بوكس/i.test(i.nameAr || i.name || '');
+      const qty = i.quantity || 1;
+      let boxes = qty;
+      if (isSockItem && !isBoxFormat && qty % 5 === 0) boxes = Math.round(qty / 5);
+      if (isSockItem) return `${boxes} بوكس`;
+      return `${qty} × ${i.nameAr || i.name || 'منتج'}`;
+    }).join(' + ');
     const price = Math.round(parseFloat(String(order.totalAmount)));
     const invoiceRef = `ORD-${order.id}-${Math.floor(Date.now() / 1000)}`;
 
@@ -204,7 +213,7 @@ async function getRegionsForCity(cityId: number, token: string): Promise<Array<{
     const res = await fetch(`${BASE_URL}/regions?token=${token}&city_id=${cityId}`);
     const data = await res.json() as any;
     if (data.status && Array.isArray(data.data)) {
-      regionsCache[cityId] = data.data.map((r: any) => ({ id: r.id, name: String(r.name || r.name_ar || '') }));
+      regionsCache[cityId] = data.data.map((r: any) => ({ id: r.id, name: String(r.region_name || r.name || r.name_ar || '') }));
       return regionsCache[cityId];
     }
   } catch { /* تجاهل الخطأ، سنستخدم الافتراضي */ }
