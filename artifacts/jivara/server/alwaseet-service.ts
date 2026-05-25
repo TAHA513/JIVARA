@@ -90,17 +90,18 @@ export async function createAlwaseetShipment(order: {
 
     const { cityId, regionId: defaultRegionId } = mapCity(order.city);
     const phone = toAlwaseetPhone(order.customerPhone);
-    // عدد القطع = عدد البوكسات المشحونة (1 بوكس = 1 قطعة في الوسيط)
+    // احسب عدد الوحدات الفعلية (البوكسات) للإرسال للوسيط
+    // المنتجات القديمة تخزن quantity بالأزواج (5 أزواج = 1 بوكس) — نقسم على 5
+    // المنتجات الجديدة تحتوي "بوكس" في الاسم وقيمتها بالبوكس مباشرة
     const totalQty = order.items.reduce((s, i) => {
-      const name = (i.nameAr || i.name || '');
-      const qty = i.quantity || 1;
-      const isSock = /جوارب|بامبو|sock/i.test(name);
+      const name = (i.nameAr || i.name || '').toLowerCase();
+      const isSockItem = /جوارب|بامبو|sock/i.test(name);
       const isBoxFormat = /بوكس/i.test(name);
-      if (isSock && !isBoxFormat) {
-        // طلب قديم: qty مخزّن كأزواج → حوّل لبوكسات
-        return s + Math.max(1, Math.round(qty / 5));
+      const qty = i.quantity || 1;
+      if (isSockItem && !isBoxFormat && qty % 5 === 0) {
+        // تنسيق قديم: الكمية بالأزواج → حوّلها لبوكسات
+        return s + Math.round(qty / 5);
       }
-      // طلب جديد أو منتج عادي: qty = بوكسات أو وحدات مباشرة
       return s + qty;
     }, 0);
     const productNames = order.items.map(i => i.nameAr || i.name || 'منتج').join(' + ');
