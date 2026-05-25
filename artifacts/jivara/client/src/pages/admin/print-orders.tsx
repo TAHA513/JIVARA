@@ -264,6 +264,13 @@ export default function PrintOrdersPage() {
     <span class="date">${date}</span>
     <span class="src">${src}</span>
   </div>
+  <div class="mid">
+    <img class="qr" src="${qrUrl}" alt="QR"/>
+    <div class="numblock">
+      ${awCode ? `<div class="awnum">${awCode}</div><div class="intnum">طلب #${safeId}</div>` : `<div class="ordernum">#${safeId}</div>`}
+    </div>
+  </div>
+  <div class="bcwrap"><svg class="bc" data-code="${printCode}"></svg></div>
   <div class="info">
     <div class="irow big"><span class="lbl">الاسم</span><span class="val">${o.customerName || "—"}</span></div>
     <div class="irow"><span class="lbl">الهاتف</span><span class="val phone" dir="ltr">${o.customerPhone || "—"}</span></div>
@@ -273,13 +280,6 @@ export default function PrintOrdersPage() {
   <div class="products">${itemsRows || "<span>—</span>"}</div>
   ${o.notes ? `<div class="notes">ملاحظة: ${o.notes}</div>` : ""}
   <div class="total">${total} د.ع</div>
-  <div class="mid">
-    <img class="qr" src="${qrUrl}" alt="QR"/>
-    <div class="numblock">
-      ${awCode ? `<div class="awnum">${awCode}</div><div class="intnum">طلب #${safeId}</div>` : `<div class="ordernum">#${safeId}</div>`}
-    </div>
-  </div>
-  <div class="bcwrap"><svg class="bc" data-code="${printCode}"></svg></div>
 </div>`;
   };
 
