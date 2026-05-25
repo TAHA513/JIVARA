@@ -83,6 +83,7 @@ export async function createAlwaseetShipment(order: {
   totalAmount: string | number;
   items: Array<{ name?: string; nameAr?: string; quantity: number; productId?: number }>;
   notes?: string | null;
+  manualRegionId?: number;
 }): Promise<{ success: boolean; alwaseetId?: string; message: string }> {
   try {
     const token = await getToken();
@@ -120,11 +121,17 @@ export async function createAlwaseetShipment(order: {
     const price = Math.round(parseFloat(String(order.totalAmount)));
     const invoiceRef = `ORD-${order.id}-${Math.floor(Date.now() / 1000)}`;
 
-    // حاول تطابق المنطقة من العنوان الحر، أو ارجع لـ "اخرى"
-    // المدينة تُستخدم لتحديد city_id فقط، لا للبحث عن المنطقة
-    const fullText = order.shippingAddress || '';
-    const { regionId, matched } = await smartRegionId(cityId, defaultRegionId, fullText, token);
-    console.log(`📍 الوسيط: طلب #${order.id} | ${order.city} → city_id=${cityId}, region_id=${regionId} (${matched ? 'مطابقة تلقائية' : 'اخرى/افتراضي'})`);
+    // المنطقة: إذا اختار الأدمن يدوياً استخدمها مباشرة، وإلا ابحث تلقائياً
+    let regionId: number;
+    if (order.manualRegionId) {
+      regionId = order.manualRegionId;
+      console.log(`📍 الوسيط: طلب #${order.id} | ${order.city} → city_id=${cityId}, region_id=${regionId} (يدوي)`);
+    } else {
+      const fullText = order.shippingAddress || '';
+      const result = await smartRegionId(cityId, defaultRegionId, fullText, token);
+      regionId = result.regionId;
+      console.log(`📍 الوسيط: طلب #${order.id} | ${order.city} → city_id=${cityId}, region_id=${regionId} (${result.matched ? 'تلقائي' : 'اخرى/افتراضي'})`);
+    }
 
     // الموقع: العنوان الكامل دائماً حتى يعرف السائق الوجهة الصحيحة
     const locationText = [order.shippingAddress, order.city].filter(Boolean).join('، ');

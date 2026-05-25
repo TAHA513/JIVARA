@@ -21,12 +21,36 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import AdminSidebar from "@/components/admin/sidebar";
 import { useAdminAuth } from "@/hooks/use-admin-auth";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { Printer, Truck, Calendar, ClipboardList, RefreshCw, Tag, XCircle } from "lucide-react";
+import { Printer, Truck, Calendar, ClipboardList, RefreshCw, Tag, XCircle, Send } from "lucide-react";
 import type { Order } from "@shared/schema";
+
+// خريطة المدن → city_id في الوسيط
+const CITY_ID_MAP: Record<string, number> = {
+  'بغداد':1,'كربلاء':2,'الانبار':3,'الأنبار':3,'انبار':3,'أنبار':3,
+  'الرمادي':3,'رمادي':3,'الفلوجة':46,'فلوجة':46,'بابل':4,'الحلة':4,
+  'البصرة':5,'بصرة':5,'دهوك':6,'ديالى':7,'بعقوبة':7,'اربيل':8,'أربيل':8,
+  'كركوك':9,'العمارة':10,'ميسان':10,'السماوة':11,'المثنى':11,
+  'النجف':12,'نينوى':13,'الموصل':13,'موصل':13,'الديوانية':14,
+  'القادسية':14,'صلاح الدين':15,'تكريت':15,'سامراء':45,
+  'السليمانية':16,'الناصرية':17,'ذي قار':17,'الكوت':18,'واسط':18,
+};
+function getCityId(city: string): number {
+  for (const [k, v] of Object.entries(CITY_ID_MAP)) {
+    if (city.includes(k) || k.includes(city)) return v;
+  }
+  return 3;
+}
 
 type RangePreset = "today" | "yesterday" | "week" | "month" | "custom" | "all";
 
@@ -353,12 +377,63 @@ ${labelsHtml}
     w.document.close();
   };
 
+  // ---- نافذة اختيار المنطقة يدوياً ----
+  const [regionDialog, setRegionDialog] = useState<{ order: Order } | null>(null);
+  const [regionSearch, setRegionSearch] = useState("");
+  const [selectedRegionId, setSelectedRegionId] = useState<number | null>(null);
+
+  const cityIdForDialog = regionDialog ? getCityId(regionDialog.order.city || "") : 0;
+
+  const { data: regionsData, isFetching: regionsLoading } = useQuery({
+    queryKey: ["/api/alwaseet/regions", cityIdForDialog],
+    queryFn: () => apiRequest("GET", `/api/alwaseet/regions/${cityIdForDialog}`),
+    enabled: !!regionDialog && cityIdForDialog > 0,
+    staleTime: 1000 * 60 * 60,
+  });
+
+  const allRegions: Array<{ id: number; name: string }> = (regionsData as any)?.regions ?? [];
+  const filteredRegions = regionSearch.trim()
+    ? allRegions.filter((r) => r.name.includes(regionSearch.trim()))
+    : allRegions;
+
+  const openRegionDialog = (o: Order) => {
+    setRegionDialog({ order: o });
+    setRegionSearch("");
+    setSelectedRegionId(null);
+  };
+
   const sendToAlwaseet = useMutation({
     mutationFn: async (orderId: number) => {
       const res = await apiRequest("POST", `/api/alwaseet/send/${orderId}`, {});
       return res;
     },
   });
+
+  const sendWithRegion = useMutation({
+    mutationFn: async ({ orderId, regionId }: { orderId: number; regionId: number }) => {
+      const res = await apiRequest("POST", `/api/alwaseet/send/${orderId}`, { regionId });
+      return res;
+    },
+  });
+
+  const confirmSendWithRegion = async () => {
+    if (!regionDialog || !selectedRegionId) return;
+    try {
+      const r: any = await sendWithRegion.mutateAsync({
+        orderId: regionDialog.order.id,
+        regionId: selectedRegionId,
+      });
+      if (r?.success !== false) {
+        toast({ title: "تم الإرسال للوسيط ✅" });
+        queryClient.invalidateQueries({ queryKey: ["/api/orders"] });
+        setRegionDialog(null);
+      } else {
+        toast({ title: "فشل الإرسال", description: r.message, variant: "destructive" });
+      }
+    } catch {
+      toast({ title: "فشل الإرسال", variant: "destructive" });
+    }
+  };
 
   const handleSendToAlwaseet = async () => {
     const list = ordersToPrint.filter((o) => !o.alwaseetQrId);
@@ -644,6 +719,17 @@ ${labelsHtml}
                                 >
                                   <Printer className="w-4 h-4" />
                                 </Button>
+                                {!o.alwaseetQrId && (
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="border-amber-400 text-amber-700 hover:bg-amber-50"
+                                    title="أرسل للوسيط مع اختيار المنطقة"
+                                    onClick={() => openRegionDialog(o)}
+                                  >
+                                    <Send className="w-4 h-4" />
+                                  </Button>
+                                )}
                                 {o.alwaseetQrId && (
                                   <Button
                                     size="sm"
@@ -826,6 +912,66 @@ ${labelsHtml}
           );
         })}
       </div>
+
+      {/* ---- نافذة اختيار المنطقة يدوياً ---- */}
+      <Dialog open={!!regionDialog} onOpenChange={(open) => { if (!open) setRegionDialog(null); }}>
+        <DialogContent className="max-w-lg" dir="rtl">
+          <DialogHeader>
+            <DialogTitle>اختر المنطقة — الوسيط</DialogTitle>
+          </DialogHeader>
+
+          {regionDialog && (
+            <div className="text-sm text-gray-600 bg-gray-50 rounded p-3 mb-3 space-y-1">
+              <div><span className="font-bold">الزبون: </span>{regionDialog.order.customerName}</div>
+              <div><span className="font-bold">المحافظة: </span>{regionDialog.order.city}</div>
+              {regionDialog.order.shippingAddress && (
+                <div><span className="font-bold">العنوان: </span>{regionDialog.order.shippingAddress}</div>
+              )}
+            </div>
+          )}
+
+          <Input
+            placeholder="ابحث عن المنطقة..."
+            value={regionSearch}
+            onChange={(e) => setRegionSearch(e.target.value)}
+            className="mb-2"
+            autoFocus
+          />
+
+          <div className="border rounded overflow-y-auto max-h-64">
+            {regionsLoading ? (
+              <div className="p-4 text-center text-gray-400">جاري التحميل...</div>
+            ) : filteredRegions.length === 0 ? (
+              <div className="p-4 text-center text-gray-400">لا توجد نتائج</div>
+            ) : (
+              filteredRegions.map((r) => (
+                <div
+                  key={r.id}
+                  onClick={() => setSelectedRegionId(r.id)}
+                  className={`px-3 py-2 cursor-pointer text-sm border-b last:border-b-0 transition-colors ${
+                    selectedRegionId === r.id
+                      ? "bg-amber-100 font-bold text-amber-800"
+                      : "hover:bg-gray-50"
+                  }`}
+                >
+                  {r.name}
+                </div>
+              ))
+            )}
+          </div>
+
+          <DialogFooter className="mt-3 gap-2">
+            <Button variant="outline" onClick={() => setRegionDialog(null)}>إلغاء</Button>
+            <Button
+              className="bg-amber-600 hover:bg-amber-700 text-white"
+              disabled={!selectedRegionId || sendWithRegion.isPending}
+              onClick={confirmSendWithRegion}
+            >
+              {sendWithRegion.isPending ? "جاري الإرسال..." : "أرسل للوسيط"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -958,9 +958,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // الوسيط — إرسال طلب واحد يدوياً للوسيط
+  // إرجاع قائمة مناطق مدينة من الـ cache (DB أو API)
+  app.get("/api/alwaseet/regions/:cityId", requireAdmin, async (req: AuthRequest, res) => {
+    try {
+      const cityId = parseInt(req.params.cityId);
+      const { getAlwaseetToken, refreshRegionsForCity } = await import('./alwaseet-service');
+      const token = await getAlwaseetToken();
+      // refreshRegionsForCity يجلب من DB أولاً، أو من API إن لم توجد
+      const count = await refreshRegionsForCity(cityId, token);
+      // الآن اقرأها من DB
+      const dbKey = `alwaseet_regions_${cityId}`;
+      const rows = await db.select().from(storeSettings).where(eq(storeSettings.key, dbKey));
+      const regions = rows[0]?.value ? JSON.parse(rows[0].value) : [];
+      res.json({ success: true, regions, count });
+    } catch (err: any) {
+      res.status(500).json({ success: false, message: err.message, regions: [] });
+    }
+  });
+
   app.post("/api/alwaseet/send/:orderId", requireAdmin, async (req: AuthRequest, res) => {
     try {
       const orderId = parseInt(req.params.orderId);
+      const manualRegionId: number | undefined = req.body?.regionId ? Number(req.body.regionId) : undefined;
       const { createAlwaseetShipment } = await import('./alwaseet-service');
       const ourOrders = await storage.getOrders();
       const order = ourOrders.find((o: any) => o.id === orderId);
@@ -975,6 +994,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         totalAmount: order.totalAmount,
         items: (order as any).items || [],
         notes: (order as any).notes,
+        manualRegionId,
       });
 
       if (result.success && result.alwaseetId) {
