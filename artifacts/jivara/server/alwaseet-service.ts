@@ -105,22 +105,28 @@ export async function createAlwaseetShipment(order: {
       return s + qty;
     }, 0);
     const productNames = order.items.map(i => {
-      const name = (i.nameAr || i.name || '').toLowerCase();
-      const isSockItem = /جوارب|بامبو|sock/i.test(name);
-      const isBoxFormat = /بوكس/i.test(i.nameAr || i.name || '');
+      const rawName = i.nameAr || i.name || 'منتج';
+      const nameLower = rawName.toLowerCase();
+      const isSockItem = /جوارب|بامبو|sock/i.test(nameLower);
+      const isBoxFormat = /بوكس/i.test(rawName);
       const qty = i.quantity || 1;
       let boxes = qty;
       if (isSockItem && !isBoxFormat && qty % 5 === 0) boxes = Math.round(qty / 5);
-      if (isSockItem) return `${boxes} بوكس`;
-      return `${qty} × ${i.nameAr || i.name || 'منتج'}`;
+      // اسم المنتج الأساسي (بدون " — بوكس (5 أزواج)" إن وجد)
+      const baseName = rawName.replace(/\s*[—-]\s*بوكس.*$/i, '').trim();
+      if (isSockItem) return `${baseName} ${boxes} بوكس`;
+      return `${qty} × ${baseName}`;
     }).join(' + ');
     const price = Math.round(parseFloat(String(order.totalAmount)));
     const invoiceRef = `ORD-${order.id}-${Math.floor(Date.now() / 1000)}`;
 
-    // حاول تطابق المنطقة من العنوان الحر، أو ارجع للافتراضي
-    const fullText = [order.city, order.shippingAddress, order.notes].filter(Boolean).join(' ');
-    const regionId = await smartRegionId(cityId, defaultRegionId, fullText, token);
-    console.log(`📍 الوسيط: طلب #${order.id} | مدينة: ${order.city} → city_id=${cityId}, region_id=${regionId}${regionId !== defaultRegionId ? ' (مطابقة تلقائية)' : ' (افتراضي)'}`);
+    // حاول تطابق المنطقة من العنوان الحر، أو ارجع لـ "اخرى"
+    const fullText = [order.city, order.shippingAddress].filter(Boolean).join(' ');
+    const { regionId, matched } = await smartRegionId(cityId, defaultRegionId, fullText, token);
+    console.log(`📍 الوسيط: طلب #${order.id} | ${order.city} → city_id=${cityId}, region_id=${regionId} (${matched ? 'مطابقة تلقائية' : 'اخرى/افتراضي'})`);
+
+    // الموقع: العنوان الكامل دائماً حتى يعرف السائق الوجهة الصحيحة
+    const locationText = [order.shippingAddress, order.city].filter(Boolean).join('، ');
 
     const form = new FormData();
     form.append('client_mobile', phone);
@@ -132,7 +138,7 @@ export async function createAlwaseetShipment(order: {
     form.append('type_name', productNames);
     form.append('merchant_invoice_id', invoiceRef);
     form.append('package_size', '1');
-    if (order.shippingAddress) form.append('location', order.shippingAddress);
+    if (locationText) form.append('location', locationText);
 
     const res = await fetch(`${BASE_URL}/create-order?token=${token}`, { method: 'POST', body: form });
     const data = await res.json() as any;
@@ -221,22 +227,28 @@ async function getRegionsForCity(cityId: number, token: string): Promise<Array<{
 }
 
 // ابحث عن أفضل منطقة تطابق النص الحر (العنوان أو المحافظة)
-async function smartRegionId(cityId: number, defaultRegionId: number, addressText: string, token: string): Promise<number> {
-  if (!addressText) return defaultRegionId;
+// إذا لم يجد تطابقاً → يرجع منطقة "اخرى" في المحافظة (إن وجدت) أو الافتراضي
+async function smartRegionId(cityId: number, defaultRegionId: number, addressText: string, token: string): Promise<{ regionId: number; matched: boolean }> {
+  if (!addressText) return { regionId: defaultRegionId, matched: false };
   const regions = await getRegionsForCity(cityId, token);
-  if (!regions.length) return defaultRegionId;
+  if (!regions.length) return { regionId: defaultRegionId, matched: false };
 
   // قسّم النص إلى كلمات (حذف كلمات قصيرة < 3 أحرف)
-  const words = addressText.trim().split(/[\s,\/،]+/).filter(w => w.length >= 3);
+  const words = addressText.trim().split(/[\s,\/،\-]+/).filter(w => w.length >= 3);
 
   // ابحث عن تطابق بين كلمات العنوان وأسماء المناطق
   for (const word of words) {
     const match = regions.find(r =>
       r.name.includes(word) || word.includes(r.name)
     );
-    if (match) return match.id;
+    if (match) return { regionId: Number(match.id), matched: true };
   }
-  return defaultRegionId;
+
+  // لا يوجد تطابق → ابحث عن منطقة "اخرى" في المحافظة
+  const otherRegion = regions.find(r => /^اخرى$|^أخرى$/i.test(r.name.trim()));
+  if (otherRegion) return { regionId: Number(otherRegion.id), matched: false };
+
+  return { regionId: defaultRegionId, matched: false };
 }
 
 // ---- token cache ----
