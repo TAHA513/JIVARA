@@ -279,7 +279,7 @@ export default function PrintOrdersPage() {
   @page { size: 100mm 150mm; margin: 0; }
   * { box-sizing:border-box; margin:0; padding:0;
       font-family:'Tajawal','Cairo',Arial,sans-serif; }
-  html,body { width:100mm; height:150mm; overflow:hidden; background:#fff; color:#000; }
+  html,body { width:100mm; background:#fff; color:#000; }
   .label { width:100mm; height:150mm; padding:4mm 4mm 3mm 4mm;
            display:flex; flex-direction:column; gap:2.5mm;
            page-break-after:always; break-after:page;
