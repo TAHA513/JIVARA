@@ -248,10 +248,10 @@ export default function PrintOrdersPage() {
   </div>
   <div class="bcwrap"><svg class="bc" data-code="${printCode}"></svg></div>
   <div class="info">
-    <div class="irow"><span class="lbl">الاسم</span><span class="val">${o.customerName || "—"}</span></div>
+    <div class="irow big"><span class="lbl">الاسم</span><span class="val">${o.customerName || "—"}</span></div>
     <div class="irow"><span class="lbl">الهاتف</span><span class="val phone" dir="ltr">${o.customerPhone || "—"}</span></div>
-    <div class="irow"><span class="lbl">المحافظة</span><span class="val">${o.city || "—"}</span></div>
-    <div class="irow addr"><span class="lbl">العنوان</span><span class="val">${o.shippingAddress || "—"}</span></div>
+    <div class="irow big"><span class="lbl">المحافظة</span><span class="val">${o.city || "—"}</span></div>
+    <div class="irow big"><span class="lbl">العنوان</span><span class="val">${o.shippingAddress || "—"}</span></div>
   </div>
   <div class="products">${itemsRows || "<span>—</span>"}</div>
   ${o.notes ? `<div class="notes">ملاحظة: ${o.notes}</div>` : ""}
@@ -311,9 +311,9 @@ export default function PrintOrdersPage() {
   .lbl  { font-weight:900; min-width:18mm; flex-shrink:0; }
   .val  { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .phone{ font-weight:900; font-size:11pt; }
-  /* العنوان: أكبر وأوضح */
-  .irow.addr { font-size:13pt; font-weight:900; line-height:1.4; }
-  .irow.addr .val { white-space:normal; text-overflow:unset; overflow:visible; }
+  /* الاسم والمحافظة والعنوان: أكبر وأوضح */
+  .irow.big { font-size:13pt; font-weight:900; line-height:1.4; }
+  .irow.big .val { white-space:normal; text-overflow:unset; overflow:visible; }
 
   /* المنتجات */
   .products { border:1px solid #000; padding:1.5mm; overflow:hidden;
