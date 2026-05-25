@@ -123,7 +123,6 @@ export async function createAlwaseetShipment(order: {
     form.append('type_name', productNames);
     form.append('merchant_invoice_id', invoiceRef);
     form.append('package_size', '1');
-    if (order.notes) form.append('merchant_notes', order.notes);
     if (order.shippingAddress) form.append('location', order.shippingAddress);
 
     const res = await fetch(`${BASE_URL}/create-order?token=${token}`, { method: 'POST', body: form });
