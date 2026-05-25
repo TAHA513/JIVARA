@@ -304,7 +304,7 @@ export default function PrintOrdersPage() {
   * { box-sizing:border-box; margin:0; padding:0;
       font-family:'Tajawal','Cairo',Arial,sans-serif; }
   html,body { width:100mm; background:#fff; color:#000; }
-  .label { width:100mm; height:150mm; padding:10mm 4mm 10mm 4mm;
+  .label { width:100mm; height:150mm; padding:6mm 4mm 6mm 4mm;
            display:flex; flex-direction:column; gap:2.5mm;
            justify-content:center;
            page-break-after:always; break-after:page;
