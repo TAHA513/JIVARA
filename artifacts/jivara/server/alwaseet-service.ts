@@ -81,12 +81,17 @@ export async function createAlwaseetShipment(order: {
     const token = await getToken();
     if (!token) return { success: false, message: 'بيانات الدخول غير مضبوطة' };
 
-    const { cityId, regionId } = mapCity(order.city);
+    const { cityId, regionId: defaultRegionId } = mapCity(order.city);
     const phone = toAlwaseetPhone(order.customerPhone);
     const totalQty = order.items.reduce((s, i) => s + (i.quantity || 1), 0);
     const productNames = order.items.map(i => i.nameAr || i.name || 'منتج').join(' + ');
     const price = Math.round(parseFloat(String(order.totalAmount)));
     const invoiceRef = `ORD-${order.id}-${Math.floor(Date.now() / 1000)}`;
+
+    // حاول تطابق المنطقة من العنوان الحر، أو ارجع للافتراضي
+    const fullText = [order.city, order.shippingAddress, order.notes].filter(Boolean).join(' ');
+    const regionId = await smartRegionId(cityId, defaultRegionId, fullText, token);
+    console.log(`📍 الوسيط: طلب #${order.id} | مدينة: ${order.city} → city_id=${cityId}, region_id=${regionId}${regionId !== defaultRegionId ? ' (مطابقة تلقائية)' : ' (افتراضي)'}`);
 
     const form = new FormData();
     form.append('client_mobile', phone);
@@ -169,6 +174,41 @@ function mapStatusToOurs(statusText: string): string | null {
   if (t.includes('طريق') || t.includes('توصيل') || t.includes('مندوب') || t.includes('خرج')) return 'shipped';
   if (t.includes('استلم') || t.includes('استلام') || t.includes('تم الاستلام')) return 'confirmed';
   return null;
+}
+
+// ---- cache المناطق لكل مدينة ----
+const regionsCache: Record<number, Array<{ id: number; name: string }>> = {};
+
+async function getRegionsForCity(cityId: number, token: string): Promise<Array<{ id: number; name: string }>> {
+  if (regionsCache[cityId]) return regionsCache[cityId];
+  try {
+    const res = await fetch(`${BASE_URL}/regions?token=${token}&city_id=${cityId}`);
+    const data = await res.json() as any;
+    if (data.status && Array.isArray(data.data)) {
+      regionsCache[cityId] = data.data.map((r: any) => ({ id: r.id, name: String(r.name || r.name_ar || '') }));
+      return regionsCache[cityId];
+    }
+  } catch { /* تجاهل الخطأ، سنستخدم الافتراضي */ }
+  return [];
+}
+
+// ابحث عن أفضل منطقة تطابق النص الحر (العنوان أو المحافظة)
+async function smartRegionId(cityId: number, defaultRegionId: number, addressText: string, token: string): Promise<number> {
+  if (!addressText) return defaultRegionId;
+  const regions = await getRegionsForCity(cityId, token);
+  if (!regions.length) return defaultRegionId;
+
+  // قسّم النص إلى كلمات (حذف كلمات قصيرة < 3 أحرف)
+  const words = addressText.trim().split(/[\s,\/،]+/).filter(w => w.length >= 3);
+
+  // ابحث عن تطابق بين كلمات العنوان وأسماء المناطق
+  for (const word of words) {
+    const match = regions.find(r =>
+      r.name.includes(word) || word.includes(r.name)
+    );
+    if (match) return match.id;
+  }
+  return defaultRegionId;
 }
 
 // ---- token cache ----
