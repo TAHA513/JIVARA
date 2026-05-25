@@ -90,14 +90,17 @@ export async function createAlwaseetShipment(order: {
 
     const { cityId, regionId: defaultRegionId } = mapCity(order.city);
     const phone = toAlwaseetPhone(order.customerPhone);
-    // عدد القطع الكلي — للجواريب يمثل عدد الأزواج الفعلية داخل البوكس
+    // عدد القطع = عدد البوكسات المشحونة (1 بوكس = 1 قطعة في الوسيط)
     const totalQty = order.items.reduce((s, i) => {
       const name = (i.nameAr || i.name || '');
       const qty = i.quantity || 1;
-      // المنتجات الجديدة: quantity مخزّن بالبوكس، نحوّلها لأزواج (×5)
-      if (/بوكس/i.test(name) && (/جوارب|بامبو|sock/i.test(name))) {
-        return s + qty * 5;
+      const isSock = /جوارب|بامبو|sock/i.test(name);
+      const isBoxFormat = /بوكس/i.test(name);
+      if (isSock && !isBoxFormat) {
+        // طلب قديم: qty مخزّن كأزواج → حوّل لبوكسات
+        return s + Math.max(1, Math.round(qty / 5));
       }
+      // طلب جديد أو منتج عادي: qty = بوكسات أو وحدات مباشرة
       return s + qty;
     }, 0);
     const productNames = order.items.map(i => i.nameAr || i.name || 'منتج').join(' + ');
