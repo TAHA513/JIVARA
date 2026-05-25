@@ -90,7 +90,20 @@ export async function createAlwaseetShipment(order: {
 
     const { cityId, regionId: defaultRegionId } = mapCity(order.city);
     const phone = toAlwaseetPhone(order.customerPhone);
-    const totalQty = order.items.reduce((s, i) => s + (i.quantity || 1), 0);
+    // احسب عدد الوحدات الفعلية (البوكسات) للإرسال للوسيط
+    // المنتجات القديمة تخزن quantity بالأزواج (5 أزواج = 1 بوكس) — نقسم على 5
+    // المنتجات الجديدة تحتوي "بوكس" في الاسم وقيمتها بالبوكس مباشرة
+    const totalQty = order.items.reduce((s, i) => {
+      const name = (i.nameAr || i.name || '').toLowerCase();
+      const isSockItem = /جوارب|بامبو|sock/i.test(name);
+      const isBoxFormat = /بوكس/i.test(name);
+      const qty = i.quantity || 1;
+      if (isSockItem && !isBoxFormat && qty % 5 === 0) {
+        // تنسيق قديم: الكمية بالأزواج → حوّلها لبوكسات
+        return s + Math.round(qty / 5);
+      }
+      return s + qty;
+    }, 0);
     const productNames = order.items.map(i => i.nameAr || i.name || 'منتج').join(' + ');
     const price = Math.round(parseFloat(String(order.totalAmount)));
     const invoiceRef = `ORD-${order.id}-${Math.floor(Date.now() / 1000)}`;
