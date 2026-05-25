@@ -210,42 +210,99 @@ function mapStatusToOurs(statusText: string): string | null {
   return null;
 }
 
-// ---- cache المناطق لكل مدينة ----
-const regionsCache: Record<number, Array<{ id: number; name: string }>> = {};
+// ---- تطبيع النص العربي: حذف "ال" من بداية الكلمة + توحيد الأحرف ----
+function normalizeAr(word: string): string {
+  return word
+    .replace(/^ال/, '')           // حذف "ال" من البداية
+    .replace(/[أإآا]/g, 'ا')      // توحيد الألف
+    .replace(/[ةه]/g, 'ه')        // توحيد التاء المربوطة والهاء
+    .replace(/[يى]/g, 'ي')        // توحيد الياء
+    .trim();
+}
 
-async function getRegionsForCity(cityId: number, token: string): Promise<Array<{ id: number; name: string }>> {
-  if (regionsCache[cityId]) return regionsCache[cityId];
+// ---- cache المناطق في الذاكرة ----
+const regionsMemCache: Record<number, Array<{ id: number; name: string; norm: string }>> = {};
+
+// ---- جلب مناطق المدينة: أولاً من DB، ثم من API الوسيط ----
+async function getRegionsForCity(cityId: number, token: string): Promise<Array<{ id: number; name: string; norm: string }>> {
+  if (regionsMemCache[cityId]) return regionsMemCache[cityId];
+
+  // حاول تحميل من قاعدة البيانات أولاً
+  try {
+    const dbKey = `alwaseet_regions_${cityId}`;
+    const rows = await db.select().from(storeSettings).where(eq(storeSettings.key, dbKey));
+    if (rows[0]?.value) {
+      const parsed = JSON.parse(rows[0].value) as Array<{ id: number; name: string }>;
+      if (parsed.length > 0) {
+        regionsMemCache[cityId] = parsed.map(r => ({ ...r, norm: normalizeAr(r.name) }));
+        return regionsMemCache[cityId];
+      }
+    }
+  } catch { /* تجاهل */ }
+
+  // لم تُوجد في DB → اجلبها من API الوسيط واحفظها
   try {
     const res = await fetch(`${BASE_URL}/regions?token=${token}&city_id=${cityId}`);
     const data = await res.json() as any;
     if (data.status && Array.isArray(data.data)) {
-      regionsCache[cityId] = data.data.map((r: any) => ({ id: r.id, name: String(r.region_name || r.name || r.name_ar || '') }));
-      return regionsCache[cityId];
+      const mapped = data.data.map((r: any) => ({
+        id: Number(r.id),
+        name: String(r.region_name || r.name || ''),
+      }));
+      // احفظ في DB
+      const dbKey = `alwaseet_regions_${cityId}`;
+      await db.insert(storeSettings)
+        .values({ key: dbKey, value: JSON.stringify(mapped) })
+        .onConflictDoUpdate({ target: storeSettings.key, set: { value: JSON.stringify(mapped) } });
+      regionsMemCache[cityId] = mapped.map(r => ({ ...r, norm: normalizeAr(r.name) }));
+      return regionsMemCache[cityId];
     }
-  } catch { /* تجاهل الخطأ، سنستخدم الافتراضي */ }
+  } catch { /* تجاهل */ }
   return [];
 }
 
-// ابحث عن أفضل منطقة تطابق النص الحر (العنوان أو المحافظة)
-// إذا لم يجد تطابقاً → يرجع منطقة "اخرى" في المحافظة (إن وجدت) أو الافتراضي
+// ---- تحديث المناطق قسراً من API الوسيط (لزر "تحديث المناطق") ----
+export async function refreshRegionsForCity(cityId: number, token: string): Promise<number> {
+  delete regionsMemCache[cityId];
+  const dbKey = `alwaseet_regions_${cityId}`;
+  try {
+    const res = await fetch(`${BASE_URL}/regions?token=${token}&city_id=${cityId}`);
+    const data = await res.json() as any;
+    if (data.status && Array.isArray(data.data)) {
+      const mapped = data.data.map((r: any) => ({ id: Number(r.id), name: String(r.region_name || r.name || '') }));
+      await db.insert(storeSettings)
+        .values({ key: dbKey, value: JSON.stringify(mapped) })
+        .onConflictDoUpdate({ target: storeSettings.key, set: { value: JSON.stringify(mapped) } });
+      regionsMemCache[cityId] = mapped.map(r => ({ ...r, norm: normalizeAr(r.name) }));
+      return mapped.length;
+    }
+  } catch { /* تجاهل */ }
+  return 0;
+}
+
+// ابحث عن أفضل منطقة تطابق النص الحر
+// - يطبّع الكلمتين (يحذف "ال"، يوحّد الأحرف) قبل المقارنة
+// - يكفي تطابق كلمة واحدة من العنوان مع أي جزء من اسم المنطقة
+// - إذا لم يجد → يختار "اخرى" أو الافتراضي
 async function smartRegionId(cityId: number, defaultRegionId: number, addressText: string, token: string): Promise<{ regionId: number; matched: boolean }> {
   if (!addressText) return { regionId: defaultRegionId, matched: false };
   const regions = await getRegionsForCity(cityId, token);
   if (!regions.length) return { regionId: defaultRegionId, matched: false };
 
-  // قسّم النص إلى كلمات (حذف كلمات قصيرة < 3 أحرف)
-  const words = addressText.trim().split(/[\s,\/،\-]+/).filter(w => w.length >= 3);
+  // كلمات العنوان بعد التطبيع (حذف الكلمات القصيرة < 3 أحرف بعد التطبيع)
+  const words = addressText.trim()
+    .split(/[\s,\/،\-]+/)
+    .map(normalizeAr)
+    .filter(w => w.length >= 3);
 
-  // ابحث عن تطابق بين كلمات العنوان وأسماء المناطق
+  // ابحث: أي كلمة من العنوان موجودة في اسم المنطقة (أو العكس)
   for (const word of words) {
-    const match = regions.find(r =>
-      r.name.includes(word) || word.includes(r.name)
-    );
+    const match = regions.find(r => r.norm.includes(word) || word.includes(r.norm));
     if (match) return { regionId: Number(match.id), matched: true };
   }
 
-  // لا يوجد تطابق → ابحث عن منطقة "اخرى" في المحافظة
-  const otherRegion = regions.find(r => /^اخرى$|^أخرى$/i.test(r.name.trim()));
+  // لا يوجد تطابق → ابحث عن منطقة "اخرى"
+  const otherRegion = regions.find(r => /^اخري?$|^أخري?$/i.test(r.name.trim()));
   if (otherRegion) return { regionId: Number(otherRegion.id), matched: false };
 
   return { regionId: defaultRegionId, matched: false };
@@ -255,6 +312,12 @@ async function smartRegionId(cityId: number, defaultRegionId: number, addressTex
 
 let cachedToken: string | null = null;
 let tokenExpiry = 0;
+
+export async function getAlwaseetToken(): Promise<string> {
+  const t = await getToken();
+  if (!t) throw new Error('تعذّر الحصول على token الوسيط');
+  return t;
+}
 
 async function getToken(): Promise<string | null> {
   const username = process.env.ALWASEET_USERNAME;

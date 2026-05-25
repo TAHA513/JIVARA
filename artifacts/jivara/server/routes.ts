@@ -31,7 +31,7 @@ import { generateToken, requireAdmin, isBlocked, recordFailedAttempt, clearFaile
 import { customRateLimit, logSecurityEvent } from "./security";
 import { telegramService } from "./telegram-service";
 import { sendPurchaseEvent } from "./facebook-conversions";
-import { syncOrderStatuses, fetchAlwaseetOrders } from "./alwaseet-service";
+import { syncOrderStatuses, fetchAlwaseetOrders, refreshRegionsForCity } from "./alwaseet-service";
 import { loginSchema, insertProductSchema, insertCategorySchema, insertOrderSchema, insertCustomerActivitySchema, insertStoreSettingSchema, insertFinancialProductSchema, insertSalesRecordSchema, insertFunnelEventSchema, funnelEvents, users, storeSettings, orders } from "@shared/schema";
 import { z } from "zod";
 import { eq } from "drizzle-orm";
@@ -1015,6 +1015,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }).where(eq(orders.id, orderId));
 
       res.json({ success: true, message: awResult.message });
+    } catch (err: any) {
+      res.status(500).json({ success: false, message: err.message });
+    }
+  });
+
+  // تحديث مناطق الوسيط لمحافظة معينة وحفظها في DB
+  app.post("/api/alwaseet/refresh-regions/:cityId", requireAdmin, async (req: AuthRequest, res) => {
+    try {
+      const cityId = parseInt(req.params.cityId);
+      const { getAlwaseetToken } = await import('./alwaseet-service');
+      const token = await getAlwaseetToken();
+      const count = await refreshRegionsForCity(cityId, token);
+      res.json({ success: true, count, message: `تم تحديث ${count} منطقة للمحافظة` });
     } catch (err: any) {
       res.status(500).json({ success: false, message: err.message });
     }
