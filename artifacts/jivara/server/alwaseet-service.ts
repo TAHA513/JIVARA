@@ -220,11 +220,23 @@ function normalizeAr(word: string): string {
     .trim();
 }
 
+// ---- تقسيم اسم المنطقة إلى كلمات منفصلة مطبّعة ----
+function regionWords(name: string): string[] {
+  return name
+    .split(/[\s\-،,\/\xa0]+/)
+    .map(normalizeAr)
+    .filter(w => w.length >= 4); // حد أدنى 4 أحرف لتجنب الكلمات القصيرة المضللة
+}
+
 // ---- cache المناطق في الذاكرة ----
-const regionsMemCache: Record<number, Array<{ id: number; name: string; norm: string }>> = {};
+const regionsMemCache: Record<number, Array<{ id: number; name: string; words: string[] }>> = {};
+
+function buildRegionEntry(r: { id: number; name: string }) {
+  return { id: Number(r.id), name: r.name, words: regionWords(r.name) };
+}
 
 // ---- جلب مناطق المدينة: أولاً من DB، ثم من API الوسيط ----
-async function getRegionsForCity(cityId: number, token: string): Promise<Array<{ id: number; name: string; norm: string }>> {
+async function getRegionsForCity(cityId: number, token: string): Promise<Array<{ id: number; name: string; words: string[] }>> {
   if (regionsMemCache[cityId]) return regionsMemCache[cityId];
 
   // حاول تحميل من قاعدة البيانات أولاً
@@ -234,7 +246,7 @@ async function getRegionsForCity(cityId: number, token: string): Promise<Array<{
     if (rows[0]?.value) {
       const parsed = JSON.parse(rows[0].value) as Array<{ id: number; name: string }>;
       if (parsed.length > 0) {
-        regionsMemCache[cityId] = parsed.map(r => ({ ...r, norm: normalizeAr(r.name) }));
+        regionsMemCache[cityId] = parsed.map(buildRegionEntry);
         return regionsMemCache[cityId];
       }
     }
@@ -249,12 +261,11 @@ async function getRegionsForCity(cityId: number, token: string): Promise<Array<{
         id: Number(r.id),
         name: String(r.region_name || r.name || ''),
       }));
-      // احفظ في DB
       const dbKey = `alwaseet_regions_${cityId}`;
       await db.insert(storeSettings)
         .values({ key: dbKey, value: JSON.stringify(mapped) })
         .onConflictDoUpdate({ target: storeSettings.key, set: { value: JSON.stringify(mapped) } });
-      regionsMemCache[cityId] = mapped.map(r => ({ ...r, norm: normalizeAr(r.name) }));
+      regionsMemCache[cityId] = mapped.map(buildRegionEntry);
       return regionsMemCache[cityId];
     }
   } catch { /* تجاهل */ }
@@ -273,7 +284,7 @@ export async function refreshRegionsForCity(cityId: number, token: string): Prom
       await db.insert(storeSettings)
         .values({ key: dbKey, value: JSON.stringify(mapped) })
         .onConflictDoUpdate({ target: storeSettings.key, set: { value: JSON.stringify(mapped) } });
-      regionsMemCache[cityId] = mapped.map(r => ({ ...r, norm: normalizeAr(r.name) }));
+      regionsMemCache[cityId] = mapped.map(buildRegionEntry);
       return mapped.length;
     }
   } catch { /* تجاهل */ }
@@ -281,24 +292,30 @@ export async function refreshRegionsForCity(cityId: number, token: string): Prom
 }
 
 // ابحث عن أفضل منطقة تطابق النص الحر
-// - يطبّع الكلمتين (يحذف "ال"، يوحّد الأحرف) قبل المقارنة
-// - يكفي تطابق كلمة واحدة من العنوان مع أي جزء من اسم المنطقة
-// - إذا لم يجد → يختار "اخرى" أو الافتراضي
+// المنطق:
+//   1. قسّم كلاً من العنوان واسم المنطقة إلى كلمات منفصلة ونطبّعها
+//   2. ابحث عن تطابق كلمة من العنوان مع كلمة من المنطقة (مساواة تامة أو احتواء)
+//   3. الحد الأدنى 4 أحرف لكل كلمة لتجنب المطابقات الخاطئة
 async function smartRegionId(cityId: number, defaultRegionId: number, addressText: string, token: string): Promise<{ regionId: number; matched: boolean }> {
   if (!addressText) return { regionId: defaultRegionId, matched: false };
   const regions = await getRegionsForCity(cityId, token);
   if (!regions.length) return { regionId: defaultRegionId, matched: false };
 
-  // كلمات العنوان بعد التطبيع (حذف الكلمات القصيرة < 3 أحرف بعد التطبيع)
-  const words = addressText.trim()
-    .split(/[\s,\/،\-]+/)
+  // كلمات العنوان المطبّعة (حد أدنى 4 أحرف)
+  const addrWords = addressText.trim()
+    .split(/[\s,\/،\-\xa0]+/)
     .map(normalizeAr)
-    .filter(w => w.length >= 3);
+    .filter(w => w.length >= 4);
 
-  // ابحث: أي كلمة من العنوان موجودة في اسم المنطقة (أو العكس)
-  for (const word of words) {
-    const match = regions.find(r => r.norm.includes(word) || word.includes(r.norm));
-    if (match) return { regionId: Number(match.id), matched: true };
+  // ابحث: أي كلمة من العنوان تتطابق مع أي كلمة من اسم المنطقة
+  for (const aw of addrWords) {
+    const match = regions.find(r =>
+      r.words.some(rw => rw === aw || rw.includes(aw) || aw.includes(rw))
+    );
+    if (match) {
+      console.log(`✅ تطابق: كلمة العنوان [${aw}] → منطقة [${match.name}] id=${match.id}`);
+      return { regionId: Number(match.id), matched: true };
+    }
   }
 
   // لا يوجد تطابق → ابحث عن منطقة "اخرى"
