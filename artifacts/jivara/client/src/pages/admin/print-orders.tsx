@@ -306,6 +306,7 @@ export default function PrintOrdersPage() {
   html,body { width:100mm; background:#fff; color:#000; }
   .label { width:100mm; height:150mm; padding:4mm 4mm 3mm 4mm;
            display:flex; flex-direction:column; gap:2.5mm;
+           justify-content:center;
            page-break-after:always; break-after:page;
            page-break-inside:avoid; break-inside:avoid; overflow:hidden; }
   .label:last-child { page-break-after:auto; break-after:auto; }
@@ -341,7 +342,7 @@ export default function PrintOrdersPage() {
 
   /* المنتجات */
   .products { border:1px solid #000; padding:1.5mm; overflow:hidden;
-              min-height:0; flex:1 1 auto; }
+              min-height:0; flex:0 0 auto; }
   .prow { display:flex; justify-content:space-between; font-size:9.5pt;
           padding:0.5mm 0; border-bottom:1px dotted #ccc; }
   .prow:last-child { border-bottom:none; }
@@ -493,14 +494,24 @@ ${labelsHtml}
               <ClipboardList className="w-6 h-6 text-primary" />
               <h1 className="text-2xl font-bold arabic-text">طباعة الطلبات</h1>
             </div>
-            <Button
-              variant="outline"
-              onClick={() => window.location.href = "/admin"}
-              className="flex items-center gap-2"
-            >
-              <span>←</span>
-              <span>لوحة التحكم</span>
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="default"
+                onClick={() => window.location.href = "/admin/manual-order"}
+                className="flex items-center gap-2"
+              >
+                <span>➕</span>
+                <span>طلب يدوي</span>
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => window.location.href = "/admin"}
+                className="flex items-center gap-2"
+              >
+                <span>←</span>
+                <span>لوحة التحكم</span>
+              </Button>
+            </div>
           </div>
 
           {/* Filters */}

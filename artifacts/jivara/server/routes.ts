@@ -976,17 +976,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // إنشاء شحنة يدوية للوسيط بدون طلب مسبق
+  // إنشاء شحنة يدوية للوسيط وحفظها في قاعدة البيانات
   app.post("/api/alwaseet/send-manual", requireAdmin, async (req: AuthRequest, res) => {
     try {
       const { customerName, customerPhone, city, regionId, items, totalAmount, notes } = req.body;
       if (!customerName || !customerPhone || !city || !regionId || !items?.length) {
         return res.status(400).json({ success: false, message: 'جميع الحقول مطلوبة' });
       }
+      // احفظ الطلب في قاعدة البيانات أولاً
+      const sessionId = `manual-${Date.now()}`;
+      const savedOrder = await storage.createOrder({
+        sessionId,
+        customerName,
+        customerPhone,
+        city,
+        shippingAddress: city,
+        totalAmount: String(totalAmount || 0),
+        items,
+        notes: notes || null,
+        landingPage: 'يدوي',
+      } as any);
+      // أرسل للوسيط
       const { createAlwaseetShipment } = await import('./alwaseet-service');
-      const fakeId = Math.floor(Date.now() / 1000) % 1000000;
       const result = await createAlwaseetShipment({
-        id: fakeId,
+        id: savedOrder.id,
         customerName,
         customerPhone,
         city,
@@ -996,7 +1009,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         notes: notes || null,
         manualRegionId: Number(regionId),
       });
-      res.json(result);
+      // حدّث الطلب بكود الوسيط إن نجح
+      if (result.success && result.alwaseetId) {
+        await db.update(orders).set({
+          alwaseetQrId: result.alwaseetId,
+          alwaseetStatus: 'تم الإرسال للوسيط',
+          alwaseetSyncAt: new Date(),
+        }).where(eq(orders.id, savedOrder.id));
+      }
+      res.json({ ...result, orderId: savedOrder.id });
     } catch (err: any) {
       res.status(500).json({ success: false, message: err.message });
     }

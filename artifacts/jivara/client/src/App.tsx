@@ -79,6 +79,7 @@ import ExpensesPage from "@/pages/admin/expenses";
 import NotificationsPage from "@/pages/admin/notifications";
 import PermissionsPage from "@/pages/admin/permissions";
 import CashierPage from "@/pages/admin/cashier";
+import ManualOrderPage from "@/pages/admin/manual-order";
 import { useLocation } from "wouter";
 import { useEffect } from "react";
 
@@ -159,6 +160,7 @@ function App() {
                   <Route path="/admin/campaign-links" component={CampaignLinks} />
                   <Route path="/admin/discount-codes" component={DiscountCodes} />
                   <Route path="/admin/alwaseet" component={AlwaseetPage} />
+                  <Route path="/admin/manual-order" component={ManualOrderPage} />
                   <Route path="/admin/whatsapp" component={WhatsAppSetup} />
                   <Route path="/admin/fb-ads" component={FbAdsPage} />
                   <Route path="/admin/messenger-broadcast" component={MessengerBroadcast} />

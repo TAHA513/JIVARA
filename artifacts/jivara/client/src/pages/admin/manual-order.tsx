@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useAdminAuth } from "@/hooks/use-admin-auth";
 import { Button } from "@/components/ui/button";
@@ -45,6 +45,7 @@ export default function ManualOrderPage() {
   const [productSearch, setProductSearch] = useState("");
   const [notes, setNotes] = useState("");
   const [result, setResult] = useState<{ success: boolean; message: string } | null>(null);
+  const qc = useQueryClient();
 
   const { data: productsData } = useQuery<any[]>({
     queryKey: ["/api/products"],
@@ -104,6 +105,7 @@ export default function ManualOrderPage() {
     onSuccess: (data) => {
       setResult(data);
       if (data.success) {
+        qc.invalidateQueries({ queryKey: ["/api/orders"] });
         setCustomerName("");
         setCustomerPhone("");
         setSelectedCity(null);
@@ -134,10 +136,15 @@ export default function ManualOrderPage() {
             <Truck className="w-6 h-6 text-primary" />
             <h1 className="text-2xl font-bold">إنشاء طلب يدوي</h1>
           </div>
-          <Button variant="outline" onClick={() => (window.location.href = "/admin")}>
-            <ArrowRight className="w-4 h-4 ml-1" />
-            لوحة التحكم
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" onClick={() => (window.location.href = "/admin/print-orders")}>
+              <ArrowRight className="w-4 h-4 ml-1" />
+              الطلبات
+            </Button>
+            <Button variant="ghost" onClick={() => (window.location.href = "/admin")}>
+              لوحة التحكم
+            </Button>
+          </div>
         </div>
 
         {/* نتيجة الإرسال */}

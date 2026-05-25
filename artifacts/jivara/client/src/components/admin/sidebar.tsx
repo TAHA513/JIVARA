@@ -36,6 +36,7 @@ const navGroups: NavGroup[] = [
       { title: "الفئات",       href: "/admin/categories", icon: LayoutGrid },
       { title: "العملاء",      href: "/admin/customers",  icon: Users },
       { title: "نظام الوسيط", href: "/admin/alwaseet",   icon: Truck },
+      { title: "طلب يدوي ➕",  href: "/admin/manual-order", icon: Truck },
     ],
   },
   {
