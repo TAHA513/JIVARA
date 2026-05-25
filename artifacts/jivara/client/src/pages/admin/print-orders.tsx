@@ -474,10 +474,6 @@ ${labelsHtml}
 
   return (
     <div className="min-h-screen bg-gray-50" dir="rtl">
-      <div className="no-print">
-        <AdminSidebar />
-      </div>
-
       {/* Print-only styles + print area */}
       <style>{`
         @media print {
@@ -490,11 +486,21 @@ ${labelsHtml}
         .print-area { display: none; }
       `}</style>
 
-      <div className="md:mr-64 p-4 md:p-6 no-print">
+      <div className="p-4 md:p-6 no-print">
         <div className="max-w-7xl mx-auto">
-          <div className="flex items-center gap-2 mb-4">
-            <ClipboardList className="w-6 h-6 text-primary" />
-            <h1 className="text-2xl font-bold arabic-text">طباعة الطلبات</h1>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <ClipboardList className="w-6 h-6 text-primary" />
+              <h1 className="text-2xl font-bold arabic-text">طباعة الطلبات</h1>
+            </div>
+            <Button
+              variant="outline"
+              onClick={() => window.location.href = "/admin"}
+              className="flex items-center gap-2"
+            >
+              <span>←</span>
+              <span>لوحة التحكم</span>
+            </Button>
           </div>
 
           {/* Filters */}
