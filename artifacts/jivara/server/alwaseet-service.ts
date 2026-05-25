@@ -46,9 +46,16 @@ const CITY_MAP: Record<string, { cityId: number; regionId: number }> = {
   'واسط':       { cityId: 18, regionId: 5526 },
 };
 
+// تحويل الأرقام العربية/الفارسية إلى إنجليزية
+function toWesternDigits(str: string): string {
+  return str
+    .replace(/[٠-٩]/g, (d) => String(d.charCodeAt(0) - 0x0660))
+    .replace(/[۰-۹]/g, (d) => String(d.charCodeAt(0) - 0x06F0));
+}
+
 // تحويل رقم الهاتف إلى صيغة الوسيط: +9647XXXXXXXX
 function toAlwaseetPhone(phone: string): string {
-  const digits = phone.replace(/\D/g, '');
+  const digits = toWesternDigits(phone).replace(/\D/g, '');
   if (digits.startsWith('9647')) return '+' + digits;
   if (digits.startsWith('964')) return '+964' + digits.slice(3);
   if (digits.startsWith('07')) return '+964' + digits.slice(1);
