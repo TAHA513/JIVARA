@@ -121,7 +121,8 @@ export async function createAlwaseetShipment(order: {
     const invoiceRef = `ORD-${order.id}-${Math.floor(Date.now() / 1000)}`;
 
     // حاول تطابق المنطقة من العنوان الحر، أو ارجع لـ "اخرى"
-    const fullText = [order.city, order.shippingAddress].filter(Boolean).join(' ');
+    // المدينة تُستخدم لتحديد city_id فقط، لا للبحث عن المنطقة
+    const fullText = order.shippingAddress || '';
     const { regionId, matched } = await smartRegionId(cityId, defaultRegionId, fullText, token);
     console.log(`📍 الوسيط: طلب #${order.id} | ${order.city} → city_id=${cityId}, region_id=${regionId} (${matched ? 'مطابقة تلقائية' : 'اخرى/افتراضي'})`);
 
