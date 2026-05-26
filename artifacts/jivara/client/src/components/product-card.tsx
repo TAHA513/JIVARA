@@ -87,7 +87,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         <img
           src={imageError ? defaultImage : productImages[0]}
           alt={product.nameAr}
-          className="w-full aspect-[4/3] sm:h-52 md:h-60 object-cover group-hover:scale-105 transition-transform duration-300 rounded-xl cursor-pointer"
+          className="w-full aspect-[4/3] sm:h-52 md:h-60 object-contain bg-white group-hover:scale-105 transition-transform duration-300 rounded-xl cursor-pointer p-1"
           onClick={handleImagePreview}
           onError={() => setImageError(true)}
         />

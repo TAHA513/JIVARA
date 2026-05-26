@@ -825,7 +825,7 @@ export default function JadafPage() {
                         <img
                           src={img}
                           alt={product.nameAr}
-                          className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                          className="w-full h-full object-contain transition-transform group-hover:scale-105 p-2"
                           loading="lazy"
                         />
                       ) : (
