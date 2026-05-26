@@ -336,47 +336,49 @@ export default function ProductPhotoStudio() {
     }
     setAiProcessing(true);
     toast({
-      title: `🤖 جاري الإرسال لـ AI...`,
+      title: `🤖 جاري المعالجة بـ AI...`,
       description: `${toProcess.length} صورة — قد يستغرق 1-3 دقائق`,
     });
 
     // ضع كل الصور في حالة "معالجة"
     toProcess.forEach(img => updateImage(img.id, { processing: "bg" }));
 
-    try {
-      const res = await apiRequest("POST", "/api/ai/white-background", {
-        images: toProcess.map(img => ({ id: img.id, dataUrl: img.dataUrl })),
-      });
-      const data = await res.json() as { results: Array<{ id: string; dataUrl?: string; success: boolean; error?: string }> };
+    let success = 0, failed = 0;
+    const CONCURRENCY = 3;
 
-      let success = 0, failed = 0;
-      for (const result of data.results) {
-        if (result.success && result.dataUrl) {
-          updateImage(result.id, prev => ({
-            ...prev,
-            dataUrl: result.dataUrl!,
-            size: dataUrlBytes(result.dataUrl!),
-            processing: null,
-            history: [...(prev.history || []), prev.dataUrl],
-            name: prev.name.replace(/\.(jpg|jpeg|webp|png)$/i, "_ai_white.png"),
-          }));
-          success++;
-        } else {
-          updateImage(result.id, { processing: null });
-          failed++;
-        }
+    // معالجة كل صورة منفردة مع تزامن 3
+    const processOne = async (img: typeof toProcess[0]) => {
+      try {
+        const res = await apiRequest("POST", "/api/ai/white-background", {
+          id: img.id,
+          dataUrl: img.dataUrl,
+        });
+        const result = await res.json() as { id: string; dataUrl: string; success: boolean };
+        updateImage(result.id, prev => ({
+          ...prev,
+          dataUrl: result.dataUrl,
+          size: dataUrlBytes(result.dataUrl),
+          processing: null,
+          history: [...(prev.history || []), prev.dataUrl],
+          name: prev.name.replace(/\.(jpg|jpeg|webp|png)$/i, "_ai_white.png"),
+        }));
+        success++;
+      } catch (e: any) {
+        updateImage(img.id, { processing: null });
+        failed++;
       }
+    };
 
-      toast({
-        title: `✅ AI انتهى: ${success} نجحت${failed ? `، ${failed} فشلت` : ""}`,
-        description: "الصور جاهزة — اربطها بالمنتجات",
-      });
-    } catch (e: any) {
-      toProcess.forEach(img => updateImage(img.id, { processing: null }));
-      toast({ title: "فشل AI", description: e.message, variant: "destructive" });
-    } finally {
-      setAiProcessing(false);
+    // تشغيل بتزامن CONCURRENCY
+    for (let i = 0; i < toProcess.length; i += CONCURRENCY) {
+      await Promise.all(toProcess.slice(i, i + CONCURRENCY).map(processOne));
     }
+
+    setAiProcessing(false);
+    toast({
+      title: `✅ AI انتهى: ${success} نجحت${failed ? `، ${failed} فشلت` : ""}`,
+      description: "الصور جاهزة — اربطها بالمنتجات",
+    });
   };
 
   // فتح نافذة العلامة المائية
