@@ -32,8 +32,8 @@ app.use(customRateLimit(
 app.use(sanitizeInput);
 
 // Body parsing with size limits
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: false, limit: '10mb' }));
+app.use(express.json({ limit: '200mb' }));
+app.use(express.urlencoded({ extended: false, limit: '200mb' }));
 
 // Security monitoring middleware - only for API POST/PUT/DELETE (not GET page requests)
 app.use((req: Request, res: Response, next: NextFunction) => {
