@@ -35,9 +35,9 @@ const ROWS = 3;
 // productId = null → تخطي هذه الخلية
 const CELLS = [
   { row: 0, col: 0, productId: 362,  label: "VH-42  → VOXER-VH14 سماعة فوكسر VH14" },
-  { row: 0, col: 1, productId: null, label: "Bi13   → غير موجود — تخطي" },
+  { row: 0, col: 1, productId: 426,  label: "Bi13   → EBETH-BI13 سماعة إيبيث Bi13" },
   { row: 0, col: 2, productId: 420,  label: "MA-13  → MARSHALL-MA13 سماعة مارشال MA13" },
-  { row: 1, col: 0, productId: null, label: "MA-15  → غير موجود — تخطي" },
+  { row: 1, col: 0, productId: 427,  label: "MA-15  → MARSHALL-MA15 سماعة مارشال MA-15 Boss" },
   { row: 1, col: 1, productId: 418,  label: "MA-14  → MARSHALL-MA14 سماعة مارشال MA14 (أبيض نوع C)" },
   { row: 1, col: 2, productId: 418,  label: "MA-14  → MARSHALL-MA14 سماعة مارشال MA14 (صورة 2)" },
   { row: 2, col: 0, productId: 379,  label: "HOCO ANC+ENC Sandy → HOCO-W35-MAX-ANC" },
