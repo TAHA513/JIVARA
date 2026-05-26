@@ -54,10 +54,13 @@ const MAKE_FIRST_MAIN = true;
 // ─── الكود الرئيسي ───────────────────────────────────────────────────────────
 
 async function main() {
-  const connStr = process.env.RENDER_DATABASE_URL || process.env.DATABASE_URL;
+  // استخدام متغيرات PG البيئية مباشرة (نفس قاعدة البيانات التي يستخدمها الخادم)
   const pool = new Pool({
-    connectionString: connStr,
-    ssl: connStr?.includes("render.com") ? { rejectUnauthorized: false } : undefined,
+    host: process.env.PGHOST,
+    port: Number(process.env.PGPORT) || 5432,
+    user: process.env.PGUSER,
+    password: process.env.PGPASSWORD,
+    database: process.env.PGDATABASE,
   });
 
   const meta = await sharp(IMAGE_PATH).metadata();
