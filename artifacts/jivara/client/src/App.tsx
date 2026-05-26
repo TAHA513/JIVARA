@@ -72,6 +72,7 @@ import SocialManager from "@/pages/admin/social-manager";
 import FunnelAnalytics from "@/pages/admin/funnel-analytics";
 import IntelligencePage from "@/pages/admin/intelligence";
 import AiDesignerPage from "@/pages/admin/ai-designer";
+import ProductPhotoStudio from "@/pages/admin/product-photo-studio";
 import AiChatPage from "@/pages/admin/ai-chat";
 import InventoryPage from "@/pages/admin/inventory";
 import ReturnsPage from "@/pages/admin/returns";
@@ -169,6 +170,7 @@ function App() {
                   <Route path="/admin/funnel-analytics" component={FunnelAnalytics} />
                   <Route path="/admin/intelligence" component={IntelligencePage} />
                   <Route path="/admin/ai-designer" component={AiDesignerPage} />
+                  <Route path="/admin/product-photo-studio" component={ProductPhotoStudio} />
                   <Route path="/admin/ai-chat" component={AiChatPage} />
                   <Route path="/admin/inventory" component={InventoryPage} />
                   <Route path="/admin/returns" component={ReturnsPage} />
