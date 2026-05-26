@@ -396,6 +396,137 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ربط صورة (URL خارجي أو data URL) بمنتج موجود
+  app.post("/api/products/:id/attach-image", requireAdmin, async (req, res) => {
+    const MAX_BYTES = 8 * 1024 * 1024; // 8MB حد أقصى للصورة
+    const FETCH_TIMEOUT_MS = 15000;
+
+    try {
+      const id = parseInt(req.params.id);
+      const { imageUrl, makeMain } = req.body as { imageUrl?: string; makeMain?: boolean };
+      if (!imageUrl || typeof imageUrl !== "string") {
+        return res.status(400).json({ message: "imageUrl مطلوب" });
+      }
+
+      const product = await storage.getProduct(id);
+      if (!product) return res.status(404).json({ message: "المنتج غير موجود" });
+
+      // تحويل الصورة إلى data URL (base64) مع تحققات الأمان
+      let dataUrl: string;
+      let mime = "image/png";
+
+      if (imageUrl.startsWith("data:")) {
+        // data URL: تحقق من الـ MIME والحجم
+        const match = imageUrl.match(/^data:([^;,]+)(;base64)?,(.*)$/);
+        if (!match) return res.status(400).json({ message: "data URL غير صالح" });
+        const declaredMime = match[1] || "";
+        if (!declaredMime.startsWith("image/")) {
+          return res.status(400).json({ message: "نوع الملف يجب أن يكون صورة" });
+        }
+        // قدّر الحجم: base64 يضخّم البيانات بنسبة ~4/3
+        if (imageUrl.length > Math.ceil((MAX_BYTES * 4) / 3) + 100) {
+          return res.status(413).json({ message: "حجم الصورة يتجاوز 8MB" });
+        }
+        mime = declaredMime;
+        dataUrl = imageUrl;
+      } else {
+        // URL خارجي: تحقق من المخطط ومنع SSRF
+        let parsed: URL;
+        try {
+          parsed = new URL(imageUrl);
+        } catch {
+          return res.status(400).json({ message: "رابط الصورة غير صالح" });
+        }
+        if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+          return res.status(400).json({ message: "يُسمح فقط بـ http/https" });
+        }
+        // حظر hostname خاص/محلي (حماية SSRF أساسية)
+        const host = parsed.hostname.toLowerCase();
+        const isPrivate =
+          host === "localhost" ||
+          host === "0.0.0.0" ||
+          host.endsWith(".local") ||
+          host.endsWith(".internal") ||
+          /^127\./.test(host) ||
+          /^10\./.test(host) ||
+          /^192\.168\./.test(host) ||
+          /^169\.254\./.test(host) ||
+          /^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(host) ||
+          host === "::1" ||
+          host.startsWith("fc") ||
+          host.startsWith("fd") ||
+          host === "metadata.google.internal";
+        if (isPrivate) {
+          return res.status(400).json({ message: "غير مسموح بجلب الصور من عناوين داخلية" });
+        }
+
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+        let resp: Response;
+        try {
+          resp = await fetch(imageUrl, { signal: controller.signal, redirect: "follow" });
+        } catch (e: any) {
+          clearTimeout(timer);
+          if (e.name === "AbortError") {
+            return res.status(408).json({ message: "انتهت مهلة تحميل الصورة" });
+          }
+          return res.status(400).json({ message: "فشل تحميل الصورة من الرابط" });
+        }
+        clearTimeout(timer);
+        if (!resp.ok) return res.status(400).json({ message: "فشل تحميل الصورة من الرابط" });
+
+        const contentType = (resp.headers.get("content-type") || "").toLowerCase();
+        if (!contentType.startsWith("image/")) {
+          return res.status(400).json({ message: "الرابط لا يحتوي على صورة" });
+        }
+        const contentLength = parseInt(resp.headers.get("content-length") || "0", 10);
+        if (contentLength > MAX_BYTES) {
+          return res.status(413).json({ message: "حجم الصورة يتجاوز 8MB" });
+        }
+
+        const buf = Buffer.from(await resp.arrayBuffer());
+        if (buf.byteLength > MAX_BYTES) {
+          return res.status(413).json({ message: "حجم الصورة يتجاوز 8MB" });
+        }
+        mime = contentType.split(";")[0].trim() || "image/png";
+        dataUrl = `data:${mime};base64,${buf.toString("base64")}`;
+      }
+
+      // حفظ كصورة مؤقتة وإنشاء مسار قابل للعرض
+      const imageId = Math.random().toString(36).substring(2, 9) + Date.now();
+      const imagePath = `/api/images/${imageId}`;
+      await db.insert(storeSettings).values({
+        key: `temp_image_${imageId}`,
+        value: dataUrl,
+      }).onConflictDoUpdate({
+        target: storeSettings.key,
+        set: { value: dataUrl, updatedAt: new Date() },
+      });
+
+      // إضافة المسار إلى مصفوفة الصور
+      const currentImages = product.images || [];
+      const currentData = product.imagesData || [];
+      const newImages = makeMain ? [imagePath, ...currentImages] : [...currentImages, imagePath];
+      const newData = makeMain ? [dataUrl, ...currentData] : [...currentData, dataUrl];
+
+      const updated = await storage.updateProduct(id, {
+        images: newImages,
+        imagesData: newData,
+      } as any);
+
+      res.json({
+        success: true,
+        imagePath,
+        product: updated,
+        isMain: !!makeMain,
+        totalImages: newImages.length,
+      });
+    } catch (error: any) {
+      console.error("attach-image error:", error);
+      res.status(500).json({ message: "فشل ربط الصورة: " + (error.message || "خطأ غير معروف") });
+    }
+  });
+
   app.delete("/api/products/:id", requireAdmin, async (req, res) => {
     try {
       const id = parseInt(req.params.id);

@@ -1,14 +1,26 @@
-import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useState, useMemo } from "react";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Checkbox } from "@/components/ui/checkbox";
 import AdminSidebar from "@/components/admin/sidebar";
 import { useAdminAuth } from "@/hooks/use-admin-auth";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { Sparkles, Image, Copy, Download, RefreshCw, Wand2, FileText, Upload, X } from "lucide-react";
+import { Sparkles, Image, Copy, Download, RefreshCw, Wand2, FileText, Upload, X, Link2, Trash2, Search, Package, Check } from "lucide-react";
+
+interface ProductLite {
+  id: number;
+  name: string;
+  nameAr: string;
+  sku?: string | null;
+  price?: string;
+  images?: string[] | null;
+  imagesData?: string[] | null;
+}
 
 const QUICK_PROMPTS = [
   { label: "جوارب بامبو", prompt: "Professional product advertisement photo for bamboo socks, dark elegant background, golden lighting, British premium style, sock box with 5 pairs displayed beautifully, text: 'Bamboo Socks' in gold, ultra realistic, 4K" },
@@ -30,6 +42,78 @@ export default function AiDesignerPage() {
   const [variationCount, setVariationCount] = useState(2);
   const [variationStyle, setVariationStyle] = useState("");
   const [analyzedPrompt, setAnalyzedPrompt] = useState("");
+
+  // حالة نافذة ربط الصورة بمنتج
+  const [linkDialogOpen, setLinkDialogOpen] = useState(false);
+  const [linkImageUrl, setLinkImageUrl] = useState<string | null>(null);
+  const [linkImageSource, setLinkImageSource] = useState<"variation" | "generated" | null>(null);
+  const [productSearch, setProductSearch] = useState("");
+  const [selectedProductId, setSelectedProductId] = useState<number | null>(null);
+  const [makeMain, setMakeMain] = useState(false);
+
+  const productsQuery = useQuery<ProductLite[]>({
+    queryKey: ["/api/products"],
+    enabled: linkDialogOpen,
+  });
+
+  const filteredProducts = useMemo(() => {
+    const list = productsQuery.data || [];
+    const q = productSearch.trim().toLowerCase();
+    if (!q) return list.slice(0, 50);
+    return list.filter(p =>
+      p.nameAr?.toLowerCase().includes(q) ||
+      p.name?.toLowerCase().includes(q) ||
+      p.sku?.toLowerCase().includes(q) ||
+      String(p.id).includes(q)
+    ).slice(0, 50);
+  }, [productsQuery.data, productSearch]);
+
+  const attachMutation = useMutation({
+    mutationFn: async () => {
+      if (!selectedProductId || !linkImageUrl) throw new Error("اختر منتجاً أولاً");
+      const res = await apiRequest("POST", `/api/products/${selectedProductId}/attach-image`, {
+        imageUrl: linkImageUrl,
+        makeMain,
+      });
+      return res.json();
+    },
+    onSuccess: (data: any) => {
+      const p = data?.product;
+      toast({
+        title: "✅ تم ربط الصورة",
+        description: `أُضيفت إلى منتج: ${p?.nameAr || p?.name || "—"} (إجمالي ${data?.totalImages ?? "?"} صورة${data?.isMain ? " — رئيسية" : ""})`,
+      });
+      // إزالة الصورة من القائمة المصدر الصحيحة
+      if (linkImageSource === "variation") {
+        setVariationImages(prev => prev.filter(img => img.url !== linkImageUrl));
+      } else if (linkImageSource === "generated") {
+        setGeneratedImages(prev => prev.filter(img => img.url !== linkImageUrl));
+      }
+      setLinkDialogOpen(false);
+      setSelectedProductId(null);
+      setProductSearch("");
+      setLinkImageUrl(null);
+      setLinkImageSource(null);
+      setMakeMain(false);
+    },
+    onError: (e: any) => {
+      toast({ title: "خطأ", description: e.message, variant: "destructive" });
+    },
+  });
+
+  const openLinkDialog = (url: string, source: "variation" | "generated") => {
+    setLinkImageUrl(url);
+    setLinkImageSource(source);
+    setSelectedProductId(null);
+    setProductSearch("");
+    setMakeMain(false);
+    setLinkDialogOpen(true);
+  };
+
+  const removeVariation = (url: string) => {
+    setVariationImages(prev => prev.filter(img => img.url !== url));
+    toast({ title: "تم حذف الصورة من القائمة" });
+  };
 
   const variationMutation = useMutation({
     mutationFn: async () => {
@@ -184,28 +268,34 @@ export default function AiDesignerPage() {
               <div className="space-y-3">
                 <h3 className="font-semibold arabic-text text-sm text-muted-foreground">الصور المولّدة ({generatedImages.length})</h3>
                 {generatedImages.map((img, i) => (
-                  <Card key={i} className="overflow-hidden">
+                  <Card key={img.url} className="overflow-hidden">
                     <img src={img.url} alt={`صورة ${i+1}`} className="w-full object-cover" />
-                    <CardContent className="p-3">
-                      <p className="text-xs text-muted-foreground mb-2 line-clamp-2">{img.revised_prompt}</p>
-                      <div className="flex gap-2">
+                    <CardContent className="p-3 space-y-2">
+                      <p className="text-xs text-muted-foreground line-clamp-2">{img.revised_prompt}</p>
+                      <div className="grid grid-cols-3 gap-2">
                         <a
                           href={img.url}
                           download={`ai-design-${i+1}.png`}
                           target="_blank"
                           rel="noopener noreferrer"
+                          className="inline-flex items-center justify-center gap-1.5 text-xs bg-purple-600 hover:bg-purple-700 text-white rounded-md px-2 py-2 transition-colors arabic-text"
                         >
-                          <Button size="sm" variant="outline" className="gap-1.5 text-xs arabic-text">
-                            <Download className="w-3.5 h-3.5" /> تحميل
-                          </Button>
+                          <Download className="w-3.5 h-3.5" /> حفظ
                         </a>
                         <Button
                           size="sm"
-                          variant="outline"
-                          className="gap-1.5 text-xs arabic-text"
-                          onClick={() => copyToClipboard(img.url)}
+                          className="gap-1.5 text-xs bg-emerald-600 hover:bg-emerald-700 text-white arabic-text"
+                          onClick={() => openLinkDialog(img.url, "generated")}
                         >
-                          <Copy className="w-3.5 h-3.5" /> نسخ الرابط
+                          <Link2 className="w-3.5 h-3.5" /> ربط بمنتج
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="gap-1.5 text-xs arabic-text text-red-600 border-red-200 hover:bg-red-50"
+                          onClick={() => setGeneratedImages(prev => prev.filter(g => g.url !== img.url))}
+                        >
+                          <Trash2 className="w-3.5 h-3.5" /> حذف
                         </Button>
                       </div>
                     </CardContent>
@@ -309,25 +399,42 @@ export default function AiDesignerPage() {
               <div className="space-y-3">
                 <h4 className="font-medium text-gray-700 arabic-text text-sm">التنويعات المولّدة ({variationImages.length})</h4>
                 {variationImages.map((img, i) => (
-                  <Card key={i} className="border-orange-100 overflow-hidden">
+                  <Card key={img.url} className="border-orange-100 overflow-hidden">
                     <img src={img.url} alt={`variation-${i + 1}`} className="w-full" />
-                    <CardContent className="p-3 flex gap-2">
-                      <a
-                        href={img.url}
-                        download={`variation-${i + 1}.png`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex-1 inline-flex items-center justify-center gap-1.5 text-xs bg-orange-500 hover:bg-orange-600 text-white rounded-md px-3 py-1.5 transition-colors arabic-text"
-                      >
-                        <Download className="w-3.5 h-3.5" /> تحميل
-                      </a>
+                    <CardContent className="p-3 space-y-2">
+                      <div className="grid grid-cols-3 gap-2">
+                        <a
+                          href={img.url}
+                          download={`variation-${i + 1}.png`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center justify-center gap-1.5 text-xs bg-orange-500 hover:bg-orange-600 text-white rounded-md px-2 py-2 transition-colors arabic-text"
+                        >
+                          <Download className="w-3.5 h-3.5" /> حفظ
+                        </a>
+                        <Button
+                          size="sm"
+                          className="gap-1.5 text-xs bg-emerald-600 hover:bg-emerald-700 text-white arabic-text"
+                          onClick={() => openLinkDialog(img.url, "variation")}
+                        >
+                          <Link2 className="w-3.5 h-3.5" /> ربط بمنتج
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="gap-1.5 text-xs arabic-text text-red-600 border-red-200 hover:bg-red-50"
+                          onClick={() => removeVariation(img.url)}
+                        >
+                          <Trash2 className="w-3.5 h-3.5" /> حذف
+                        </Button>
+                      </div>
                       <Button
                         size="sm"
-                        variant="outline"
-                        className="gap-1.5 text-xs arabic-text"
+                        variant="ghost"
+                        className="w-full gap-1.5 text-xs arabic-text text-gray-500 hover:text-gray-700"
                         onClick={() => copyToClipboard(img.url)}
                       >
-                        <Copy className="w-3.5 h-3.5" /> نسخ الرابط
+                        <Copy className="w-3 h-3" /> نسخ الرابط
                       </Button>
                     </CardContent>
                   </Card>
@@ -430,6 +537,116 @@ export default function AiDesignerPage() {
           </div>
         </div>
       </div>
+
+      {/* نافذة ربط الصورة بمنتج */}
+      <Dialog open={linkDialogOpen} onOpenChange={setLinkDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden flex flex-col" dir="rtl">
+          <DialogHeader>
+            <DialogTitle className="arabic-text flex items-center gap-2">
+              <Link2 className="w-5 h-5 text-emerald-600" />
+              ربط الصورة بمنتج
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="flex gap-4 items-start">
+            {linkImageUrl && (
+              <img src={linkImageUrl} alt="preview" className="w-24 h-24 object-cover rounded-lg border" />
+            )}
+            <div className="flex-1">
+              <div className="relative">
+                <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Input
+                  value={productSearch}
+                  onChange={e => setProductSearch(e.target.value)}
+                  placeholder="ابحث بالاسم أو الكود (SKU) أو الرقم..."
+                  className="pr-10 arabic-text"
+                  autoFocus
+                />
+              </div>
+              <p className="text-xs text-gray-500 mt-2 arabic-text">
+                {productsQuery.isLoading
+                  ? "جاري تحميل المنتجات..."
+                  : `${filteredProducts.length} منتج${filteredProducts.length === 50 ? " (أول 50 فقط — ابحث لتصفية أكثر)" : ""}`}
+              </p>
+            </div>
+          </div>
+
+          {/* قائمة المنتجات */}
+          <div className="flex-1 overflow-y-auto border rounded-lg divide-y">
+            {filteredProducts.length === 0 && !productsQuery.isLoading && (
+              <div className="text-center py-8 text-gray-400 arabic-text text-sm">
+                <Package className="w-10 h-10 mx-auto mb-2 opacity-30" />
+                لا توجد منتجات مطابقة
+              </div>
+            )}
+            {filteredProducts.map(p => {
+              const isSelected = selectedProductId === p.id;
+              const thumb = p.imagesData?.[0] || p.images?.[0];
+              const hasImages = (p.images?.length || 0) > 0;
+              return (
+                <button
+                  key={p.id}
+                  type="button"
+                  onClick={() => setSelectedProductId(p.id)}
+                  className={`w-full flex items-center gap-3 p-3 text-right hover:bg-gray-50 transition-colors ${isSelected ? "bg-emerald-50" : ""}`}
+                >
+                  <div className="w-12 h-12 rounded-md bg-gray-100 flex-shrink-0 overflow-hidden flex items-center justify-center">
+                    {thumb ? (
+                      <img src={thumb} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <Package className="w-5 h-5 text-gray-400" />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium text-sm arabic-text truncate">{p.nameAr || p.name}</div>
+                    <div className="flex items-center gap-2 text-xs text-gray-500 mt-0.5">
+                      {p.sku && <span className="font-mono">{p.sku}</span>}
+                      <span>#{p.id}</span>
+                      <span>•</span>
+                      <span className={hasImages ? "text-gray-500" : "text-orange-600 font-medium"}>
+                        {hasImages ? `${p.images!.length} صورة` : "بدون صور"}
+                      </span>
+                    </div>
+                  </div>
+                  {isSelected && <Check className="w-5 h-5 text-emerald-600 flex-shrink-0" />}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* خيار الصورة الرئيسية + زر التأكيد */}
+          <div className="border-t pt-3 space-y-3">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <Checkbox
+                checked={makeMain}
+                onCheckedChange={v => setMakeMain(!!v)}
+                id="make-main"
+              />
+              <span className="text-sm arabic-text">اجعلها الصورة الرئيسية للمنتج</span>
+            </label>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                onClick={() => setLinkDialogOpen(false)}
+                className="arabic-text"
+              >
+                إلغاء
+              </Button>
+              <Button
+                onClick={() => attachMutation.mutate()}
+                disabled={!selectedProductId || attachMutation.isPending}
+                className="flex-1 bg-emerald-600 hover:bg-emerald-700 gap-2 arabic-text"
+              >
+                {attachMutation.isPending ? (
+                  <><RefreshCw className="w-4 h-4 animate-spin" /> جاري الإضافة...</>
+                ) : (
+                  <><Check className="w-4 h-4" /> إضافة الصورة للمنتج</>
+                )}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
