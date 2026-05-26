@@ -344,18 +344,10 @@ export default function ProductPhotoStudio() {
     toProcess.forEach(img => updateImage(img.id, { processing: "bg" }));
 
     try {
-      const res = await fetch("/api/ai/white-background", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          images: toProcess.map(img => ({ id: img.id, dataUrl: img.dataUrl })),
-        }),
+      const res = await apiRequest("POST", "/api/ai/white-background", {
+        images: toProcess.map(img => ({ id: img.id, dataUrl: img.dataUrl })),
       });
       const data = await res.json() as { results: Array<{ id: string; dataUrl?: string; success: boolean; error?: string }> };
-
-      if (!res.ok) {
-        throw new Error((data as any).error || "خطأ في الإرسال");
-      }
 
       let success = 0, failed = 0;
       for (const result of data.results) {
