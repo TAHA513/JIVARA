@@ -4208,6 +4208,63 @@ ${style ? `الأسلوب المطلوب: ${style}` : ''}
     }
   });
 
+  // AI White Background — batch process images with gpt-image-1
+  app.post('/api/ai/white-background', requireAdmin, express.json({ limit: '200mb' }), async (req, res) => {
+    try {
+      const apiKey = process.env.OPENAI_API_KEY;
+      if (!apiKey) return res.status(500).json({ error: "OPENAI_API_KEY غير موجود" });
+
+      const { images } = req.body as { images: Array<{ id: string; dataUrl: string }> };
+      if (!images?.length) return res.status(400).json({ error: "لا توجد صور" });
+      if (images.length > 20) return res.status(400).json({ error: "الحد الأقصى 20 صورة في الدفعة" });
+
+      const CONCURRENCY = 3;
+      const results: Array<{ id: string; dataUrl?: string; success: boolean; error?: string }> = [];
+
+      // معالجة بتزامن 3 صور في نفس الوقت
+      for (let i = 0; i < images.length; i += CONCURRENCY) {
+        const batch = images.slice(i, i + CONCURRENCY);
+        const batchResults = await Promise.all(batch.map(async (img) => {
+          try {
+            const base64Data = img.dataUrl.replace(/^data:image\/\w+;base64,/, '');
+            const buffer = Buffer.from(base64Data, 'base64');
+
+            const formData = new FormData();
+            formData.append('model', 'gpt-image-1');
+            formData.append('image', new Blob([buffer], { type: 'image/png' }), 'product.png');
+            formData.append('prompt',
+              'This is a product box photo. Remove the background completely and replace it with a pure clean white background (#FFFFFF). ' +
+              'Keep the product box exactly as it is — preserve all text, logos, colors, and details perfectly. ' +
+              'The result should look like a professional product catalog photo on white background.'
+            );
+            formData.append('n', '1');
+            formData.append('size', '1024x1024');
+
+            const response = await fetch('https://api.openai.com/v1/images/edits', {
+              method: 'POST',
+              headers: { Authorization: `Bearer ${apiKey}` },
+              body: formData as any,
+            });
+
+            const data = await response.json() as any;
+            if (data.error) throw new Error(data.error.message);
+
+            const b64 = data.data?.[0]?.b64_json;
+            if (!b64) throw new Error("لم يُرجع AI صورة");
+            return { id: img.id, dataUrl: `data:image/png;base64,${b64}`, success: true };
+          } catch (e: any) {
+            return { id: img.id, success: false, error: e.message };
+          }
+        }));
+        results.push(...batchResults);
+      }
+
+      res.json({ results });
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
   // AI Image Generation
   app.post('/api/ai/generate-image', requireAdmin, async (req, res) => {
     try {

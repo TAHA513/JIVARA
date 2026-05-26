@@ -303,7 +303,7 @@ export default function ProductPhotoStudio() {
     }
   };
 
-  // معالجة كل الصور دفعة واحدة
+  // معالجة كل الصور دفعة واحدة — بدون AI (browser)
   const [batchProcessing, setBatchProcessing] = useState(false);
   const [batchProgress, setBatchProgress] = useState({ done: 0, total: 0 });
 
@@ -322,6 +322,69 @@ export default function ProductPhotoStudio() {
     setBatchProcessing(false);
     setBatchProgress({ done: 0, total: 0 });
     toast({ title: `✅ تمت معالجة ${toProcess.length} صورة بنجاح` });
+  };
+
+  // معالجة بـ AI (gpt-image-1) — دفعة واحدة مرسلة للسيرفر
+  const [aiProcessing, setAiProcessing] = useState(false);
+
+  const processAllWithAI = async () => {
+    const toProcess = images.filter(img => !img.processing);
+    if (!toProcess.length) return;
+    if (toProcess.length > 20) {
+      toast({ title: "الحد الأقصى 20 صورة في الدفعة", variant: "destructive" });
+      return;
+    }
+    setAiProcessing(true);
+    toast({
+      title: `🤖 جاري الإرسال لـ AI...`,
+      description: `${toProcess.length} صورة — قد يستغرق 1-3 دقائق`,
+    });
+
+    // ضع كل الصور في حالة "معالجة"
+    toProcess.forEach(img => updateImage(img.id, { processing: "bg" }));
+
+    try {
+      const res = await fetch("/api/ai/white-background", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          images: toProcess.map(img => ({ id: img.id, dataUrl: img.dataUrl })),
+        }),
+      });
+      const data = await res.json() as { results: Array<{ id: string; dataUrl?: string; success: boolean; error?: string }> };
+
+      if (!res.ok) {
+        throw new Error((data as any).error || "خطأ في الإرسال");
+      }
+
+      let success = 0, failed = 0;
+      for (const result of data.results) {
+        if (result.success && result.dataUrl) {
+          updateImage(result.id, prev => ({
+            ...prev,
+            dataUrl: result.dataUrl!,
+            size: dataUrlBytes(result.dataUrl!),
+            processing: null,
+            history: [...(prev.history || []), prev.dataUrl],
+            name: prev.name.replace(/\.(jpg|jpeg|webp|png)$/i, "_ai_white.png"),
+          }));
+          success++;
+        } else {
+          updateImage(result.id, { processing: null });
+          failed++;
+        }
+      }
+
+      toast({
+        title: `✅ AI انتهى: ${success} نجحت${failed ? `، ${failed} فشلت` : ""}`,
+        description: "الصور جاهزة — اربطها بالمنتجات",
+      });
+    } catch (e: any) {
+      toProcess.forEach(img => updateImage(img.id, { processing: null }));
+      toast({ title: "فشل AI", description: e.message, variant: "destructive" });
+    } finally {
+      setAiProcessing(false);
+    }
   };
 
   // فتح نافذة العلامة المائية
@@ -511,17 +574,29 @@ export default function ProductPhotoStudio() {
             <div>
               <div className="flex items-center justify-between mb-3 gap-2 flex-wrap">
                 <h2 className="font-semibold arabic-text">الصور المرفوعة ({images.length})</h2>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <Button
                     size="sm"
-                    disabled={batchProcessing}
+                    disabled={aiProcessing || batchProcessing}
+                    onClick={processAllWithAI}
+                    className="bg-violet-600 hover:bg-violet-700 text-white gap-1.5 arabic-text text-xs"
+                  >
+                    {aiProcessing ? (
+                      <><RefreshCw className="w-3.5 h-3.5 animate-spin" /> AI يعالج...</>
+                    ) : (
+                      <><Wand2 className="w-3.5 h-3.5" /> تبييض بـ AI ✨ (الكل)</>
+                    )}
+                  </Button>
+                  <Button
+                    size="sm"
+                    disabled={batchProcessing || aiProcessing}
                     onClick={processAllWhiteBg}
                     className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1.5 arabic-text text-xs"
                   >
                     {batchProcessing ? (
                       <><RefreshCw className="w-3.5 h-3.5 animate-spin" /> {batchProgress.done}/{batchProgress.total}</>
                     ) : (
-                      <><Layers className="w-3.5 h-3.5" /> تبييض الكل دفعة واحدة</>
+                      <><Layers className="w-3.5 h-3.5" /> تبييض عادي (الكل)</>
                     )}
                   </Button>
                   <Button
