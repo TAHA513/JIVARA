@@ -12,7 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import {
   Camera, Upload, Link2, Trash2, Search, Package, Check,
-  RefreshCw, Image as ImageIcon, X, Scissors, Stamp, Settings, Store as StoreIcon, Plus
+  RefreshCw, Image as ImageIcon, X, Scissors, Stamp, Settings, Store as StoreIcon, Plus, Wand2, Layers
 } from "lucide-react";
 
 interface ProductLite {
@@ -258,6 +258,72 @@ export default function ProductPhotoStudio() {
     }
   };
 
+  // تبييض الخلفية: إزالة الخلفية ثم تعبئتها بالأبيض
+  const makeWhiteBackground = async (img: StudioImage) => {
+    updateImage(img.id, { processing: "bg" });
+    toast({ title: "جاري تبييض الخلفية...", description: "قد يستغرق التحميل أول مرة دقيقة" });
+    try {
+      // الخطوة 1: إزالة الخلفية
+      const mod = await import("@imgly/background-removal");
+      const blob = await mod.removeBackground(img.dataUrl);
+      const transparentUrl = await new Promise<string>((resolve, reject) => {
+        const r = new FileReader();
+        r.onload = () => resolve(r.result as string);
+        r.onerror = reject;
+        r.readAsDataURL(blob);
+      });
+      // الخطوة 2: تعبئة خلفية بيضاء بـ canvas
+      const whiteUrl = await new Promise<string>((resolve, reject) => {
+        const image = new Image();
+        image.onload = () => {
+          const canvas = document.createElement("canvas");
+          canvas.width = image.naturalWidth;
+          canvas.height = image.naturalHeight;
+          const ctx = canvas.getContext("2d")!;
+          ctx.fillStyle = "#FFFFFF";
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.drawImage(image, 0, 0);
+          resolve(canvas.toDataURL("image/jpeg", 0.93));
+        };
+        image.onerror = reject;
+        image.src = transparentUrl;
+      });
+      updateImage(img.id, prev => ({
+        ...prev,
+        dataUrl: whiteUrl,
+        size: dataUrlBytes(whiteUrl),
+        processing: null,
+        history: [...(prev.history || []), prev.dataUrl],
+        name: prev.name.replace(/\.(jpg|jpeg|webp|png)$/i, "_white.jpg"),
+      }));
+      toast({ title: "✅ تمت معالجة الصورة بخلفية بيضاء" });
+    } catch (e: any) {
+      updateImage(img.id, { processing: null });
+      toast({ title: "فشل التبييض", description: e.message || "خطأ غير معروف", variant: "destructive" });
+    }
+  };
+
+  // معالجة كل الصور دفعة واحدة
+  const [batchProcessing, setBatchProcessing] = useState(false);
+  const [batchProgress, setBatchProgress] = useState({ done: 0, total: 0 });
+
+  const processAllWhiteBg = async () => {
+    const toProcess = images.filter(img => !img.processing);
+    if (!toProcess.length) return;
+    setBatchProcessing(true);
+    setBatchProgress({ done: 0, total: toProcess.length });
+    toast({ title: `جاري معالجة ${toProcess.length} صورة...`, description: "سيتم تبييض الخلفية لكل الصور تلقائياً" });
+    let done = 0;
+    for (const img of toProcess) {
+      await makeWhiteBackground(img);
+      done++;
+      setBatchProgress({ done, total: toProcess.length });
+    }
+    setBatchProcessing(false);
+    setBatchProgress({ done: 0, total: 0 });
+    toast({ title: `✅ تمت معالجة ${toProcess.length} صورة بنجاح` });
+  };
+
   // فتح نافذة العلامة المائية
   const openWatermark = (img: StudioImage) => {
     if (!logos.length) {
@@ -443,15 +509,29 @@ export default function ProductPhotoStudio() {
             </Card>
           ) : (
             <div>
-              <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center justify-between mb-3 gap-2 flex-wrap">
                 <h2 className="font-semibold arabic-text">الصور المرفوعة ({images.length})</h2>
-                <Button
-                  variant="ghost" size="sm"
-                  onClick={() => setImages([])}
-                  className="text-red-600 hover:bg-red-50 arabic-text gap-1.5"
-                >
-                  <X className="w-4 h-4" /> مسح الكل
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    disabled={batchProcessing}
+                    onClick={processAllWhiteBg}
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1.5 arabic-text text-xs"
+                  >
+                    {batchProcessing ? (
+                      <><RefreshCw className="w-3.5 h-3.5 animate-spin" /> {batchProgress.done}/{batchProgress.total}</>
+                    ) : (
+                      <><Layers className="w-3.5 h-3.5" /> تبييض الكل دفعة واحدة</>
+                    )}
+                  </Button>
+                  <Button
+                    variant="ghost" size="sm"
+                    onClick={() => setImages([])}
+                    className="text-red-600 hover:bg-red-50 arabic-text gap-1.5"
+                  >
+                    <X className="w-4 h-4" /> مسح الكل
+                  </Button>
+                </div>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {images.map(img => (
@@ -473,12 +553,24 @@ export default function ProductPhotoStudio() {
 
                       <div className="grid grid-cols-2 gap-2">
                         <Button
+                          size="sm"
+                          disabled={!!img.processing}
+                          onClick={() => makeWhiteBackground(img)}
+                          className="gap-1.5 text-xs arabic-text bg-emerald-600 hover:bg-emerald-700 text-white col-span-2"
+                        >
+                          {img.processing === "bg" ? (
+                            <><RefreshCw className="w-3.5 h-3.5 animate-spin" /> جاري التبييض...</>
+                          ) : (
+                            <><Wand2 className="w-3.5 h-3.5" /> خلفية بيضاء ✨</>
+                          )}
+                        </Button>
+                        <Button
                           size="sm" variant="outline"
                           disabled={!!img.processing}
                           onClick={() => removeBackground(img)}
                           className="gap-1.5 text-xs arabic-text border-purple-200 text-purple-700 hover:bg-purple-50"
                         >
-                          <Scissors className="w-3.5 h-3.5" /> إزالة الخلفية
+                          <Scissors className="w-3.5 h-3.5" /> شفافة
                         </Button>
                         <Button
                           size="sm" variant="outline"
@@ -486,7 +578,7 @@ export default function ProductPhotoStudio() {
                           onClick={() => openWatermark(img)}
                           className="gap-1.5 text-xs arabic-text border-blue-200 text-blue-700 hover:bg-blue-50"
                         >
-                          <Stamp className="w-3.5 h-3.5" /> علامة مائية
+                          <Stamp className="w-3.5 h-3.5" /> علامة
                         </Button>
                       </div>
 
