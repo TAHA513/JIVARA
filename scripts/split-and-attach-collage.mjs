@@ -34,15 +34,15 @@ const ROWS = 3;
 // خريطة الخلايا: { row, col, productId, label }
 // productId = null → تخطي هذه الخلية
 const CELLS = [
-  { row: 0, col: 0, productId: 70,   label: "VH-42  → VOXR-VH14 سماعة فوكسر VH14" },
-  { row: 0, col: 1, productId: null,  label: "Bi13   → غير موجود — تخطي" },
-  { row: 0, col: 2, productId: 68,   label: "MA-13  → MSHL-MA13 سماعة مارشال MA13" },
-  { row: 1, col: 0, productId: null,  label: "MA-15  → غير موجود — تخطي" },
-  { row: 1, col: 1, productId: 66,   label: "MA-14  → MSHL-MA14 سماعة مارشال MA14 (أبيض نوع C)" },
-  { row: 1, col: 2, productId: 66,   label: "MA-14  → MSHL-MA14 سماعة مارشال MA14 (صورة 2)" },
-  { row: 2, col: 0, productId: 74,   label: "HOCO ANC+ENC Sandy → HOCO-W35-ANC" },
-  { row: 2, col: 1, productId: 78,   label: "HOCO TWS → HOCO-ES71" },
-  { row: 2, col: 2, productId: 83,   label: "OTW-324 → ORM-OTW324 سماعة Oraimo" },
+  { row: 0, col: 0, productId: 362,  label: "VH-42  → VOXER-VH14 سماعة فوكسر VH14" },
+  { row: 0, col: 1, productId: null, label: "Bi13   → غير موجود — تخطي" },
+  { row: 0, col: 2, productId: 420,  label: "MA-13  → MARSHALL-MA13 سماعة مارشال MA13" },
+  { row: 1, col: 0, productId: null, label: "MA-15  → غير موجود — تخطي" },
+  { row: 1, col: 1, productId: 418,  label: "MA-14  → MARSHALL-MA14 سماعة مارشال MA14 (أبيض نوع C)" },
+  { row: 1, col: 2, productId: 418,  label: "MA-14  → MARSHALL-MA14 سماعة مارشال MA14 (صورة 2)" },
+  { row: 2, col: 0, productId: 379,  label: "HOCO ANC+ENC Sandy → HOCO-W35-MAX-ANC" },
+  { row: 2, col: 1, productId: 385,  label: "HOCO TWS → HOCO-ES71" },
+  { row: 2, col: 2, productId: 281,  label: "OTW-324 → OTW324 ساعة Oraimo OTW324" },
 ];
 
 // جودة JPEG (92 = جودة عالية، حجم معقول)
@@ -54,13 +54,10 @@ const MAKE_FIRST_MAIN = true;
 // ─── الكود الرئيسي ───────────────────────────────────────────────────────────
 
 async function main() {
-  // استخدام متغيرات PG البيئية مباشرة (نفس قاعدة البيانات التي يستخدمها الخادم)
+  // نفس الاتصال الذي يستخدمه الخادم
   const pool = new Pool({
-    host: process.env.PGHOST,
-    port: Number(process.env.PGPORT) || 5432,
-    user: process.env.PGUSER,
-    password: process.env.PGPASSWORD,
-    database: process.env.PGDATABASE,
+    connectionString: process.env.RENDER_DATABASE_URL,
+    ssl: { rejectUnauthorized: false },
   });
 
   const meta = await sharp(IMAGE_PATH).metadata();

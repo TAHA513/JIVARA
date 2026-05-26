@@ -81,6 +81,7 @@ import NotificationsPage from "@/pages/admin/notifications";
 import PermissionsPage from "@/pages/admin/permissions";
 import CashierPage from "@/pages/admin/cashier";
 import ManualOrderPage from "@/pages/admin/manual-order";
+import QuickPricesPage from "@/pages/admin/quick-prices";
 import { useLocation } from "wouter";
 import { useEffect } from "react";
 
@@ -178,6 +179,7 @@ function App() {
                   <Route path="/admin/notifications" component={NotificationsPage} />
                   <Route path="/admin/permissions" component={PermissionsPage} />
                   <Route path="/admin/cashier" component={CashierPage} />
+                  <Route path="/admin/quick-prices" component={QuickPricesPage} />
                   <Route path="/admin" component={AdminDashboard} />
                 </Switch>
               ) : (
