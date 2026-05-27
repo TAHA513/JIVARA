@@ -147,6 +147,7 @@ const CATEGORY_GROUPS: Array<{
       "perfumes",
       "sunglasses",
       "glasses",
+      "women-bags",
     ],
   },
   {
