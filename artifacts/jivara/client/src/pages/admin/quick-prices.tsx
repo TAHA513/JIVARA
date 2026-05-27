@@ -144,7 +144,6 @@ export default function QuickPricesPage() {
 
   const filtered = useMemo(() => {
     return products.filter((p) => {
-      if (!p.isActive) return false;
       if (store === "jivara" && !p.showOnJivara) return false;
       if (store === "jadaf" && !p.showOnJadaf) return false;
       if (categoryId != null && p.categoryId !== categoryId) return false;
