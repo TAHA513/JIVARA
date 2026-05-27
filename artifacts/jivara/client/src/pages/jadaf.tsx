@@ -5,8 +5,9 @@ import {
   Watch, SprayCan, Glasses, Shirt, Headphones, Smartphone,
   Wrench, CreditCard, Truck, ShieldCheck, Lock, Phone, MapPin,
   Instagram, Search, ShoppingBag, Home, Sparkles, Crown, Menu, X, MessageCircle,
+  ChevronLeft, ChevronRight,
 } from "lucide-react";
-import type { Product, Category } from "@shared/schema";
+import type { Product, Category, StoreSetting } from "@shared/schema";
 import JadafLogo from "@/components/jadaf-logo";
 import heroBg from "@assets/jadaf-hero-bg.png";
 
@@ -188,6 +189,13 @@ export default function JadafPage() {
   const [search, setSearch] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
+  const catsScrollRef = useRef<HTMLDivElement>(null);
+  const scrollCats = (dir: "left" | "right") => {
+    const el = catsScrollRef.current;
+    if (!el) return;
+    const amount = Math.max(160, Math.floor(el.clientWidth * 0.6));
+    el.scrollBy({ left: dir === "left" ? -amount : amount, behavior: "smooth" });
+  };
 
   useEffect(() => {
     document.title = "JADAF | جداف — تجربة فاخرة";
@@ -211,6 +219,16 @@ export default function JadafPage() {
       return res.json();
     },
   });
+
+  const { data: settings = [] } = useQuery<StoreSetting[]>({
+    queryKey: ["/api/settings"],
+    queryFn: async () => {
+      const res = await fetch("/api/settings");
+      if (!res.ok) throw new Error("failed");
+      return res.json();
+    },
+  });
+  const getSetting = (key: string) => settings.find((s) => s.key === key)?.value || "";
 
   // Categories that actually have visible products on Jadaf
   const visibleCategories = useMemo(() => {
@@ -508,69 +526,107 @@ export default function JadafPage() {
           </div>
         </div>
 
-        {/* All categories — flat grid, always visible */}
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
-          {/* "All" button */}
+        {/* All categories — horizontal scroll with arrows */}
+        <div className="relative px-9">
           <button
             type="button"
-            onClick={() => setSelectedCategoryId(null)}
-            className="rounded-2xl p-3 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all min-h-[100px]"
+            onClick={() => scrollCats("right")}
+            aria-label="السابق"
+            className="absolute top-1/2 -translate-y-1/2 right-0 z-20 w-8 h-8 rounded-full flex items-center justify-center"
             style={{
-              background: selectedCategoryId === null
-                ? "linear-gradient(135deg, rgba(212,175,55,0.28), rgba(156,116,40,0.14))"
-                : "linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02))",
-              border: selectedCategoryId === null
-                ? `2px solid rgba(212,175,55,0.65)`
-                : `1px solid ${COLORS.goldBorder}`,
+              background: `linear-gradient(135deg, ${COLORS.gold}, ${COLORS.goldDark})`,
+              color: "#0a0a0a",
+              boxShadow: "0 4px 14px rgba(0,0,0,0.5)",
             }}
           >
-            <div
-              className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl"
-              style={{
-                background: "linear-gradient(135deg, rgba(212,175,55,0.20), rgba(156,116,40,0.08))",
-                border: `1px solid rgba(212,175,55,0.35)`,
-              }}
-            >
-              🛍️
-            </div>
-            <span className="text-xs font-bold text-center" style={{ color: COLORS.textMain }}>الكل</span>
+            <ChevronRight className="w-5 h-5" />
+          </button>
+          <button
+            type="button"
+            onClick={() => scrollCats("left")}
+            aria-label="التالي"
+            className="absolute top-1/2 -translate-y-1/2 left-0 z-20 w-8 h-8 rounded-full flex items-center justify-center"
+            style={{
+              background: `linear-gradient(135deg, ${COLORS.gold}, ${COLORS.goldDark})`,
+              color: "#0a0a0a",
+              boxShadow: "0 4px 14px rgba(0,0,0,0.5)",
+            }}
+          >
+            <ChevronLeft className="w-5 h-5" />
           </button>
 
-          {visibleCategories.map((cat) => {
-            const emoji = (cat.slug && CATEGORY_EMOJI[cat.slug]) || "🛍️";
-            const isSelected = selectedCategoryId === cat.id;
-            return (
-              <button
-                type="button"
-                key={cat.id}
-                onClick={() => setSelectedCategoryId(isSelected ? null : cat.id)}
-                className="rounded-2xl p-3 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all min-h-[100px]"
+          <div
+            ref={catsScrollRef}
+            className="flex gap-2 overflow-x-auto snap-x snap-mandatory scroll-smooth"
+            style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}
+            dir="rtl"
+          >
+            {/* "All" button */}
+            <button
+              type="button"
+              onClick={() => setSelectedCategoryId(null)}
+              className="shrink-0 snap-start rounded-xl p-2 flex flex-col items-center justify-center gap-1.5 cursor-pointer transition-all"
+              style={{
+                background: selectedCategoryId === null
+                  ? "linear-gradient(135deg, rgba(212,175,55,0.28), rgba(156,116,40,0.14))"
+                  : "linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02))",
+                border: selectedCategoryId === null
+                  ? `2px solid rgba(212,175,55,0.65)`
+                  : `1px solid ${COLORS.goldBorder}`,
+                width: 96,
+                height: 96,
+              }}
+            >
+              <div
+                className="w-10 h-10 rounded-lg flex items-center justify-center text-2xl"
                 style={{
-                  background: isSelected
-                    ? "linear-gradient(135deg, rgba(212,175,55,0.28), rgba(156,116,40,0.14))"
-                    : "linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02))",
-                  border: isSelected
-                    ? `2px solid rgba(212,175,55,0.65)`
-                    : `1px solid ${COLORS.goldBorder}`,
+                  background: "linear-gradient(135deg, rgba(212,175,55,0.32), rgba(156,116,40,0.18))",
+                  border: `1px solid rgba(212,175,55,0.45)`,
                 }}
-                data-testid={`button-category-${cat.slug}`}
               >
-                <div
-                  className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl"
+                🛍️
+              </div>
+              <span className="text-[11px] font-bold text-center" style={{ color: COLORS.textMain }}>الكل</span>
+            </button>
+
+            {visibleCategories.map((cat) => {
+              const emoji = (cat.slug && CATEGORY_EMOJI[cat.slug]) || "🛍️";
+              const isSelected = selectedCategoryId === cat.id;
+              return (
+                <button
+                  type="button"
+                  key={cat.id}
+                  onClick={() => setSelectedCategoryId(isSelected ? null : cat.id)}
+                  className="shrink-0 snap-start rounded-xl p-2 flex flex-col items-center justify-center gap-1.5 cursor-pointer transition-all"
                   style={{
-                    background: "linear-gradient(135deg, rgba(212,175,55,0.20), rgba(156,116,40,0.08))",
-                    border: `1px solid rgba(212,175,55,0.35)`,
+                    background: isSelected
+                      ? "linear-gradient(135deg, rgba(212,175,55,0.28), rgba(156,116,40,0.14))"
+                      : "linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02))",
+                    border: isSelected
+                      ? `2px solid rgba(212,175,55,0.65)`
+                      : `1px solid ${COLORS.goldBorder}`,
+                    width: 96,
+                    height: 96,
                   }}
-                  aria-hidden="true"
+                  data-testid={`button-category-${cat.slug}`}
                 >
-                  {emoji}
-                </div>
-                <span className="text-xs font-bold text-center line-clamp-2" style={{ color: COLORS.textMain }}>
-                  {cat.nameAr}
-                </span>
-              </button>
-            );
-          })}
+                  <div
+                    className="w-10 h-10 rounded-lg flex items-center justify-center text-2xl"
+                    style={{
+                      background: "linear-gradient(135deg, rgba(212,175,55,0.32), rgba(156,116,40,0.18))",
+                      border: `1px solid rgba(212,175,55,0.45)`,
+                    }}
+                    aria-hidden="true"
+                  >
+                    {emoji}
+                  </div>
+                  <span className="text-[11px] font-bold text-center line-clamp-1" style={{ color: COLORS.textMain }}>
+                    {cat.nameAr}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
         </div>
       </section>
 
@@ -770,14 +826,31 @@ export default function JadafPage() {
           <div>
             <h5 className="font-bold mb-4" style={{ color: COLORS.goldLight }}>تواصل معنا</h5>
             <ul className="space-y-3 text-sm" style={{ color: COLORS.textSec }}>
+              {getSetting("store_phone1") && (
+                <li className="flex items-center gap-2">
+                  <Phone className="w-4 h-4" style={{ color: COLORS.gold }} />
+                  <div className="flex flex-col">
+                    <span className="text-xs" style={{ color: COLORS.textDim }}>للمبيعات</span>
+                    <a href={`https://wa.me/964${getSetting("store_phone1").replace(/^0/, "")}`} target="_blank" rel="noreferrer">
+                      {getSetting("store_phone1")}
+                    </a>
+                  </div>
+                </li>
+              )}
+              {getSetting("store_phone2") && (
+                <li className="flex items-center gap-2">
+                  <Wrench className="w-4 h-4" style={{ color: COLORS.gold }} />
+                  <div className="flex flex-col">
+                    <span className="text-xs" style={{ color: COLORS.textDim }}>للصيانة</span>
+                    <a href={`https://wa.me/964${getSetting("store_phone2").replace(/^0/, "")}`} target="_blank" rel="noreferrer">
+                      {getSetting("store_phone2")}
+                    </a>
+                  </div>
+                </li>
+              )}
               <li className="flex items-center gap-2">
-                <Phone className="w-4 h-4" style={{ color: COLORS.gold }} />
-                <a href="https://wa.me/9647819966698" target="_blank" rel="noreferrer">
-                  ‎+964 781 996 6698
-                </a>
-              </li>
-              <li className="flex items-center gap-2">
-                <MapPin className="w-4 h-4" style={{ color: COLORS.gold }} /> الرمادي — الأنبار، العراق
+                <MapPin className="w-4 h-4" style={{ color: COLORS.gold }} />
+                {getSetting("address_ar") || "الأنبار، العراق"}
               </li>
               <li className="flex items-center gap-2">
                 <Instagram className="w-4 h-4" style={{ color: COLORS.gold }} /> @jadaf
