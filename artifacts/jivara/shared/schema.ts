@@ -44,7 +44,7 @@ export const products = pgTable("products", {
   stock: integer("stock").default(0), // المخزون الحالي
   isActive: boolean("is_active").default(true),
   isFeatured: boolean("is_featured").default(false),
-  showOnJadaf: boolean("show_on_jadaf").default(false),
+  showOnJadaf: boolean("show_on_jadaf").default(true),
   showOnJivara: boolean("show_on_jivara").default(true),
   tags: text("tags").array(),
   createdAt: timestamp("created_at").defaultNow(),

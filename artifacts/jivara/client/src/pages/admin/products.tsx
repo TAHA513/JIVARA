@@ -45,7 +45,7 @@ export default function AdminProducts() {
     stock: "",
     isActive: true,
     isFeatured: false,
-    showOnJadaf: false,
+    showOnJadaf: true,
     showOnJivara: true,
     tags: [""],
   });
@@ -198,7 +198,7 @@ export default function AdminProducts() {
       stock: "",
       isActive: true,
       isFeatured: false,
-      showOnJadaf: false,
+      showOnJadaf: true,
       showOnJivara: true,
       tags: [""],
     });
