@@ -5,7 +5,6 @@ import {
   Watch, SprayCan, Glasses, Shirt, Headphones, Smartphone,
   Wrench, CreditCard, Truck, ShieldCheck, Lock, Phone, MapPin,
   Instagram, Search, ShoppingBag, Home, Sparkles, Crown, Menu, X, MessageCircle,
-  ChevronLeft, ChevronRight, MoveHorizontal,
 } from "lucide-react";
 import type { Product, Category } from "@shared/schema";
 import JadafLogo from "@/components/jadaf-logo";
@@ -189,52 +188,11 @@ export default function JadafPage() {
   const [search, setSearch] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
-  const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
-  const groupsScrollRef = useRef<HTMLDivElement>(null);
-  const subcatsScrollRef = useRef<HTMLDivElement>(null);
-  const scrollStrip = (ref: React.RefObject<HTMLDivElement | null>, dir: "left" | "right") => {
-    const el = ref.current;
-    if (!el) return;
-    const amount = Math.max(160, Math.floor(el.clientWidth * 0.7));
-    el.scrollBy({ left: dir === "left" ? -amount : amount, behavior: "smooth" });
-  };
 
   useEffect(() => {
     document.title = "JADAF | جداف — تجربة فاخرة";
   }, []);
 
-  // Auto-scroll the top-level groups strip so the customer notices it
-  useEffect(() => {
-    const el = groupsScrollRef.current;
-    if (!el) return;
-    let dir: 1 | -1 = 1;
-    let paused = false;
-    const onEnter = () => { paused = true; };
-    const onLeave = () => { paused = false; };
-    el.addEventListener("mouseenter", onEnter);
-    el.addEventListener("mouseleave", onLeave);
-    el.addEventListener("touchstart", onEnter, { passive: true });
-    el.addEventListener("touchend", onLeave);
-    const id = window.setInterval(() => {
-      const node = groupsScrollRef.current;
-      if (!node || paused) return;
-      const max = node.scrollWidth - node.clientWidth;
-      if (max <= 4) return;
-      const step = Math.max(100, Math.floor(node.clientWidth * 0.5));
-      // In RTL, scrollLeft is negative or zero in some browsers; use abs comparison
-      const cur = Math.abs(node.scrollLeft);
-      if (dir === 1 && cur + step >= max) dir = -1;
-      else if (dir === -1 && cur <= 4) dir = 1;
-      node.scrollBy({ left: dir === 1 ? step : -step, behavior: "smooth" });
-    }, 2800);
-    return () => {
-      window.clearInterval(id);
-      el.removeEventListener("mouseenter", onEnter);
-      el.removeEventListener("mouseleave", onLeave);
-      el.removeEventListener("touchstart", onEnter);
-      el.removeEventListener("touchend", onLeave);
-    };
-  }, []);
 
   const { data: products = [], isLoading } = useQuery<Product[]>({
     queryKey: ["/api/products", { showOnJadaf: true }],
@@ -260,25 +218,6 @@ export default function JadafPage() {
     return categories.filter((c) => ids.has(c.id) && c.isActive !== false);
   }, [categories, products]);
 
-  // Groups that have at least one visible category
-  const visibleGroups = useMemo(() => {
-    const visibleSlugs = new Set(visibleCategories.map((c) => c.slug));
-    return CATEGORY_GROUPS.filter((g) => g.slugs.some((s) => visibleSlugs.has(s)));
-  }, [visibleCategories]);
-
-  // Categories inside the currently selected group (if any)
-  const categoriesInSelectedGroup = useMemo(() => {
-    if (!selectedGroupId) return [];
-    const group = CATEGORY_GROUPS.find((g) => g.id === selectedGroupId);
-    if (!group) return [];
-    const set = new Set(group.slugs);
-    return visibleCategories.filter((c) => set.has(c.slug));
-  }, [selectedGroupId, visibleCategories]);
-
-  const selectedGroupLabel = useMemo(() => {
-    if (!selectedGroupId) return null;
-    return CATEGORY_GROUPS.find((g) => g.id === selectedGroupId)?.label ?? null;
-  }, [selectedGroupId]);
 
   const filteredProducts = useMemo(() => {
     // Base: search filter
@@ -295,16 +234,15 @@ export default function JadafPage() {
     }
     // Category selection: show ALL products in that category
     if (selectedCategoryId !== null) {
-      return list.filter((p) => p.categoryId === selectedCategoryId);
+      list = list.filter((p) => p.categoryId === selectedCategoryId);
     }
-    // Group selection (no specific cat): show featured products inside the group
-    if (selectedGroupId !== null) {
-      const groupCatIds = new Set(categoriesInSelectedGroup.map((c) => c.id));
-      return list.filter((p) => p.isFeatured && p.categoryId && groupCatIds.has(p.categoryId));
-    }
-    // Default: show only ONE per category (featured) across all groups
-    return list.filter((p) => p.isFeatured);
-  }, [products, search, selectedCategoryId, selectedGroupId, categoriesInSelectedGroup]);
+    // Sort: products with images first, then without
+    return [...list].sort((a, b) => {
+      const aHas = (a.images?.length ?? 0) > 0 ? 0 : 1;
+      const bHas = (b.images?.length ?? 0) > 0 ? 0 : 1;
+      return aHas - bHas;
+    });
+  }, [products, search, selectedCategoryId]);
 
   const selectedCategoryName = useMemo(() => {
     if (selectedCategoryId === null) return null;
@@ -570,58 +508,43 @@ export default function JadafPage() {
           </div>
         </div>
 
-        {/* LEVEL 1: top-level groups (always visible) */}
-        <div className="relative px-10">
-          {/* Right arrow (scrolls right since dir=rtl, visually right) */}
+        {/* All categories — flat grid, always visible */}
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
+          {/* "All" button */}
           <button
             type="button"
-            onClick={() => scrollStrip(groupsScrollRef, "right")}
-            aria-label="السابق"
-            className="absolute top-1/2 -translate-y-1/2 right-0 z-20 w-7 h-7 rounded-full flex items-center justify-center jd-swipe-hint-r"
+            onClick={() => setSelectedCategoryId(null)}
+            className="rounded-2xl p-3 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all min-h-[100px]"
             style={{
-              background: `linear-gradient(135deg, ${COLORS.gold}, ${COLORS.goldDark})`,
-              color: "#0a0a0a",
-              boxShadow: "0 4px 14px rgba(0,0,0,0.5)",
+              background: selectedCategoryId === null
+                ? "linear-gradient(135deg, rgba(212,175,55,0.28), rgba(156,116,40,0.14))"
+                : "linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02))",
+              border: selectedCategoryId === null
+                ? `2px solid rgba(212,175,55,0.65)`
+                : `1px solid ${COLORS.goldBorder}`,
             }}
-            data-testid="button-scroll-groups-right"
           >
-            <ChevronRight className="w-5 h-5" />
+            <div
+              className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl"
+              style={{
+                background: "linear-gradient(135deg, rgba(212,175,55,0.20), rgba(156,116,40,0.08))",
+                border: `1px solid rgba(212,175,55,0.35)`,
+              }}
+            >
+              🛍️
+            </div>
+            <span className="text-xs font-bold text-center" style={{ color: COLORS.textMain }}>الكل</span>
           </button>
-          {/* Left arrow */}
-          <button
-            type="button"
-            onClick={() => scrollStrip(groupsScrollRef, "left")}
-            aria-label="التالي"
-            className="absolute top-1/2 -translate-y-1/2 left-0 z-20 w-7 h-7 rounded-full flex items-center justify-center jd-swipe-hint-l"
-            style={{
-              background: `linear-gradient(135deg, ${COLORS.gold}, ${COLORS.goldDark})`,
-              color: "#0a0a0a",
-              boxShadow: "0 4px 14px rgba(0,0,0,0.5)",
-            }}
-            data-testid="button-scroll-groups-left"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-        <div
-          ref={groupsScrollRef}
-          className="flex gap-2 overflow-x-auto snap-x snap-mandatory scroll-smooth jd-no-scrollbar"
-          style={{
-            scrollbarWidth: "none",
-            WebkitOverflowScrolling: "touch",
-          }}
-          dir="rtl"
-        >
-          {visibleGroups.map((g) => {
-            const isSelected = selectedGroupId === g.id;
+
+          {visibleCategories.map((cat) => {
+            const emoji = (cat.slug && CATEGORY_EMOJI[cat.slug]) || "🛍️";
+            const isSelected = selectedCategoryId === cat.id;
             return (
               <button
                 type="button"
-                key={g.id}
-                onClick={() => {
-                  setSelectedGroupId(isSelected ? null : g.id);
-                  setSelectedCategoryId(null);
-                }}
-                className="shrink-0 snap-start rounded-xl p-2 flex flex-col items-center justify-center gap-1.5 cursor-pointer transition-all"
+                key={cat.id}
+                onClick={() => setSelectedCategoryId(isSelected ? null : cat.id)}
+                className="rounded-2xl p-3 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all min-h-[100px]"
                 style={{
                   background: isSelected
                     ? "linear-gradient(135deg, rgba(212,175,55,0.28), rgba(156,116,40,0.14))"
@@ -629,112 +552,26 @@ export default function JadafPage() {
                   border: isSelected
                     ? `2px solid rgba(212,175,55,0.65)`
                     : `1px solid ${COLORS.goldBorder}`,
-                  width: 96,
-                  height: 96,
                 }}
-                data-testid={`button-group-${g.id}`}
+                data-testid={`button-category-${cat.slug}`}
               >
                 <div
-                  className="w-10 h-10 rounded-lg flex items-center justify-center text-2xl"
+                  className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl"
                   style={{
-                    background: "linear-gradient(135deg, rgba(212,175,55,0.32), rgba(156,116,40,0.18))",
-                    border: `1px solid rgba(212,175,55,0.45)`,
+                    background: "linear-gradient(135deg, rgba(212,175,55,0.20), rgba(156,116,40,0.08))",
+                    border: `1px solid rgba(212,175,55,0.35)`,
                   }}
                   aria-hidden="true"
                 >
-                  {g.emoji}
+                  {emoji}
                 </div>
-                <span className="text-[11px] font-bold text-center line-clamp-1" style={{ color: COLORS.textMain }}>
-                  {g.label}
+                <span className="text-xs font-bold text-center line-clamp-2" style={{ color: COLORS.textMain }}>
+                  {cat.nameAr}
                 </span>
               </button>
             );
           })}
         </div>
-        </div>
-
-        {/* LEVEL 2: sub-categories of selected group — grid layout */}
-        {selectedGroupId && categoriesInSelectedGroup.length > 0 && (
-          <div className="mt-6 pt-5 border-t" style={{ borderColor: COLORS.goldBorder }}>
-            <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
-              <div className="flex items-center gap-3">
-                <h4 className="text-base md:text-lg font-bold" style={{ color: COLORS.goldLight }}>
-                  أقسام {selectedGroupLabel}
-                </h4>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSelectedGroupId(null);
-                    setSelectedCategoryId(null);
-                  }}
-                  className="inline-flex items-center gap-1.5 px-3 h-8 rounded-lg text-xs font-bold"
-                  style={{
-                    background: "rgba(255,255,255,0.04)",
-                    border: `1px solid ${COLORS.goldBorder}`,
-                    color: COLORS.textSec,
-                  }}
-                  data-testid="button-close-group"
-                >
-                  <X className="w-3.5 h-3.5" /> إغلاق
-                </button>
-              </div>
-              <button
-                type="button"
-                onClick={() => setSelectedCategoryId(null)}
-                className="inline-flex items-center gap-1 text-xs font-bold"
-                style={{ color: COLORS.goldLight }}
-                data-testid="button-show-all-subcats"
-              >
-                عرض الكل <ChevronLeft className="w-3.5 h-3.5" />
-              </button>
-            </div>
-            <p className="text-xs mb-4" style={{ color: COLORS.textSec }}>
-              اختر ما يناسبك من الفئات الفرعية
-            </p>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              {categoriesInSelectedGroup.map((cat) => {
-                const emoji = (cat.slug && CATEGORY_EMOJI[cat.slug]) || "🛍️";
-                const isSelected = selectedCategoryId === cat.id;
-                return (
-                  <button
-                    type="button"
-                    key={cat.id}
-                    onClick={() => setSelectedCategoryId(isSelected ? null : cat.id)}
-                    className="rounded-2xl p-4 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all min-h-[150px]"
-                    style={{
-                      background: isSelected
-                        ? "linear-gradient(135deg, rgba(212,175,55,0.22), rgba(156,116,40,0.10))"
-                        : "linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02))",
-                      border: isSelected
-                        ? `1px solid rgba(212,175,55,0.55)`
-                        : `1px solid ${COLORS.goldBorder}`,
-                    }}
-                    data-testid={`button-category-${cat.slug}`}
-                  >
-                    <div
-                      className="w-16 h-16 rounded-2xl flex items-center justify-center text-4xl mb-1"
-                      style={{
-                        background: "linear-gradient(135deg, rgba(212,175,55,0.20), rgba(156,116,40,0.08))",
-                        border: `1px solid rgba(212,175,55,0.35)`,
-                      }}
-                      aria-hidden="true"
-                    >
-                      {emoji}
-                    </div>
-                    <span className="text-sm font-bold text-center line-clamp-1" style={{ color: COLORS.textMain }}>
-                      {cat.nameAr}
-                    </span>
-                    {cat.descriptionAr && (
-                      <span className="text-[11px] text-center line-clamp-1" style={{ color: COLORS.textSec }}>
-                        {cat.descriptionAr}
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        )}
       </section>
 
       {/* Products */}
@@ -742,12 +579,12 @@ export default function JadafPage() {
         <div className="mb-6 flex items-end justify-between flex-wrap gap-3">
           <div>
             <h3 className="text-2xl md:text-3xl font-extrabold" style={{ color: COLORS.goldLight }}>
-              {selectedCategoryName ? `منتجات: ${selectedCategoryName}` : "منتجات مختارة"}
+              {selectedCategoryName ? `منتجات: ${selectedCategoryName}` : "جميع المنتجات"}
             </h3>
             <p className="text-sm mt-1" style={{ color: COLORS.textSec }}>
               {selectedCategoryName
                 ? `كل منتجات قسم ${selectedCategoryName}`
-                : "منتج واحد مميز من كل قسم — اختر قسماً لرؤية كل منتجاته"}
+                : "اختر قسماً للتصفية أو تصفح جميع المنتجات"}
             </p>
           </div>
           {selectedCategoryId !== null && (

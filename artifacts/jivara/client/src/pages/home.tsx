@@ -33,8 +33,15 @@ export default function Home() {
       mobileScrollRef.current.scrollBy({ left: -180, behavior: 'smooth' });
     }
   };
-  const { data: featuredProducts = [], isLoading: productsLoading } = useQuery<Product[]>({
-    queryKey: ["/api/products?featured=true&showOnJivara=true"],
+  const { data: allProducts = [], isLoading: productsLoading } = useQuery<Product[]>({
+    queryKey: ["/api/products?showOnJivara=true"],
+  });
+
+  // Products with images first, then without
+  const featuredProducts = [...allProducts].sort((a, b) => {
+    const aHas = (a.images?.length ?? 0) > 0 ? 0 : 1;
+    const bHas = (b.images?.length ?? 0) > 0 ? 0 : 1;
+    return aHas - bHas;
   });
 
   const { data: categories = [] } = useQuery<Category[]>({
@@ -184,12 +191,12 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Featured Products */}
+      {/* All Products */}
       <section className="py-8 sm:py-16 bg-[#F8F8F8]">
         <div className="container mx-auto px-3 sm:px-4">
           <div className="text-center mb-8 sm:mb-12">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2 sm:mb-4 arabic-text">المنتجات المميزة</h2>
-            <p className="text-base sm:text-lg md:text-xl text-muted-foreground arabic-text">اختيارات منسقة خصيصاً لك</p>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2 sm:mb-4 arabic-text">جميع المنتجات</h2>
+            <p className="text-base sm:text-lg md:text-xl text-muted-foreground arabic-text">تشكيلة كاملة من أفضل المنتجات</p>
           </div>
           
           {productsLoading ? (
