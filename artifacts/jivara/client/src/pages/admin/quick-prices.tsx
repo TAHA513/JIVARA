@@ -274,7 +274,19 @@ export default function QuickPricesPage() {
                     {p.sku}
                   </td>
                   <td className="px-3 py-3">
-                    <PriceCell product={p} onSaved={refresh} />
+                    <div className="flex flex-col gap-1.5">
+                      <div className="flex items-center gap-1 arabic-text">
+                        <span className="text-[10px] text-gray-400">شراء:</span>
+                        {p.costPrice && parseFloat(String(p.costPrice)) > 0 ? (
+                          <span className="text-[11px] font-semibold text-blue-600">
+                            {parseFloat(String(p.costPrice)).toLocaleString("en-US")} د.ع
+                          </span>
+                        ) : (
+                          <span className="text-[11px] text-gray-300">—</span>
+                        )}
+                      </div>
+                      <PriceCell product={p} onSaved={refresh} />
+                    </div>
                   </td>
                   <td className="px-3 py-3">
                     <StoreToggle product={p} onSaved={refresh} />
