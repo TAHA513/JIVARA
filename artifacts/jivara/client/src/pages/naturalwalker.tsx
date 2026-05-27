@@ -16,6 +16,12 @@ import { getFunnelData } from "@/hooks/use-funnel-tracker";
 
 const WHATSAPP = "9647819966698";
 
+const SIZES = [
+  { label: "S / M",   desc: "محيط الرأس ٥٤–٥٧ سم",  icon: "🅢" },
+  { label: "L / XL",  desc: "محيط الرأس ٥٨–٦١ سم",  icon: "🅛" },
+  { label: "فري سايز", desc: "قابل للتعديل — يناسب الجميع", icon: "🔄" },
+];
+
 const COLORS = [
   { name: "كحلي",  hex: "#1a2a4a", img: navyImg,  soldOut: false },
   { name: "أسود",  hex: "#1a1a1a", img: blackImg, soldOut: true  },
@@ -59,6 +65,7 @@ export default function NaturalWalkerPage() {
   const [selectedColors, setSelectedColors] = useState<number[]>([0]);
   const [previewColor, setPreviewColor]   = useState(0);
   const [pkgIdx, setPkgIdx]               = useState(0);
+  const [selectedSize, setSelectedSize]   = useState<number>(2);
   const [orderNotes, setOrderNotes]       = useState("");
   const [name, setName]                 = useState("");
   const [phone, setPhone]               = useState("");
@@ -119,7 +126,7 @@ export default function NaturalWalkerPage() {
         customerPhone: phone,
         shippingAddress: address,
         city,
-        notes: `ماركة: NATURALWALKER | الألوان: ${selectedColors.map(i => COLORS[i].name).join(" + ")} | الكمية: ${pkg.qty} قبّعة | الباقة: ${pkg.label}${orderNotes.trim() ? ` | ملاحظات: ${orderNotes.trim()}` : ""}`,
+        notes: `ماركة: NATURALWALKER | المقاس: ${SIZES[selectedSize].label} | الألوان: ${selectedColors.map(i => COLORS[i].name).join(" + ")} | الكمية: ${pkg.qty} قبّعة | الباقة: ${pkg.label}${orderNotes.trim() ? ` | ملاحظات: ${orderNotes.trim()}` : ""}`,
         totalAmount: String(pkg.price),
         landingPage: "/naturalwalker",
         items: [{
@@ -394,6 +401,39 @@ export default function NaturalWalkerPage() {
               <p className="text-white font-black text-lg">{COLORS[previewColor].name}</p>
               <p className="text-gray-400 text-xs mt-1">NATURALWALKER — Since 1998</p>
             </div>
+          </div>
+        </div>
+
+        {/* Size Selector */}
+        <div className="bg-gray-900 text-white rounded-2xl p-4 mb-4">
+          <p className="text-yellow-400 font-bold text-base mb-1 text-center">📏 اختر المقاس</p>
+          <p className="text-gray-400 text-xs text-center mb-3">اضغط على المقاس المناسب لك</p>
+          <div className="grid grid-cols-3 gap-2">
+            {SIZES.map((s, i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={() => setSelectedSize(i)}
+                className={`flex flex-col items-center gap-1.5 p-3 rounded-2xl border-2 transition-all ${
+                  selectedSize === i
+                    ? "border-yellow-400 bg-gray-800 scale-[1.03]"
+                    : "border-gray-700 bg-gray-800/50 opacity-70 hover:opacity-90"
+                }`}
+              >
+                <span className="text-2xl">{s.icon}</span>
+                <span className={`text-sm font-black ${selectedSize === i ? "text-yellow-400" : "text-white"}`}>{s.label}</span>
+                <span className="text-[10px] text-gray-400 text-center leading-tight">{s.desc}</span>
+                {selectedSize === i && (
+                  <div className="w-5 h-5 bg-yellow-400 rounded-full flex items-center justify-center mt-0.5">
+                    <span className="text-black text-[10px] font-black">✓</span>
+                  </div>
+                )}
+              </button>
+            ))}
+          </div>
+          <div className="mt-3 bg-gray-800 rounded-xl px-4 py-2 flex items-center justify-between">
+            <span className="text-gray-400 text-xs">المقاس المختار</span>
+            <span className="text-yellow-400 font-black text-sm">{SIZES[selectedSize].label}</span>
           </div>
         </div>
 
