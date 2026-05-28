@@ -178,7 +178,7 @@ export default function AdminSidebar() {
         <Link href="/" onClick={onClose}>
           <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-md cursor-pointer text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-all arabic-text">
             <Store className="w-4 h-4 shrink-0 text-gray-500" strokeWidth={1.8} />
-            <span className="text-[13px] font-medium">متجر JIVARA</span>
+            <span className="text-[13px] font-medium">عرض المتجر</span>
           </div>
         </Link>
         <Link href="/jadaf" onClick={onClose}>
