@@ -2,6 +2,9 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 
+// ── Cache صور في الذاكرة (يمنع الذهاب للـ DB في كل طلب) ──
+const imageCache = new Map<string, { buffer: Buffer; mimeType: string }>();
+
 // ── Cache بسيط لطلبات FB API (يمنع تجاوز حد الطلبات) ──
 const fbCache = new Map<string, { data: any; ts: number }>();
 const FB_CACHE_TTL: Record<string, number> = {
@@ -3214,49 +3217,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
-  // تقديم الصور من قاعدة البيانات
+  // تقديم الصور من قاعدة البيانات (مع cache في الذاكرة)
   app.get('/api/images/:imageId', async (req, res) => {
     try {
       const { imageId } = req.params;
-      
-      // البحث عن الصورة في إعدادات المتجر (الصور المؤقتة)
+      const etag = `"${imageId}"`;
+
+      // 304 — إذا المتصفح عنده نسخة حديثة، لا نرسل شيء
+      if (req.headers['if-none-match'] === etag) {
+        return res.status(304).end();
+      }
+
+      // ── من الـ cache في الذاكرة (أسرع — لا DB) ──
+      const cached = imageCache.get(imageId);
+      if (cached) {
+        res.setHeader('Content-Type', cached.mimeType);
+        res.setHeader('Content-Length', cached.buffer.length);
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+        res.setHeader('ETag', etag);
+        return res.send(cached.buffer);
+      }
+
+      // ── جلب من DB (مرة واحدة فقط) ──
+      let dataUrl: string | null = null;
+
       const tempImageSetting = await storage.getStoreSetting(`temp_image_${imageId}`);
       if (tempImageSetting?.value) {
-        // استخراج البيانات من data URL
-        const base64Data = tempImageSetting.value.split(',')[1];
-        const mimeType = tempImageSetting.value.match(/data:([^;]+);/)?.[1] || 'image/jpeg';
-        
-        // تحويل من Base64 إلى Buffer
-        const imageBuffer = Buffer.from(base64Data, 'base64');
-        
-        // إعداد Headers للتخزين المؤقت
-        res.setHeader('Content-Type', mimeType);
-        res.setHeader('Content-Length', imageBuffer.length);
-        res.setHeader('Cache-Control', 'public, max-age=31536000'); // سنة كاملة
-        res.setHeader('ETag', `"${imageId}"`);
-        
-        return res.send(imageBuffer);
+        dataUrl = tempImageSetting.value;
+      } else {
+        dataUrl = await storage.getImageData(imageId);
       }
-      
-      // البحث في بيانات المنتجات باستخدام دالة محسّنة
-      const dataUrl = await storage.getImageData(imageId);
-      if (dataUrl) {
-        const base64Data = dataUrl.split(',')[1];
-        const mimeType = dataUrl.match(/data:([^;]+);/)?.[1] || 'image/jpeg';
-        
-        const imageBuffer = Buffer.from(base64Data, 'base64');
-        
-        res.setHeader('Content-Type', mimeType);
-        res.setHeader('Content-Length', imageBuffer.length);
-        res.setHeader('Cache-Control', 'public, max-age=31536000');
-        res.setHeader('ETag', `"${imageId}"`);
-        
-        return res.send(imageBuffer);
+
+      if (!dataUrl) {
+        return res.status(404).json({ error: 'الصورة غير موجودة' });
       }
-      
-      // إذا لم توجد الصورة، إرسال صورة افتراضية
-      res.status(404).json({ error: 'الصورة غير موجودة' });
-      
+
+      const base64Data = dataUrl.split(',')[1];
+      const mimeType = dataUrl.match(/data:([^;]+);/)?.[1] || 'image/jpeg';
+      const imageBuffer = Buffer.from(base64Data, 'base64');
+
+      // احفظ في الـ cache للطلبات القادمة
+      imageCache.set(imageId, { buffer: imageBuffer, mimeType });
+
+      res.setHeader('Content-Type', mimeType);
+      res.setHeader('Content-Length', imageBuffer.length);
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      res.setHeader('ETag', etag);
+      return res.send(imageBuffer);
+
     } catch (error) {
       console.error('Error serving image:', error);
       res.status(500).json({ error: 'خطأ في تحميل الصورة' });

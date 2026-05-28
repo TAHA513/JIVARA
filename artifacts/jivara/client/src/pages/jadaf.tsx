@@ -186,6 +186,29 @@ const features = [
   { label: "دفع آمن", Icon: Lock },
 ];
 
+// مكوّن صورة مع skeleton أثناء التحميل
+function JadafImage({ src, alt }: { src: string; alt: string }) {
+  const [loaded, setLoaded] = useState(false);
+  return (
+    <div className="w-full h-full relative">
+      {!loaded && (
+        <div
+          className="absolute inset-0 animate-pulse"
+          style={{ background: "linear-gradient(90deg, #1a1a1a 25%, #242424 50%, #1a1a1a 75%)" }}
+        />
+      )}
+      <img
+        src={src}
+        alt={alt}
+        onLoad={() => setLoaded(true)}
+        className="w-full h-full object-contain p-2 transition-all group-hover:scale-105"
+        style={{ opacity: loaded ? 1 : 0, transition: "opacity 0.3s ease" }}
+        loading="lazy"
+      />
+    </div>
+  );
+}
+
 export default function JadafPage() {
   const { totalItems } = useCart();
   const [search, setSearch] = useState("");
@@ -784,12 +807,7 @@ export default function JadafPage() {
                       style={{ background: COLORS.cardLight }}
                     >
                       {img ? (
-                        <img
-                          src={img}
-                          alt={product.nameAr}
-                          className="w-full h-full object-contain transition-transform group-hover:scale-105 p-2"
-                          loading="lazy"
-                        />
+                        <JadafImage src={img} alt={product.nameAr} />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
                           <ShoppingBag className="w-12 h-12" style={{ color: COLORS.goldDark }} />
