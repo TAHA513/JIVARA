@@ -149,6 +149,13 @@ export default function JadafProductDetail() {
     setImageError(false);
   }, [selectedImage]);
 
+  // منع نافذة "تثبيت كتطبيق" في صفحات جداف
+  useEffect(() => {
+    const handler = (e: Event) => e.preventDefault();
+    window.addEventListener("beforeinstallprompt", handler);
+    return () => window.removeEventListener("beforeinstallprompt", handler);
+  }, []);
+
   useEffect(() => {
     document.title = product
       ? `${product.nameAr} | جداف`

@@ -211,6 +211,13 @@ export default function JadafPage() {
     };
   }, []);
 
+  // منع نافذة "تثبيت كتطبيق" في صفحات جداف
+  useEffect(() => {
+    const handler = (e: Event) => e.preventDefault();
+    window.addEventListener("beforeinstallprompt", handler);
+    return () => window.removeEventListener("beforeinstallprompt", handler);
+  }, []);
+
 
   const { data: products = [], isLoading } = useQuery<Product[]>({
     queryKey: ["/api/products", { showOnJadaf: true }],

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { useCart } from "@/hooks/use-cart";
 import { useMutation } from "@tanstack/react-query";
@@ -60,6 +60,13 @@ export default function JadafCartPage() {
   const [, navigate] = useLocation();
   const [orderDone, setOrderDone] = useState(false);
   const [orderId, setOrderId] = useState<number | null>(null);
+
+  // منع نافذة "تثبيت كتطبيق" في صفحات جداف
+  useEffect(() => {
+    const handler = (e: Event) => e.preventDefault();
+    window.addEventListener("beforeinstallprompt", handler);
+    return () => window.removeEventListener("beforeinstallprompt", handler);
+  }, []);
 
   const [form, setForm] = useState<FormData>({
     name: "", phone: "", province: "", region: "", notes: "",
