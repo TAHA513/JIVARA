@@ -394,7 +394,7 @@ export default function JadafPage() {
             </Link>
 
             <a
-              href="https://wa.me/9647819966698"
+              href="https://wa.me/9647886333939"
               target="_blank"
               rel="noreferrer"
               className="hidden sm:inline-flex items-center gap-2 px-4 h-10 rounded-xl text-sm font-bold"
@@ -408,7 +408,7 @@ export default function JadafPage() {
 
             {/* Mobile WhatsApp icon */}
             <a
-              href="https://wa.me/9647819966698"
+              href="https://wa.me/9647886333939"
               target="_blank"
               rel="noreferrer"
               aria-label="واتساب"
