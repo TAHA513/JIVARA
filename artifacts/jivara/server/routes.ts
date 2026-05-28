@@ -4513,6 +4513,76 @@ ${style ? `الأسلوب المطلوب: ${style}` : ''}
     }
   });
 
+  // ═══════════════════════════════════════════
+  // الضمان التجاري
+  // ═══════════════════════════════════════════
+  function generateWarrantyCode(): string {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let code = 'JD-';
+    for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+    return code;
+  }
+
+  app.post("/api/admin/warranties", requireAdmin, async (req, res) => {
+    try {
+      const { productId, productName, productSku, customerName, customerPhone, warrantyMonths = 12, notes } = req.body;
+      if (!productName || !customerName || !customerPhone) {
+        return res.status(400).json({ error: "اسم المنتج واسم الزبون والهاتف مطلوبة" });
+      }
+      let code = generateWarrantyCode();
+      // ensure unique
+      const { pool } = await import("./db.js");
+      for (let i = 0; i < 5; i++) {
+        const check = await pool.query("SELECT id FROM warranties WHERE code = $1", [code]);
+        if (check.rows.length === 0) break;
+        code = generateWarrantyCode();
+      }
+      const purchaseDate = new Date();
+      const expiryDate = new Date(purchaseDate);
+      expiryDate.setMonth(expiryDate.getMonth() + parseInt(warrantyMonths));
+      const r = await pool.query(
+        `INSERT INTO warranties (code, product_id, product_name, product_sku, customer_name, customer_phone, warranty_months, purchase_date, expiry_date, notes)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *`,
+        [code, productId || null, productName, productSku || null, customerName, customerPhone, warrantyMonths, purchaseDate, expiryDate, notes || null]
+      );
+      res.status(201).json(r.rows[0]);
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  app.get("/api/admin/warranties", requireAdmin, async (req, res) => {
+    try {
+      const { pool } = await import("./db.js");
+      const r = await pool.query("SELECT * FROM warranties ORDER BY created_at DESC LIMIT 200");
+      res.json(r.rows);
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  app.put("/api/admin/warranties/:id/void", requireAdmin, async (req, res) => {
+    try {
+      const { pool } = await import("./db.js");
+      await pool.query("UPDATE warranties SET is_void = true WHERE id = $1", [req.params.id]);
+      res.json({ success: true });
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  // عام — يفتحه الزبون بالكود
+  app.get("/api/warranty/:code", async (req, res) => {
+    try {
+      const { pool } = await import("./db.js");
+      const r = await pool.query("SELECT * FROM warranties WHERE code = $1", [req.params.code.toUpperCase()]);
+      if (r.rows.length === 0) return res.status(404).json({ error: "الكود غير موجود" });
+      res.json(r.rows[0]);
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

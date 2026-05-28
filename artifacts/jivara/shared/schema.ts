@@ -505,3 +505,26 @@ export const insertAdminUserSchema = createInsertSchema(adminUsers).pick({
 
 export type AdminUser = typeof adminUsers.$inferSelect;
 export type InsertAdminUser = z.infer<typeof insertAdminUserSchema>;
+
+// ════════════════════════════════════════════════
+// جدول الضمان التجاري
+// ════════════════════════════════════════════════
+export const warranties = pgTable("warranties", {
+  id: serial("id").primaryKey(),
+  code: text("code").notNull().unique(),
+  productId: integer("product_id"),
+  productName: text("product_name").notNull(),
+  productSku: text("product_sku"),
+  customerName: text("customer_name").notNull(),
+  customerPhone: text("customer_phone").notNull(),
+  warrantyMonths: integer("warranty_months").notNull().default(12),
+  purchaseDate: timestamp("purchase_date").defaultNow(),
+  expiryDate: timestamp("expiry_date").notNull(),
+  storeId: integer("store_id").default(2),
+  storeName: text("store_name").default("جداف للهواتف والساعات والاكسسوارات والعطور"),
+  notes: text("notes"),
+  isVoid: boolean("is_void").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export type Warranty = typeof warranties.$inferSelect;

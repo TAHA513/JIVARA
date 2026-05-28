@@ -82,6 +82,8 @@ import PermissionsPage from "@/pages/admin/permissions";
 import CashierPage from "@/pages/admin/cashier";
 import ManualOrderPage from "@/pages/admin/manual-order";
 import QuickPricesPage from "@/pages/admin/quick-prices";
+import WarrantyAdminPage from "@/pages/admin/warranty";
+import WarrantyCheckPage from "@/pages/warranty-check";
 import { useLocation } from "wouter";
 import { useEffect } from "react";
 
@@ -89,6 +91,7 @@ function App() {
   const [location] = useLocation();
   const isAdminRoute = location.startsWith('/admin');
   const isBuyRoute = location.startsWith('/buy');
+  const isWarrantyRoute = location.startsWith('/warranty');
   const isBundleRoute = location.startsWith('/bundle') || location === '/bamboo' || location === '/bamboo-p' || location === '/mamame' || location === '/shoes-easy' || location === '/watches-easy' || location === '/watches-b' || location === '/shoes-b' || location === '/zt' || location === '/zt2' || location === '/naturalwalker' || location === '/naturalwalker2' || location === '/knee-pad' || location === '/knee-pad-q' || location === '/knee-pad-2' || location === '/bullcaptain-belt' || location === '/poedagar-watch' || location === '/boxer-men' || location === '/socks-uae' || location === '/socks-iq' || location === '/socks-pack' || location === '/bamboo-socks' || location === '/jadaf' || location.startsWith('/jadaf/') || location === '/supplier' || location === '/pack';
   const isShopRoute = location === '/shop';
   
@@ -106,7 +109,12 @@ function App() {
         <TooltipProvider>
           <CartProvider>
             <div className="min-h-screen bg-background text-foreground" dir="rtl">
-              {isShopRoute ? (
+              {isWarrantyRoute ? (
+                <Switch>
+                  <Route path="/warranty/:code" component={WarrantyCheckPage} />
+                  <Route path="/warranty" component={WarrantyCheckPage} />
+                </Switch>
+              ) : isShopRoute ? (
                 <Route path="/shop" component={ShopPage} />
               ) : isBundleRoute ? (
                 <Switch>
@@ -180,6 +188,7 @@ function App() {
                   <Route path="/admin/permissions" component={PermissionsPage} />
                   <Route path="/admin/cashier" component={CashierPage} />
                   <Route path="/admin/quick-prices" component={QuickPricesPage} />
+                  <Route path="/admin/warranty" component={WarrantyAdminPage} />
                   <Route path="/admin" component={AdminDashboard} />
                 </Switch>
               ) : (
