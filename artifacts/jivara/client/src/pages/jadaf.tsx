@@ -198,7 +198,15 @@ export default function JadafPage() {
   };
 
   useEffect(() => {
-    document.title = "JADAF | جداف — تجربة فاخرة";
+    const prevTitle = document.title;
+    document.title = "جداف";
+    const link = document.querySelector<HTMLLinkElement>("link[rel~='icon']");
+    const prevHref = link?.href ?? "";
+    if (link) link.href = "/jadaf-favicon.svg";
+    return () => {
+      document.title = prevTitle;
+      if (link) link.href = prevHref;
+    };
   }, []);
 
 
