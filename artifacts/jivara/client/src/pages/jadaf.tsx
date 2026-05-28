@@ -932,7 +932,7 @@ export default function JadafPage() {
               <li><a href="#home" className="hover:text-white">الرئيسية</a></li>
               <li><a href="#products" className="hover:text-white">المنتجات</a></li>
               <li><a href="#services" className="hover:text-white">الخدمات</a></li>
-              <li><Link href="/" className="hover:text-white">جيفارا للتسوق</Link></li>
+
             </ul>
           </div>
         </div>
