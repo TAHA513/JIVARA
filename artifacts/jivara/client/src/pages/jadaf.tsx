@@ -914,7 +914,15 @@ export default function JadafPage() {
                 {getSetting("address_ar") || "الأنبار، العراق"}
               </li>
               <li className="flex items-center gap-2">
-                <Instagram className="w-4 h-4" style={{ color: COLORS.gold }} /> @jadaf
+                <Instagram className="w-4 h-4" style={{ color: COLORS.gold }} />
+                <a
+                  href="https://www.instagram.com/oorr1999?igsh=MmgzN2QxOXA5NzNj"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="hover:text-white transition-colors"
+                >
+                  @oorr1999
+                </a>
               </li>
             </ul>
           </div>
