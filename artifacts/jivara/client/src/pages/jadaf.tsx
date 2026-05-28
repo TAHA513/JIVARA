@@ -5,10 +5,11 @@ import {
   Watch, SprayCan, Glasses, Shirt, Headphones, Smartphone,
   Wrench, CreditCard, Truck, ShieldCheck, Lock, Phone, MapPin,
   Instagram, Search, ShoppingBag, Home, Sparkles, Crown, Menu, X, MessageCircle,
-  ChevronLeft, ChevronRight, Link2, Copy, Check,
+  ChevronLeft, ChevronRight, Link2, Copy, Check, ShoppingCart,
 } from "lucide-react";
 import type { Product, Category, StoreSetting } from "@shared/schema";
 import JadafLogo from "@/components/jadaf-logo";
+import { useCart } from "@/hooks/use-cart";
 import heroBg from "@assets/jadaf-hero-bg.png";
 
 // Colorful emoji per category slug
@@ -186,6 +187,7 @@ const features = [
 ];
 
 export default function JadafPage() {
+  const { totalItems } = useCart();
   const [search, setSearch] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
@@ -289,6 +291,27 @@ export default function JadafPage() {
         fontFamily: "'Cairo', 'Tajawal', system-ui, sans-serif",
       }}
     >
+      {/* Info Bar */}
+      <div
+        className="w-full py-2 px-4"
+        style={{ background: "#0a0b0d", borderBottom: "1px solid rgba(212,175,55,0.15)" }}
+      >
+        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2 text-xs">
+          <div className="flex items-center gap-2" style={{ color: "#B8A060" }}>
+            <MapPin className="w-3.5 h-3.5" style={{ color: COLORS.gold }} />
+            <span style={{ color: COLORS.textSec }}>عنواننا:</span>
+            <span style={{ color: COLORS.textMain, fontWeight: 600 }}>الأنبار الرمادي نهاية شارع 20</span>
+          </div>
+          <div className="flex items-center gap-3" style={{ color: COLORS.textSec }}>
+            <Truck className="w-3.5 h-3.5" style={{ color: COLORS.gold }} />
+            <span style={{ color: COLORS.textSec }}>خدمة التوصيل:</span>
+            <span style={{ color: COLORS.textMain, fontWeight: 600 }}>5 آلاف داخل الرمادي</span>
+            <span style={{ color: COLORS.textDim }}>|</span>
+            <span style={{ color: COLORS.textMain, fontWeight: 600 }}>6 آلاف للمحافظات</span>
+          </div>
+        </div>
+      </div>
+
       {/* Header */}
       <header
         className="sticky top-0 z-50"
@@ -340,6 +363,36 @@ export default function JadafPage() {
           </nav>
 
           <div className="flex items-center gap-2">
+            {/* Cart icon */}
+            <Link href="/jadaf/cart">
+              <button
+                type="button"
+                aria-label="السلة"
+                className="relative inline-flex items-center justify-center w-10 h-10 rounded-xl"
+                style={{
+                  background: "rgba(255,255,255,0.04)",
+                  border: `1px solid ${COLORS.goldBorder}`,
+                  color: COLORS.goldLight,
+                }}
+              >
+                <ShoppingCart className="w-5 h-5" />
+                {totalItems > 0 && (
+                  <span
+                    className="absolute -top-1 -left-1 w-4.5 h-4.5 rounded-full text-[10px] font-bold flex items-center justify-center"
+                    style={{
+                      background: `linear-gradient(135deg, ${COLORS.goldLight}, ${COLORS.goldDark})`,
+                      color: "#111",
+                      minWidth: 18,
+                      height: 18,
+                      lineHeight: 1,
+                    }}
+                  >
+                    {totalItems}
+                  </span>
+                )}
+              </button>
+            </Link>
+
             <a
               href="https://wa.me/9647819966698"
               target="_blank"
