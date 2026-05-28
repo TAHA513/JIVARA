@@ -16,6 +16,7 @@ import {
   ArrowRight,
   ShoppingCart,
   ChevronRight,
+  X,
 } from "lucide-react";
 import { safeStorage } from "@/lib/safe-storage";
 import type { Product } from "@shared/schema";
@@ -45,7 +46,7 @@ export default function JadafProductDetail() {
   const [showImagePreview, setShowImagePreview] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [imageError, setImageError] = useState(false);
-  const { addToCart } = useCart();
+  const { addToCart, totalItems } = useCart();
   const { toast } = useToast();
 
   const { data: product, isLoading } = useQuery<Product>({
@@ -251,6 +252,33 @@ export default function JadafProductDetail() {
             >
               JADAF
             </span>
+          </Link>
+          {/* Cart icon */}
+          <Link href="/jadaf/cart">
+            <button
+              className="relative inline-flex items-center justify-center w-10 h-10 rounded-xl"
+              style={{
+                background: "rgba(255,255,255,0.04)",
+                border: `1px solid ${COLORS.goldBorder}`,
+                color: COLORS.goldLight,
+              }}
+              aria-label="السلة"
+            >
+              <ShoppingCart className="w-5 h-5" />
+              {totalItems > 0 && (
+                <span
+                  className="absolute -top-1 -left-1 rounded-full text-[10px] font-bold flex items-center justify-center"
+                  style={{
+                    background: `linear-gradient(135deg, ${COLORS.goldLight}, ${COLORS.goldDark})`,
+                    color: "#111",
+                    minWidth: 18,
+                    height: 18,
+                  }}
+                >
+                  {totalItems}
+                </span>
+              )}
+            </button>
           </Link>
         </div>
       </header>
@@ -598,9 +626,9 @@ export default function JadafProductDetail() {
         )}
       </main>
 
-      {/* Sticky mobile add-to-cart */}
+      {/* Sticky bottom bar — mobile & desktop */}
       <div
-        className="md:hidden fixed bottom-0 left-0 right-0 z-40 px-3 py-2.5"
+        className="fixed bottom-0 left-0 right-0 z-40 px-3 py-2.5"
         style={{
           background: "rgba(5,6,7,0.95)",
           borderTop: `1px solid ${COLORS.goldBorder}`,
@@ -608,24 +636,15 @@ export default function JadafProductDetail() {
         }}
       >
         <div className="flex items-stretch gap-2 max-w-screen-md mx-auto">
-          <div className="flex flex-col justify-center px-2">
-            <span
-              className="text-base font-extrabold leading-tight"
-              style={{ color: COLORS.goldLight }}
-            >
+          <div className="flex flex-col justify-center px-2 shrink-0">
+            <span className="text-base font-extrabold leading-tight" style={{ color: COLORS.goldLight }}>
               {formatPrice(product.price)}
             </span>
-            <span className="text-[10px]" style={{ color: COLORS.textSec }}>
-              د.ع
-            </span>
+            <span className="text-[10px]" style={{ color: COLORS.textSec }}>د.ع</span>
           </div>
           <button
             onClick={handleAddToCart}
-            disabled={
-              !product.stock ||
-              product.stock === 0 ||
-              addToCartMutation.isPending
-            }
+            disabled={!product.stock || product.stock === 0 || addToCartMutation.isPending}
             className="flex-1 h-11 rounded-xl font-extrabold text-sm inline-flex items-center justify-center gap-2 disabled:opacity-50"
             style={{
               background: `linear-gradient(135deg, ${COLORS.gold}, ${COLORS.goldDark})`,
@@ -636,6 +655,31 @@ export default function JadafProductDetail() {
             <ShoppingCart className="w-4 h-4" />
             {addToCartMutation.isPending ? "جاري الإضافة..." : "أضف إلى السلة"}
           </button>
+          {totalItems > 0 && (
+            <Link href="/jadaf/cart">
+              <button
+                className="relative h-11 px-3 rounded-xl font-bold text-xs inline-flex items-center gap-1.5 shrink-0"
+                style={{
+                  background: "rgba(212,175,55,0.15)",
+                  border: `1px solid rgba(212,175,55,0.45)`,
+                  color: COLORS.goldLight,
+                }}
+              >
+                <ShoppingCart className="w-4 h-4" />
+                <span
+                  className="absolute -top-1.5 -right-1.5 rounded-full text-[10px] font-bold flex items-center justify-center"
+                  style={{
+                    background: `linear-gradient(135deg, ${COLORS.goldLight}, ${COLORS.goldDark})`,
+                    color: "#111",
+                    minWidth: 18,
+                    height: 18,
+                  }}
+                >
+                  {totalItems}
+                </span>
+              </button>
+            </Link>
+          )}
         </div>
       </div>
 
