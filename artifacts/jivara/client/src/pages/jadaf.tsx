@@ -272,17 +272,6 @@ export default function JadafPage() {
     return new Intl.NumberFormat("ar-IQ").format(Math.round(n)) + " د.ع";
   };
 
-  const [copied, setCopied] = useState(false);
-  const storeUrl = typeof window !== "undefined"
-    ? `${window.location.origin}/jadaf`
-    : "/jadaf";
-  const handleCopy = () => {
-    navigator.clipboard.writeText(storeUrl).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    });
-  };
-
   return (
     <div
       dir="rtl"
@@ -292,38 +281,6 @@ export default function JadafPage() {
         fontFamily: "'Cairo', 'Tajawal', system-ui, sans-serif",
       }}
     >
-      {/* Store URL Bar */}
-      <div
-        className="sticky top-0 z-[60] flex items-center justify-between px-4 py-1.5 gap-3"
-        style={{ background: "rgba(0,0,0,0.75)", backdropFilter: "blur(12px)", borderBottom: "1px solid rgba(212,175,55,0.15)" }}
-      >
-        <div className="flex items-center gap-2 min-w-0">
-          <div className="w-5 h-5 rounded flex items-center justify-center shrink-0" style={{ background: "#D4AF37" }}>
-            <span className="text-[10px] font-black text-black leading-none">ج</span>
-          </div>
-          <span className="text-[11px] font-bold" style={{ color: "#D4AF37" }}>جداف</span>
-          <span className="text-[10px] truncate max-w-[180px] sm:max-w-xs" style={{ color: "rgba(212,175,55,0.55)" }}>{storeUrl}</span>
-        </div>
-        <div className="flex items-center gap-1.5 shrink-0">
-          <a
-            href={storeUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="flex items-center gap-1 px-2 py-1 rounded text-[10px] font-semibold transition-colors"
-            style={{ color: "#D4AF37", border: "1px solid rgba(212,175,55,0.3)" }}
-          >
-            <Link2 className="w-3 h-3" /> فتح
-          </a>
-          <button
-            onClick={handleCopy}
-            className="flex items-center gap-1 px-2 py-1 rounded text-[10px] font-semibold transition-all"
-            style={{ background: copied ? "rgba(212,175,55,0.2)" : "transparent", color: copied ? "#D4AF37" : "rgba(212,175,55,0.6)", border: "1px solid rgba(212,175,55,0.3)" }}
-          >
-            {copied ? <><Check className="w-3 h-3" /> تم النسخ</> : <><Copy className="w-3 h-3" /> نسخ</>}
-          </button>
-        </div>
-      </div>
-
       {/* Header */}
       <header
         className="sticky top-0 z-50"
