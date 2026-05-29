@@ -303,13 +303,11 @@ export default function JadafPage() {
       );
     }
 
-    // الرئيسية: منتج واحد فقط لكل فئة (الأول الذي عنده صورة)
+    // الرئيسية: منتج واحد لكل فئة — فقط المنتجات التي فيها صور
     const seen = new Set<number | null>();
     const overview: typeof list = [];
-    const sorted = [...list].sort((a, b) =>
-      ((b.images?.length ?? 0) > 0 ? 0 : 1) - ((a.images?.length ?? 0) > 0 ? 0 : 1)
-    );
-    for (const p of sorted) {
+    const withImages = list.filter((p) => (p.images?.length ?? 0) > 0);
+    for (const p of withImages) {
       if (!seen.has(p.categoryId)) {
         seen.add(p.categoryId);
         overview.push(p);
