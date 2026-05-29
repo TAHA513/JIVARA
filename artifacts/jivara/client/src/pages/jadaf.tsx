@@ -278,8 +278,9 @@ export default function JadafPage() {
 
 
   const filteredProducts = useMemo(() => {
-    // Base: search filter
     let list = products;
+
+    // بحث: أظهر كل النتائج
     if (search.trim()) {
       const q = search.trim().toLowerCase();
       list = list.filter(
@@ -289,17 +290,32 @@ export default function JadafPage() {
           (p.description?.toLowerCase().includes(q) ?? false) ||
           (p.descriptionAr?.includes(search) ?? false)
       );
+      return [...list].sort((a, b) =>
+        ((b.images?.length ?? 0) > 0 ? 0 : 1) - ((a.images?.length ?? 0) > 0 ? 0 : 1)
+      );
     }
-    // Category selection: show ALL products in that category
+
+    // فئة محددة: أظهر كل منتجات الفئة
     if (selectedCategoryId !== null) {
       list = list.filter((p) => p.categoryId === selectedCategoryId);
+      return [...list].sort((a, b) =>
+        ((b.images?.length ?? 0) > 0 ? 0 : 1) - ((a.images?.length ?? 0) > 0 ? 0 : 1)
+      );
     }
-    // Sort: products with images first, then without
-    return [...list].sort((a, b) => {
-      const aHas = (a.images?.length ?? 0) > 0 ? 0 : 1;
-      const bHas = (b.images?.length ?? 0) > 0 ? 0 : 1;
-      return aHas - bHas;
-    });
+
+    // الرئيسية: منتج واحد فقط لكل فئة (الأول الذي عنده صورة)
+    const seen = new Set<number | null>();
+    const overview: typeof list = [];
+    const sorted = [...list].sort((a, b) =>
+      ((b.images?.length ?? 0) > 0 ? 0 : 1) - ((a.images?.length ?? 0) > 0 ? 0 : 1)
+    );
+    for (const p of sorted) {
+      if (!seen.has(p.categoryId)) {
+        seen.add(p.categoryId);
+        overview.push(p);
+      }
+    }
+    return overview;
   }, [products, search, selectedCategoryId]);
 
   const selectedCategoryName = useMemo(() => {
@@ -590,10 +606,12 @@ export default function JadafPage() {
         <div className="flex items-end justify-between flex-wrap gap-4 mb-8">
           <div>
             <h3 className="text-2xl md:text-3xl font-extrabold" style={{ color: COLORS.goldLight }}>
-              أقسام المنتجات
+              {selectedCategoryId !== null ? (selectedCategoryName ?? "المنتجات") : "أقسام المنتجات"}
             </h3>
             <p className="text-sm mt-1" style={{ color: COLORS.textSec }}>
-              اختر القسم الذي يناسبك
+              {selectedCategoryId !== null
+                ? `كل منتجات قسم ${selectedCategoryName}`
+                : "اضغط على قسم لرؤية جميع منتجاته"}
             </p>
           </div>
           <div
@@ -726,12 +744,12 @@ export default function JadafPage() {
         <div className="mb-6 flex items-end justify-between flex-wrap gap-3">
           <div>
             <h3 className="text-2xl md:text-3xl font-extrabold" style={{ color: COLORS.goldLight }}>
-              {selectedCategoryName ? `منتجات: ${selectedCategoryName}` : "جميع المنتجات"}
+              {selectedCategoryId !== null ? (selectedCategoryName ?? "المنتجات") : "أقسام المنتجات"}
             </h3>
             <p className="text-sm mt-1" style={{ color: COLORS.textSec }}>
-              {selectedCategoryName
+              {selectedCategoryId !== null
                 ? `كل منتجات قسم ${selectedCategoryName}`
-                : "اختر قسماً للتصفية أو تصفح جميع المنتجات"}
+                : "اضغط على قسم لرؤية جميع منتجاته"}
             </p>
           </div>
           {selectedCategoryId !== null && (
@@ -827,14 +845,30 @@ export default function JadafPage() {
                         </div>
                         {product.originalPrice &&
                           parseFloat(product.originalPrice) > parseFloat(product.price) && (
-                            <div
-                              className="text-xs line-through"
-                              style={{ color: COLORS.textDim }}
-                            >
+                            <div className="text-xs line-through" style={{ color: COLORS.textDim }}>
                               {formatPrice(product.originalPrice)}
                             </div>
                           )}
                       </div>
+                      {/* في وضع الرئيسية: زر عرض الكل */}
+                      {selectedCategoryId === null && !search.trim() && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            if (product.categoryId) setSelectedCategoryId(product.categoryId);
+                          }}
+                          className="mt-3 w-full text-xs font-bold py-1.5 rounded-lg flex items-center justify-center gap-1"
+                          style={{
+                            background: "rgba(212,175,55,0.08)",
+                            border: `1px solid rgba(212,175,55,0.25)`,
+                            color: COLORS.goldLight,
+                          }}
+                        >
+                          عرض الكل <ChevronLeft className="w-3 h-3" />
+                        </button>
+                      )}
                     </div>
                   </div>
                 </Link>
