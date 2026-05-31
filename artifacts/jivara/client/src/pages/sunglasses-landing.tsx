@@ -269,6 +269,30 @@ export default function SunglassesLanding() {
         <style>{`@keyframes marquee-rtl{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}`}</style>
       </div>
 
+      {/* بانر الثقة */}
+      <div className="bg-yellow-400 text-black px-4 py-3">
+        <div className="max-w-xl mx-auto">
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <span className="text-lg">🏪</span>
+            <span className="font-black text-base tracking-wide">جداف ستور — الأنبار، الرمادي</span>
+          </div>
+          <div className="grid grid-cols-2 gap-2 text-xs font-bold">
+            <div className="bg-black/10 rounded-xl px-3 py-2 flex items-center gap-1.5">
+              <MapPin className="w-3.5 h-3.5 shrink-0" />
+              <span>نهاية شارع 20، الرمادي</span>
+            </div>
+            <div className="bg-black/10 rounded-xl px-3 py-2 flex items-center gap-1.5">
+              <span className="shrink-0">🚚</span>
+              <span>توصيل مجاني لكل العراق</span>
+            </div>
+            <div className="bg-black/10 rounded-xl px-3 py-2 flex items-center gap-1.5 col-span-2 justify-center">
+              <Clock className="w-3.5 h-3.5 shrink-0" />
+              <span>متواجدون يومياً · من الساعة <strong>10 صباحاً</strong> إلى <strong>11 مساءً</strong></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* هيدر */}
       <header className="bg-black text-white py-3 px-4 sticky top-0 z-30">
         <div className="max-w-xl mx-auto flex items-center justify-between">
