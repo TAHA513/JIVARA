@@ -7,6 +7,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { pixelViewContent, pixelInitiateCheckout, pixelPurchase } from "@/lib/pixel";
 import { CheckCircle, MapPin, Clock, Shield, Package, ShoppingBag, X, Check, ChevronLeft, ChevronRight } from "lucide-react";
 
+import storeImg from "@assets/Screenshot_20260531_135158_1780224727929.jpg";
 import police1  from "@assets/file_00000000d90472469a5065236f82de67_1780222009509.png";
 import police2  from "@assets/file_0000000065b07246908f429c555c5ffa_1780222009532.png";
 import dior1    from "@assets/file_00000000861071f4824c097dee72b7de_1780222009544.png";
@@ -388,6 +389,23 @@ export default function SunglassesLanding() {
               {PRICE_IQD.toLocaleString()} د.ع
             </div>
             <div className="text-gray-400 text-sm">/ للقطعة</div>
+          </div>
+        </div>
+      </div>
+
+      {/* ═══ صورة المتجر ═══ */}
+      <div className="px-3 py-4 max-w-xl mx-auto">
+        <div className="rounded-2xl overflow-hidden shadow-lg border border-gray-200">
+          <img src={storeImg} alt="متجر جداف" className="w-full object-cover" style={{ maxHeight: 200 }} />
+          <div className="bg-gray-900 text-white px-4 py-3 flex items-center justify-between">
+            <div>
+              <p className="font-black text-sm">🏪 متجر جداف — الأنبار، الرمادي</p>
+              <p className="text-gray-400 text-xs mt-0.5">نهاية شارع 20 · يومياً 10 صباحاً–11 مساءً</p>
+            </div>
+            <a href="tel:07886333998"
+              className="bg-yellow-400 text-black text-xs font-black px-3 py-2 rounded-xl whitespace-nowrap">
+              📞 اتصل
+            </a>
           </div>
         </div>
       </div>
