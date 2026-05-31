@@ -60,6 +60,7 @@ import BambooSocksPage from "@/pages/bamboo-socks";
 import JadafPage from "@/pages/jadaf";
 import JadafProductDetail from "@/pages/jadaf-product-detail";
 import JadafCart from "@/pages/jadaf-cart";
+import SunglassesLanding from "@/pages/sunglasses-landing";
 import ShopPage from "@/pages/shop";
 import SupplierPage from "@/pages/supplier";
 import CampaignLinks from "@/pages/admin/campaign-links";
@@ -93,7 +94,7 @@ function App() {
   const isAdminRoute = location.startsWith('/admin');
   const isBuyRoute = location.startsWith('/buy');
   const isWarrantyRoute = location.startsWith('/warranty');
-  const isBundleRoute = location.startsWith('/bundle') || location === '/bamboo' || location === '/bamboo-p' || location === '/mamame' || location === '/shoes-easy' || location === '/watches-easy' || location === '/watches-b' || location === '/shoes-b' || location === '/zt' || location === '/zt2' || location === '/naturalwalker' || location === '/naturalwalker2' || location === '/knee-pad' || location === '/knee-pad-q' || location === '/knee-pad-2' || location === '/bullcaptain-belt' || location === '/poedagar-watch' || location === '/boxer-men' || location === '/socks-uae' || location === '/socks-iq' || location === '/socks-pack' || location === '/bamboo-socks' || location === '/jadaf' || location === '/jadaf/cart' || location.startsWith('/jadaf/') || location === '/supplier' || location === '/pack';
+  const isBundleRoute = location.startsWith('/bundle') || location === '/bamboo' || location === '/bamboo-p' || location === '/mamame' || location === '/shoes-easy' || location === '/watches-easy' || location === '/watches-b' || location === '/shoes-b' || location === '/zt' || location === '/zt2' || location === '/naturalwalker' || location === '/naturalwalker2' || location === '/knee-pad' || location === '/knee-pad-q' || location === '/knee-pad-2' || location === '/bullcaptain-belt' || location === '/poedagar-watch' || location === '/boxer-men' || location === '/socks-uae' || location === '/socks-iq' || location === '/socks-pack' || location === '/bamboo-socks' || location === '/jadaf' || location === '/jadaf/cart' || location.startsWith('/jadaf/') || location === '/supplier' || location === '/pack' || location === '/sunglasses';
   const isShopRoute = location === '/shop';
   
   // استعادة التمرير إلى الأعلى عند تغيير الصفحة (حل مشكلة عدم فتح المنتج من الأعلى)
@@ -147,6 +148,7 @@ function App() {
                   <Route path="/jadaf" component={JadafPage} />
                   <Route path="/jadaf/cart" component={JadafCart} />
                   <Route path="/jadaf/product/:id" component={JadafProductDetail} />
+                  <Route path="/sunglasses" component={SunglassesLanding} />
                   <Route path="/supplier" component={SupplierPage} />
                 </Switch>
               ) : isBuyRoute ? (
