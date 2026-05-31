@@ -10,6 +10,7 @@ import { CheckCircle, MapPin, Clock, Shield, Package, ShoppingBag, X, Check } fr
 import police1  from "@assets/file_00000000d90472469a5065236f82de67_1780222009509.png";
 import police2  from "@assets/file_0000000065b07246908f429c555c5ffa_1780222009532.png";
 import dior1    from "@assets/file_00000000861071f4824c097dee72b7de_1780222009544.png";
+import dior2    from "@assets/file_000000006a487246a4066f7f81f2b2fb_1780223994295.png";
 import maybach1 from "@assets/file_00000000ffd071f4a9f80642007ab855_1780222009564.png";
 import maybach2 from "@assets/file_0000000010bc71f49c4e670775d132fe_1780222009579.png";
 import maybach3 from "@assets/file_000000007c54720a8b4597275c69dc3b_1780222009595.png";
@@ -52,6 +53,7 @@ const PRODUCTS: Product[] = [
   { id: "p1",  brand: "POLICE",  brandColor: "#C0C0C0", label: "Police — أسود داكن",        src: police1  },
   { id: "p2",  brand: "POLICE",  brandColor: "#C0C0C0", label: "Police — بني كهرماني",      src: police2  },
   { id: "d1",  brand: "DIOR",    brandColor: "#C9A84C", label: "Dior — كلاسيك أسود",        src: dior1    },
+  { id: "d2",  brand: "DIOR",    brandColor: "#C9A84C", label: "Dior — رمادي دخاني",         src: dior2    },
   { id: "m1",  brand: "MAYBACH", brandColor: "#C8960C", label: "Maybach — مربع أسود",        src: maybach1 },
   { id: "m2",  brand: "MAYBACH", brandColor: "#C8960C", label: "Maybach — رمادي بلا إطار",   src: maybach2 },
   { id: "m3",  brand: "MAYBACH", brandColor: "#C8960C", label: "Maybach — فضي دائري",        src: maybach3 },
