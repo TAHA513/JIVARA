@@ -5,7 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import { validateIraqiPhone, IRAQ_PROVINCES } from "@/lib/form-validation";
 import { apiRequest } from "@/lib/queryClient";
 import { pixelViewContent, pixelInitiateCheckout, pixelPurchase } from "@/lib/pixel";
-import { CheckCircle, MapPin, Clock, Shield, Package, ShoppingBag, X, Check } from "lucide-react";
+import { CheckCircle, MapPin, Clock, Shield, Package, ShoppingBag, X, Check, ChevronLeft, ChevronRight } from "lucide-react";
 
 import police1  from "@assets/file_00000000d90472469a5065236f82de67_1780222009509.png";
 import police2  from "@assets/file_0000000065b07246908f429c555c5ffa_1780222009532.png";
@@ -97,10 +97,82 @@ function ImageModal({ product, onClose }: { product: Product; onClose: () => voi
   );
 }
 
+function GalleryCarousel({ products, onZoom }: { products: Product[]; onZoom: (p: Product) => void }) {
+  const [idx, setIdx] = useState(0);
+  const trackRef = useRef<HTMLDivElement>(null);
+
+  const prev = () => setIdx(i => Math.max(0, i - 1));
+  const next = () => setIdx(i => Math.min(products.length - 1, i + 1));
+
+  useEffect(() => {
+    if (trackRef.current) {
+      const item = trackRef.current.children[idx] as HTMLElement;
+      item?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+    }
+  }, [idx]);
+
+  const product = products[idx];
+
+  return (
+    <div className="bg-gray-50 pt-5 pb-4">
+      <div className="max-w-xl mx-auto px-3">
+        <div className="flex items-center gap-2 mb-3">
+          <div className="flex-1 h-px bg-gray-200" />
+          <p className="text-sm font-black text-gray-700 whitespace-nowrap">📸 معرض النظارات</p>
+          <div className="flex-1 h-px bg-gray-200" />
+        </div>
+
+        {/* الصورة الرئيسية */}
+        <div className="relative bg-white rounded-2xl border border-gray-200 overflow-hidden mb-3 cursor-zoom-in"
+          onClick={() => onZoom(product)}>
+          <div className="absolute top-0 inset-x-0 h-1.5" style={{ background: product.brandColor }} />
+          <img src={product.src} alt={product.label} className="w-full object-contain"
+            style={{ height: 300, background: "#fff" }} />
+          {/* أسهم */}
+          <button onClick={e => { e.stopPropagation(); prev(); }}
+            disabled={idx === 0}
+            className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 disabled:bg-black/20 text-white rounded-full w-10 h-10 flex items-center justify-center transition-all">
+            <ChevronRight className="w-5 h-5" />
+          </button>
+          <button onClick={e => { e.stopPropagation(); next(); }}
+            disabled={idx === products.length - 1}
+            className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 disabled:bg-black/20 text-white rounded-full w-10 h-10 flex items-center justify-center transition-all">
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+          {/* عداد */}
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-black/60 text-white text-xs px-3 py-1 rounded-full">
+            {idx + 1} / {products.length}
+          </div>
+        </div>
+
+        {/* اسم المنتج */}
+        <div className="text-center mb-3">
+          <span className="inline-block px-3 py-0.5 rounded-full text-xs font-black text-black mr-1"
+            style={{ background: product.brandColor }}>{product.brand}</span>
+          <span className="text-sm text-gray-600">{product.label}</span>
+        </div>
+
+        {/* شريط الصور المصغّرة */}
+        <div ref={trackRef} className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+          {products.map((p, i) => (
+            <button key={p.id} onClick={() => setIdx(i)}
+              className={`flex-shrink-0 rounded-xl overflow-hidden border-2 transition-all ${
+                i === idx ? "border-gray-900 shadow-md scale-105" : "border-gray-200 opacity-60"
+              }`}
+              style={{ width: 60, height: 60 }}>
+              <img src={p.src} alt={p.label} className="w-full h-full object-contain bg-white" />
+            </button>
+          ))}
+        </div>
+        <p className="text-gray-400 text-xs text-center mt-2">اضغط على الصورة للتكبير · مرّر الصور المصغّرة</p>
+      </div>
+    </div>
+  );
+}
+
 export default function SunglassesLanding() {
   const { toast } = useToast();
   const [selected, setSelected] = useState<string[]>([]);
-  const [filter, setFilter] = useState("الكل");
   const [modal, setModal] = useState<Product | null>(null);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -112,7 +184,6 @@ export default function SunglassesLanding() {
   const progressRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const formRef = useRef<HTMLDivElement>(null);
 
-  const filteredProducts = filter === "الكل" ? PRODUCTS : PRODUCTS.filter(p => p.brand === filter);
   const selectedProducts = PRODUCTS.filter(p => selected.includes(p.id));
   const total = PRICE_IQD * Math.max(selected.length, 1);
   const isFormReady = selected.length > 0 && name.trim() && phone.trim() && city.trim() && address.trim();
@@ -321,38 +392,8 @@ export default function SunglassesLanding() {
         </div>
       </div>
 
-      {/* ═══ قسم المعرض — كل الصور للمشاهدة ═══ */}
-      <div className="bg-gray-50 px-3 pt-5 pb-4">
-        <div className="max-w-xl mx-auto">
-          <div className="flex items-center gap-2 mb-3">
-            <div className="flex-1 h-px bg-gray-200" />
-            <p className="text-sm font-black text-gray-700 whitespace-nowrap">📸 معرض النظارات</p>
-            <div className="flex-1 h-px bg-gray-200" />
-          </div>
-          <div className="grid grid-cols-3 gap-2">
-            {PRODUCTS.map(product => (
-              <div
-                key={product.id}
-                className="relative rounded-xl overflow-hidden border border-gray-200 bg-white cursor-zoom-in"
-                onClick={() => setModal(product)}
-              >
-                <div className="absolute top-0 inset-x-0 h-0.5" style={{ background: product.brandColor }} />
-                <img
-                  src={product.src}
-                  alt={product.label}
-                  className="w-full bg-white"
-                  style={{ aspectRatio: "1/1", objectFit: "contain" }}
-                />
-                <div className="px-1.5 py-1.5 bg-white">
-                  <p className="text-[10px] font-black leading-tight" style={{ color: product.brandColor }}>{product.brand}</p>
-                  <p className="text-[10px] text-gray-500 leading-tight truncate">{product.label}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-          <p className="text-gray-400 text-xs text-center mt-2">اضغط على أي صورة للتكبير 🔍</p>
-        </div>
-      </div>
+      {/* ═══ كاروسيل المعرض — سهم يمين ويسار ═══ */}
+      <GalleryCarousel products={PRODUCTS} onZoom={setModal} />
 
       {/* فاصل */}
       <div className="bg-gray-900 text-white text-center py-4 px-4">
