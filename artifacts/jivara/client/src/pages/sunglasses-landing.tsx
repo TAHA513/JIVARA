@@ -1,4 +1,11 @@
-import { useState } from "react";
+import { safeStorage } from '@/lib/safe-storage';
+import { useState, useEffect, useRef } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { useToast } from "@/hooks/use-toast";
+import { validateIraqiPhone, IRAQ_PROVINCES } from "@/lib/form-validation";
+import { apiRequest } from "@/lib/queryClient";
+import { pixelViewContent, pixelInitiateCheckout, pixelPurchase } from "@/lib/pixel";
+import { CheckCircle, ChevronLeft, ChevronRight, MapPin, Clock, Shield, Package } from "lucide-react";
 
 // ── صور Police ──
 import police1 from "@assets/file_00000000d90472469a5065236f82de67_1780222009509.png";
@@ -24,43 +31,39 @@ import rb11 from "@assets/file_00000000d3e4724686218e217cc1e655_1780222009755.pn
 import rb12 from "@assets/file_000000003d147246a5e06eea349d1d79_1780222009769.png";
 import rb13 from "@assets/file_00000000b33c7246ab4ec3f1ca5b2238_1780222009782.png";
 
+const PRODUCT_ID = 0;
+const PRICE_IQD = 45000;
+const PRICE_USD = 30;
 const WA_NUMBER = "9647886333998";
 const SALES_TEL = "07886333998";
-const MAINT_TEL  = "07886333939";
-const PRICE = "45,000";
 
-type Brand = {
-  id: string;
-  name: string;
-  nameAr: string;
-  tagline: string;
-  accent: string;
-  bg: string;
-  accessories: string[];
-  description: string;
-  images: { src: string; label: string }[];
-};
+const TICKER_ITEMS = [
+  "🕶️ نظارات فاخرة أصلية — Police · Dior · Maybach · Ray-Ban",
+  "🚚 توصيل مجاني لكل العراق خلال ٤٨ ساعة",
+  "💰 السعر 45,000 د.ع للقطعة الواحدة",
+  "💎 ماركات عالمية أصلية مع كامل ملحقاتها",
+  "📦 الدفع عند الاستلام — لا تدفع قبل ما تشوف",
+  "📍 المتجر: الرمادي — نهاية شارع 20 | جداف",
+];
 
-const brands: Brand[] = [
+const BRANDS = [
   {
     id: "police",
     name: "POLICE",
     nameAr: "بولِيس",
     tagline: "Style is an Attitude",
     accent: "#C0C0C0",
-    bg: "linear-gradient(135deg,#0a0a0a 0%,#1a1a1a 100%)",
-    description:
-      "نظارة بولِيس الأصلية — تصميم أفياتور عصري بلا إطار جانبي يمنح إطلالة جريئة وواثقة. العدسات من مستوى UV400 تحمي عيونك بالكامل من الأشعة فوق البنفسجية. إطار معدني خفيف الوزن يناسب كل أشكال الوجوه.",
-    accessories: [
-      "علبة جلد ناعمة بنقشة POLICE",
-      "كيس هدايا ورقي فاخر بلون أسود",
-      "صندوق تعبئة أسود أنيق",
-      "منديل تنظيف مخصص",
-    ],
     images: [
       { src: police1, label: "Police أسود — عدسات داكنة" },
       { src: police2, label: "Police بني — عدسات كهرمانية" },
     ],
+    accessories: [
+      "علبة جلد ناعمة بنقشة POLICE",
+      "كيس هدايا ورقي فاخر أسود",
+      "صندوق تعبئة أسود أنيق",
+      "منديل تنظيف مخصص",
+    ],
+    description: "نظارة بولِيس الأصلية — تصميم أفياتور عصري بلا إطار جانبي يمنح إطلالة جريئة وواثقة. العدسات UV400 تحمي عيونك بالكامل. إطار معدني خفيف يناسب كل أشكال الوجوه.",
   },
   {
     id: "dior",
@@ -68,17 +71,17 @@ const brands: Brand[] = [
     nameAr: "دِيور",
     tagline: "The Art of Luxury",
     accent: "#C9A84C",
-    bg: "linear-gradient(135deg,#0d0c0b 0%,#1e1c18 100%)",
-    description:
-      "نظارة دِيور الأصلية — إطار أسيتات ضخم بخطوط مستقيمة تُجسّد الأناقة الباريسية الكلاسيكية. التشطيب الذهبي المعدني على الجوانب يضيف لمسة راقية. العدسات الرمادية الداكنة تُعطي تباينًا مثاليًا في الضوء.",
+    images: [
+      { src: dior1, label: "Dior — إطار أسود كلاسيك" },
+    ],
     accessories: [
       "علبة بيضاء بنقشة Dior كلاسيكية",
       "حقيبة هدايا كريمية أنيقة",
-      "حافظة لينة بلون رمادي",
+      "حافظة لينة رمادية",
       "منديل دِيور فاخر",
       "صندوق تعبئة خاص",
     ],
-    images: [{ src: dior1, label: "Dior — إطار أسود كلاسيك" }],
+    description: "نظارة دِيور الأصلية — إطار أسيتات ضخم بخطوط مستقيمة يُجسّد الأناقة الباريسية الكلاسيكية. التشطيب الذهبي المعدني على الجوانب يضيف لمسة راقية.",
   },
   {
     id: "maybach",
@@ -86,9 +89,11 @@ const brands: Brand[] = [
     nameAr: "مَيباخ",
     tagline: "Engineered for Perfection",
     accent: "#C8960C",
-    bg: "linear-gradient(135deg,#080808 0%,#1a1500 100%)",
-    description:
-      "نظارة مَيباخ — تحفة هندسية مستوحاة من روح السيارات الفارهة. الإطار المعدني الثقيل عالي الجودة مع تفاصيل ذهبية مُحكمة. العدسات شبه بلا حافة تعطي مظهر الثقة والتميّز في كل مناسبة.",
+    images: [
+      { src: maybach1, label: "Maybach أسود — مربع نصف إطار" },
+      { src: maybach2, label: "Maybach رمادي — بدون إطار جانبي" },
+      { src: maybach3, label: "Maybach فضي — شكل دائري" },
+    ],
     accessories: [
       "علبة جلد أسود فاخرة بزر ذهبي Maybach",
       "كيس هدايا أسود بشعار ذهبي",
@@ -96,30 +101,14 @@ const brands: Brand[] = [
       "بطاقة هوية المنتج",
       "منديل تنظيف أسود ناعم",
     ],
-    images: [
-      { src: maybach1, label: "Maybach أسود — مربع نصف إطار" },
-      { src: maybach2, label: "Maybach رمادي — بدون إطار جانبي" },
-      { src: maybach3, label: "Maybach فضي — شكل دائري" },
-    ],
+    description: "نظارة مَيباخ — تحفة هندسية مستوحاة من روح السيارات الفارهة. الإطار المعدني الثقيل عالي الجودة مع تفاصيل ذهبية مُحكمة. العدسات شبه بلا حافة تُعطي مظهر الثقة في كل مناسبة.",
   },
   {
     id: "rayban",
     name: "RAY-BAN",
-    nameAr: "ري-بان",
+    nameAr: "ري-بان × فيراري",
     tagline: "Never Hide — Since 1937",
     accent: "#D4190A",
-    bg: "linear-gradient(135deg,#0a0505 0%,#1a0808 100%)",
-    description:
-      "ري-بان × فيراري — تعاون حصري بين أيقونة النظارات الأمريكية وأسطورة السباقات الإيطالية. تصاميم Aviator وClubmaster الخالدة بلمسات Ferrari المتميزة؛ شعار الحصان المُثبّت على الذراع وبطاقة أصالة من Luxottica. عدسات G-15 الأصيلة تُقلّل الوهج مع حفاظها على الألوان الحقيقية.",
-    accessories: [
-      "علبة جلد Ferrari بخياطة حمراء مميّزة",
-      "شعار Ferrari على كلا الجانبين",
-      "صندوق Ray-Ban الأسود الفاخر",
-      "شهادة أصالة Ray-Ban × Ferrari",
-      "دليل استخدام Luxottica",
-      "منديل تنظيف أسود G-15",
-      "كيس هدايا أسود بطباعة NEVER HIDE",
-    ],
     images: [
       { src: rb1,  label: "RB × Ferrari — ذهبي/أسود Aviator" },
       { src: rb2,  label: "RB × Ferrari — أسود كامل" },
@@ -135,149 +124,109 @@ const brands: Brand[] = [
       { src: rb12, label: "RB × Ferrari — أسود Pilot كبير" },
       { src: rb13, label: "RB × Ferrari — ذهبي بني Pilot" },
     ],
+    accessories: [
+      "علبة جلد Ferrari بخياطة حمراء مميّزة",
+      "شعار Ferrari على كلا الجانبين",
+      "صندوق Ray-Ban الأسود الفاخر",
+      "شهادة أصالة Ray-Ban × Ferrari",
+      "منديل تنظيف أسود G-15",
+      "كيس هدايا NEVER HIDE",
+    ],
+    description: "ري-بان × فيراري — تعاون حصري بين أيقونة النظارات الأمريكية وأسطورة السباقات الإيطالية. تصاميم Aviator وClubmaster الخالدة بلمسات Ferrari المتميزة. عدسات G-15 الأصيلة.",
   },
 ];
 
-function ImageModal({ src, label, onClose }: { src: string; label: string; onClose: () => void }) {
+function BrandCarousel({ brand }: { brand: typeof BRANDS[0] }) {
+  const [active, setActive] = useState(0);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const resetTimer = () => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    timerRef.current = setInterval(() => {
+      setActive(p => (p + 1) % brand.images.length);
+    }, 3500);
+  };
+
+  useEffect(() => {
+    resetTimer();
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+  }, []);
+
+  const prev = () => { setActive(p => (p - 1 + brand.images.length) % brand.images.length); resetTimer(); };
+  const next = () => { setActive(p => (p + 1) % brand.images.length); resetTimer(); };
+
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ background: "rgba(0,0,0,0.92)" }}
-      onClick={onClose}
-    >
-      <div className="relative max-w-2xl w-full" onClick={e => e.stopPropagation()}>
-        <button
-          onClick={onClose}
-          className="absolute -top-10 left-0 text-white text-3xl font-bold"
-        >×</button>
-        <img src={src} alt={label} className="w-full rounded-2xl shadow-2xl" />
-        <p className="text-center text-white mt-3 text-sm opacity-75">{label}</p>
+    <section id={brand.id} className="border-b border-gray-100">
+      {/* رأس القسم */}
+      <div className="bg-gray-900 text-white px-4 py-3 text-center">
+        <p className="text-xs tracking-widest mb-0.5" style={{ color: brand.accent }}>{brand.tagline}</p>
+        <h2 className="text-2xl font-black tracking-widest"
+          style={{
+            background: `linear-gradient(90deg,${brand.accent},#fff,${brand.accent})`,
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+          }}>
+          {brand.name}
+        </h2>
+        <p className="text-xs text-white/60 mt-0.5">{brand.nameAr}</p>
       </div>
-    </div>
-  );
-}
 
-function BrandSection({ brand }: { brand: Brand }) {
-  const [modal, setModal] = useState<{ src: string; label: string } | null>(null);
-
-  const waText = encodeURIComponent(
-    `مرحبا، أريد الاستفسار عن نظارة ${brand.nameAr} — السعر ${PRICE} د.ع`
-  );
-
-  return (
-    <section
-      id={brand.id}
-      className="py-16 px-4"
-      style={{ background: brand.bg }}
-    >
-      {modal && <ImageModal src={modal.src} label={modal.label} onClose={() => setModal(null)} />}
-
-      <div className="max-w-5xl mx-auto">
-        {/* رأس الفئة */}
-        <div className="text-center mb-10">
-          <p className="text-xs tracking-[0.4em] mb-1" style={{ color: brand.accent }}>
-            {brand.tagline}
-          </p>
-          <h2
-            className="text-5xl md:text-6xl font-black tracking-widest mb-1"
-            style={{
-              fontFamily: "sans-serif",
-              background: `linear-gradient(90deg,${brand.accent},#fff,${brand.accent})`,
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-            }}
-          >
-            {brand.name}
-          </h2>
-          <p className="text-xl text-white/60" style={{ fontFamily: "Arial, sans-serif" }}>
-            {brand.nameAr}
-          </p>
-        </div>
-
-        {/* شبكة الصور */}
-        <div className={`grid gap-4 mb-10 ${brand.images.length === 1 ? "grid-cols-1 max-w-md mx-auto" : brand.images.length === 2 ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"}`}>
-          {brand.images.map((img, i) => (
-            <div
-              key={i}
-              className="relative group cursor-zoom-in rounded-2xl overflow-hidden"
-              style={{ border: `1px solid ${brand.accent}22` }}
-              onClick={() => setModal(img)}
-            >
-              <img
-                src={img.src}
-                alt={img.label}
-                className="w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                style={{ aspectRatio: "1/1" }}
-              />
-              <div
-                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-3"
-                style={{ background: "linear-gradient(to top,rgba(0,0,0,0.7) 0%,transparent 60%)" }}
-              >
-                <p className="text-white text-xs">{img.label}</p>
-              </div>
+      {/* كاروسيل الصور */}
+      <div className="relative bg-white overflow-hidden" style={{ height: 340 }}>
+        <img
+          src={brand.images[active].src}
+          alt={brand.images[active].label}
+          className="w-full h-full object-contain transition-all duration-500"
+        />
+        {brand.images.length > 1 && (
+          <>
+            <button onClick={prev}
+              className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 text-white rounded-full w-9 h-9 flex items-center justify-center">
+              <ChevronRight className="w-5 h-5" />
+            </button>
+            <button onClick={next}
+              className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 text-white rounded-full w-9 h-9 flex items-center justify-center">
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+              {brand.images.map((_, i) => (
+                <button key={i} onClick={() => { setActive(i); resetTimer(); }}
+                  className={`rounded-full transition-all ${i === active ? 'w-5 h-2 bg-black' : 'w-2 h-2 bg-black/30'}`}
+                />
+              ))}
             </div>
+          </>
+        )}
+      </div>
+
+      {/* صور مصغّرة */}
+      {brand.images.length > 1 && (
+        <div className="flex gap-2 overflow-x-auto px-4 py-3 bg-gray-50">
+          {brand.images.map((img, i) => (
+            <button key={i} onClick={() => { setActive(i); resetTimer(); }}
+              className={`flex-shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 transition-all ${i === active ? 'border-gray-900' : 'border-gray-200 opacity-60'}`}>
+              <img src={img.src} alt="" className="w-full h-full object-contain bg-white" />
+            </button>
           ))}
         </div>
+      )}
 
-        {/* الوصف + الملحقات */}
-        <div className="grid md:grid-cols-2 gap-8 mb-10">
-          {/* وصف المنتج */}
-          <div
-            className="rounded-2xl p-6"
-            style={{ background: "rgba(255,255,255,0.04)", border: `1px solid ${brand.accent}33` }}
-          >
-            <h3 className="text-lg font-bold mb-3" style={{ color: brand.accent }}>
-              📝 وصف المنتج
-            </h3>
-            <p
-              className="text-white/80 leading-relaxed text-sm"
-              style={{ fontFamily: "Arial, sans-serif", direction: "rtl" }}
-            >
-              {brand.description}
-            </p>
-          </div>
-
-          {/* ما يأتي مع النظارة */}
-          <div
-            className="rounded-2xl p-6"
-            style={{ background: "rgba(255,255,255,0.04)", border: `1px solid ${brand.accent}33` }}
-          >
-            <h3 className="text-lg font-bold mb-3" style={{ color: brand.accent }}>
-              🎁 محتويات العبوة
-            </h3>
-            <ul className="space-y-2" style={{ fontFamily: "Arial, sans-serif", direction: "rtl" }}>
-              {brand.accessories.map((acc, i) => (
-                <li key={i} className="flex items-start gap-2 text-white/80 text-sm">
-                  <span style={{ color: brand.accent }} className="mt-0.5 shrink-0">✓</span>
-                  {acc}
-                </li>
-              ))}
-            </ul>
-          </div>
+      {/* وصف + ملحقات */}
+      <div className="px-4 py-4 max-w-xl mx-auto">
+        <div className="bg-gray-50 border border-gray-200 rounded-2xl p-4 mb-3">
+          <p className="font-bold text-sm mb-2 text-gray-900">📝 وصف المنتج</p>
+          <p className="text-gray-600 text-sm leading-relaxed">{brand.description}</p>
         </div>
-
-        {/* سعر + زر */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 rounded-2xl p-6"
-          style={{ background: `${brand.accent}11`, border: `1px solid ${brand.accent}44` }}
-        >
-          <div style={{ direction: "rtl" }}>
-            <p className="text-white/50 text-xs mb-1">سعر القطعة الواحدة</p>
-            <p className="text-3xl font-black" style={{ color: brand.accent }}>
-              {PRICE} <span className="text-lg font-normal">د.ع</span>
-            </p>
-          </div>
-          <a
-            href={`https://wa.me/${WA_NUMBER}?text=${waText}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 px-8 py-3 rounded-xl font-bold text-black text-base transition-transform hover:scale-105 active:scale-95"
-            style={{ background: `linear-gradient(90deg,${brand.accent},#fff8,${brand.accent})`, minWidth: 180, justifyContent: "center" }}
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-            </svg>
-            اطلب الآن
-          </a>
+        <div className="bg-gray-900 text-white rounded-2xl p-4">
+          <p className="font-bold text-sm mb-2" style={{ color: brand.accent }}>🎁 محتويات العبوة</p>
+          <ul className="space-y-1.5">
+            {brand.accessories.map((acc, i) => (
+              <li key={i} className="flex items-start gap-2 text-white/80 text-sm">
+                <span style={{ color: brand.accent }} className="mt-0.5 shrink-0">✓</span>
+                {acc}
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </section>
@@ -285,151 +234,378 @@ function BrandSection({ brand }: { brand: Brand }) {
 }
 
 export default function SunglassesLanding() {
-  const waGeneral = encodeURIComponent(`مرحبا، أريد الاستفسار عن النظارات الفاخرة — السعر ${PRICE} د.ع`);
+  const { toast } = useToast();
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [city, setCity] = useState("");
+  const [address, setAddress] = useState("");
+  const [brand, setBrand] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+  const [orderSuccess, setOrderSuccess] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const progressRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const isFormReady = name.trim() && phone.trim() && city.trim() && address.trim() && brand.trim();
+
+  const getMissingFields = () => {
+    const missing: string[] = [];
+    if (!name.trim()) missing.push("الاسم الكامل");
+    const phoneErr = validateIraqiPhone(phone);
+    if (phoneErr) missing.push(phoneErr);
+    if (!city.trim()) missing.push("المحافظة");
+    if (!address.trim()) missing.push("العنوان");
+    if (!brand.trim()) missing.push("نوع النظارة");
+    return missing;
+  };
+
+  useEffect(() => {
+    pixelViewContent({ contentName: "Jadaf Sunglasses", contentIds: ["sunglasses"], value: PRICE_USD });
+  }, []);
+
+  const startProgress = () => {
+    setProgress(0);
+    let val = 0;
+    progressRef.current = setInterval(() => {
+      val += Math.random() * 15;
+      if (val >= 90) { val = 90; if (progressRef.current) clearInterval(progressRef.current); }
+      setProgress(Math.round(val));
+    }, 200);
+  };
+
+  const finishProgress = () => {
+    if (progressRef.current) clearInterval(progressRef.current);
+    setProgress(100);
+  };
+
+  const getFbclid = () => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const fbclid = params.get("fbclid") || safeStorage.getItem("fbclid") || "";
+      if (params.get("fbclid")) safeStorage.setItem("fbclid", params.get("fbclid")!);
+      return fbclid;
+    } catch { return ""; }
+  };
+
+  const orderMutation = useMutation({
+    mutationFn: async () => {
+      startProgress();
+      pixelInitiateCheckout({ contentIds: ["sunglasses"], value: PRICE_USD, numItems: 1 });
+      const sessionId = safeStorage.getItem("sg-session") || ("sg-" + Math.random().toString(36).substring(7));
+      safeStorage.setItem("sg-session", sessionId);
+      return await apiRequest("POST", "/api/orders", {
+        sessionId,
+        customerName: name,
+        customerPhone: phone,
+        shippingAddress: address,
+        city,
+        notes: `مصدر: Sunglasses | الماركة: ${brand}`,
+        totalAmount: String(PRICE_IQD),
+        landingPage: "/sunglasses",
+        fbclid: getFbclid(),
+        utmSource: new URLSearchParams(window.location.search).get("utm_source") || "facebook",
+        utmCampaign: new URLSearchParams(window.location.search).get("utm_campaign") || "",
+        items: [{
+          productId: PRODUCT_ID || 1,
+          quantity: 1,
+          price: String(PRICE_IQD),
+          name: `Jadaf Sunglasses — ${brand}`,
+          nameAr: `نظارة ${brand} فاخرة`,
+        }],
+      });
+    },
+    onSuccess: async (data: any) => {
+      finishProgress();
+      const __r: any = (data && typeof (data as any).json === "function") ? await (data as any).json().catch(() => ({})) : data;
+      const orderId = __r?.id || __r?.order?.id || `sg-${Date.now()}`;
+      pixelPurchase({ orderId, contentIds: ["sunglasses"], value: PRICE_USD, numItems: 1 });
+      setTimeout(() => { setOrderSuccess(true); window.scrollTo({ top: 0, behavior: "smooth" }); }, 400);
+    },
+    onError: () => {
+      if (progressRef.current) clearInterval(progressRef.current);
+      setProgress(0);
+      toast({ title: "حدث خطأ", description: "يرجى المحاولة مرة أخرى", variant: "destructive" });
+    },
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitted(true);
+    const missing = getMissingFields();
+    if (missing.length > 0) {
+      toast({ title: "يرجى إكمال البيانات الناقصة", description: `ينقصك: ${missing.join(" — ")}`, variant: "destructive" });
+      return;
+    }
+    orderMutation.mutate();
+  };
+
+  if (orderSuccess) {
+    return (
+      <div dir="rtl" className="min-h-screen bg-gradient-to-b from-green-50 to-white flex items-center justify-center px-4">
+        <div className="text-center max-w-md">
+          <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <CheckCircle className="w-14 h-14 text-green-500" />
+          </div>
+          <h1 className="text-3xl font-bold text-green-700 mb-3">تم استلام طلبك</h1>
+          <p className="text-gray-600 text-lg mb-6">سيتصل بك فريقنا خلال ساعات قليلة لتأكيد الطلب والشحن</p>
+          <div className="bg-green-50 border border-green-200 rounded-2xl p-5 mb-6 text-right">
+            <div className="flex items-center gap-2 text-green-700 font-bold mb-2">
+              <Package className="w-5 h-5" />
+              <span>تفاصيل طلبك</span>
+            </div>
+            <p className="text-gray-700">الاسم: <strong>{name}</strong></p>
+            <p className="text-gray-700">الهاتف: <strong>{phone}</strong></p>
+            <p className="text-gray-700">النظارة: <strong>{brand}</strong></p>
+            <p className="text-gray-700">الإجمالي: <strong>{PRICE_IQD.toLocaleString()} د.ع</strong></p>
+            <p className="text-green-600 mt-2 font-semibold">الدفع عند الاستلام</p>
+          </div>
+          <a
+            href={`https://wa.me/${WA_NUMBER}?text=مرحبا، أريد الاستفسار عن طلبي — ${name}`}
+            className="inline-block bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-8 rounded-full transition-all"
+            target="_blank" rel="noreferrer"
+          >
+            تواصل معنا على واتساب
+          </a>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div dir="rtl" style={{ fontFamily: "Arial, Tahoma, sans-serif", background: "#080808", color: "#fff", minHeight: "100vh" }}>
+    <div dir="rtl" style={{ fontFamily: "Arial, Tahoma, sans-serif" }} className="min-h-screen bg-white">
 
-      {/* ── شريط علوي ── */}
-      <div className="sticky top-0 z-40 flex items-center justify-between px-4 py-3"
-        style={{ background: "rgba(8,8,8,0.95)", borderBottom: "1px solid rgba(212,175,55,0.2)", backdropFilter: "blur(12px)" }}>
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-black"
-            style={{ background: "linear-gradient(135deg,#C8960C,#F0D060)", color: "#000" }}>
-            JD
+      {/* شريط متحرك */}
+      <div className="bg-gray-900 text-white py-2 overflow-hidden whitespace-nowrap">
+        <div className="inline-block" style={{ animation: "marquee-rtl 35s linear infinite" }}>
+          {[...TICKER_ITEMS, ...TICKER_ITEMS].map((item, i) => (
+            <span key={i} className="mx-8 text-sm font-bold">{item}</span>
+          ))}
+        </div>
+        <style>{`
+          @keyframes marquee-rtl { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+        `}</style>
+      </div>
+
+      {/* هيدر */}
+      <header className="bg-black text-white py-3 px-4">
+        <div className="max-w-xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-xl font-black tracking-wide">🕶️ نظارات فاخرة</span>
           </div>
-          <span className="font-bold tracking-wider text-sm" style={{ color: "#D4AF37" }}>جداف</span>
+          <div className="flex items-center gap-1 text-xs text-gray-300">
+            <MapPin className="w-3 h-3" />
+            <span>الرمادي — شارع 20</span>
+          </div>
         </div>
-        <a href={`tel:${SALES_TEL}`}
-          className="flex items-center gap-2 text-xs px-3 py-1.5 rounded-full"
-          style={{ background: "rgba(212,175,55,0.1)", border: "1px solid rgba(212,175,55,0.3)", color: "#D4AF37" }}>
-          📞 {SALES_TEL}
-        </a>
-      </div>
+      </header>
 
-      {/* ── هيرو ── */}
-      <div className="relative overflow-hidden py-20 px-4 text-center"
-        style={{ background: "linear-gradient(180deg,#0d0b05 0%,#080808 100%)" }}>
-        {/* خلفية ذهبية ضبابية */}
-        <div className="absolute inset-0 pointer-events-none"
-          style={{ background: "radial-gradient(ellipse 60% 50% at 50% 30%,rgba(212,175,55,0.12) 0%,transparent 70%)" }} />
-
-        <p className="text-xs tracking-[0.5em] mb-4" style={{ color: "#C8960C" }}>
-          جداف — الرمادي، شارع 20
-        </p>
-        <h1 className="text-4xl md:text-6xl font-black mb-4 leading-tight"
-          style={{ background: "linear-gradient(90deg,#8B6200,#F0D060,#D4AF37,#F0D060,#8B6200)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundSize: "200%", animation: "shimmer 3s linear infinite" }}>
-          نظارات فاخرة
-        </h1>
-        <p className="text-xl md:text-2xl text-white/70 mb-2">
-          Police · Dior · Maybach · Ray-Ban
-        </p>
-        <p className="text-white/40 text-sm mb-8">اختر ماركتك المفضلة من أرقى البراندات العالمية</p>
-
-        {/* شريط المميزات */}
-        <div className="flex flex-wrap justify-center gap-3 mb-10">
-          {[
-            { icon: "🚚", text: "توصيل مجاني لكل العراق" },
-            { icon: "⚡", text: "خلال ٤٨ ساعة" },
-            { icon: "💎", text: "ماركات أصلية" },
-            { icon: "💰", text: `${PRICE} د.ع للقطعة` },
-          ].map((f, i) => (
-            <div key={i} className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full"
-              style={{ background: "rgba(212,175,55,0.08)", border: "1px solid rgba(212,175,55,0.25)", color: "#D4AF37" }}>
-              <span>{f.icon}</span>
-              <span>{f.text}</span>
+      {/* هيرو */}
+      <div className="bg-gradient-to-r from-gray-900 via-gray-800 to-black text-white py-5 px-4 text-center">
+        <div className="max-w-xl mx-auto">
+          <p className="text-xs tracking-widest mb-1" style={{ color: "#D4AF37" }}>JADAF · جداف</p>
+          <h1 className="text-2xl font-black mb-1">نظارات فاخرة أصلية</h1>
+          <p className="text-gray-300 text-sm mb-3">Police · Dior · Maybach · Ray-Ban</p>
+          <div className="flex items-center justify-center gap-4 mb-4">
+            <div className="bg-yellow-500 text-black rounded-lg px-4 py-2 font-black text-lg">
+              {PRICE_IQD.toLocaleString()} د.ع
             </div>
-          ))}
-        </div>
-
-        {/* أزرار الانتقال */}
-        <div className="flex flex-wrap justify-center gap-3">
-          {brands.map(b => (
-            <a key={b.id} href={`#${b.id}`}
-              className="px-5 py-2 rounded-full text-sm font-bold transition-all hover:scale-105"
-              style={{ background: `${b.accent}22`, border: `1px solid ${b.accent}66`, color: b.accent }}>
-              {b.name}
-            </a>
-          ))}
-        </div>
-      </div>
-
-      {/* ── أقسام البراندات ── */}
-      {brands.map(b => <BrandSection key={b.id} brand={b} />)}
-
-      {/* ── قسم التوصيل والمعلومات ── */}
-      <section className="py-16 px-4" style={{ background: "linear-gradient(180deg,#0a0800 0%,#060500 100%)" }}>
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl font-black text-center mb-10"
-            style={{ color: "#D4AF37" }}>
-            🚚 خدمة التوصيل وطريقة الطلب
-          </h2>
-
-          <div className="grid sm:grid-cols-3 gap-6 mb-12">
-            {[
-              { icon: "🆓", title: "مجاني 100%", body: "التوصيل مجاني تمامًا لجميع محافظات العراق بدون أي رسوم إضافية" },
-              { icon: "⚡", title: "خلال ٤٨ ساعة", body: "يصلك طلبك في غضون ٤٨ ساعة من تأكيد الطلب لأي منطقة في العراق" },
-              { icon: "📦", title: "تعبئة فاخرة", body: "تصلك النظارة في عبوتها الأصلية الكاملة مع جميع الملحقات" },
-            ].map((c, i) => (
-              <div key={i} className="text-center p-6 rounded-2xl"
-                style={{ background: "rgba(212,175,55,0.06)", border: "1px solid rgba(212,175,55,0.2)" }}>
-                <div className="text-4xl mb-3">{c.icon}</div>
-                <h3 className="font-bold mb-2" style={{ color: "#D4AF37" }}>{c.title}</h3>
-                <p className="text-white/60 text-sm leading-relaxed">{c.body}</p>
-              </div>
+            <div className="text-gray-400 text-sm">/ للقطعة الواحدة</div>
+          </div>
+          {/* أزرار التنقل */}
+          <div className="flex flex-wrap justify-center gap-2">
+            {BRANDS.map(b => (
+              <a key={b.id} href={`#${b.id}`}
+                className="px-4 py-1.5 rounded-full text-xs font-bold transition-all hover:scale-105"
+                style={{ background: `${b.accent}22`, border: `1px solid ${b.accent}66`, color: b.accent }}>
+                {b.name}
+              </a>
             ))}
           </div>
+        </div>
+      </div>
 
-          {/* زر واتساب كبير */}
-          <div className="text-center">
-            <p className="text-white/50 text-sm mb-4">للطلب أو الاستفسار تواصل معنا الآن</p>
-            <a
-              href={`https://wa.me/${WA_NUMBER}?text=${waGeneral}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-3 px-10 py-4 rounded-2xl text-black font-black text-lg transition-transform hover:scale-105 active:scale-95"
-              style={{ background: "linear-gradient(90deg,#25D366,#128C7E)", color: "#fff" }}
+      {/* أقسام البراندات */}
+      {BRANDS.map(b => <BrandCarousel key={b.id} brand={b} />)}
+
+      {/* معلومات التوصيل */}
+      <div className="bg-gradient-to-r from-black to-gray-900 text-white px-4 py-4">
+        <div className="max-w-xl mx-auto">
+          <div className="flex items-center gap-3 mb-3">
+            <Clock className="w-5 h-5 text-yellow-400 shrink-0" />
+            <div>
+              <p className="font-bold text-sm">التوصيل خلال 48 ساعة فقط</p>
+              <p className="text-gray-400 text-xs">خلال يومين تصلك لباب البيت في كل العراق</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 mb-3">
+            <Shield className="w-5 h-5 text-green-400 shrink-0" />
+            <div>
+              <p className="font-bold text-sm">الدفع بعد الفحص والاستلام</p>
+              <p className="text-gray-400 text-xs">لا تدفع إلا بعد ما تشوف النظارة</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <MapPin className="w-5 h-5 text-blue-400 shrink-0" />
+            <div>
+              <p className="font-bold text-sm">التوصيل لكل محافظات العراق</p>
+              <p className="text-gray-400 text-xs">من الأنبار إلى بغداد وكل المحافظات</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* نموذج الطلب */}
+      <div className="px-4 py-6 max-w-xl mx-auto">
+        <div className="bg-gray-50 border border-gray-200 rounded-2xl p-5 mb-6">
+          <h2 className="text-xl font-black text-gray-900 mb-1 text-center">اطلب الآن</h2>
+          <p className="text-center text-gray-500 text-sm mb-4">الدفع عند الاستلام — التوصيل سريع</p>
+
+          <form onSubmit={handleSubmit} className="space-y-3">
+            {/* الماركة */}
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-1">نوع النظارة *</label>
+              <select
+                value={brand}
+                onChange={e => setBrand(e.target.value)}
+                className={`w-full border-2 rounded-xl px-4 py-3 text-gray-900 focus:outline-none transition-all bg-white ${
+                  submitted && !brand.trim() ? "border-red-400 bg-red-50" : brand.trim() ? "border-green-400" : "border-gray-300"
+                }`}
+              >
+                <option value="">اختر الماركة</option>
+                {BRANDS.map(b => (
+                  <option key={b.id} value={b.nameAr}>{b.name} — {b.nameAr}</option>
+                ))}
+              </select>
+              {submitted && !brand.trim() && <p className="text-red-500 text-xs mt-1 font-medium">يرجى اختيار الماركة</p>}
+            </div>
+
+            {/* الاسم */}
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-1">الاسم الكامل</label>
+              <input
+                type="text"
+                value={name}
+                onChange={e => setName(e.target.value)}
+                placeholder="أدخل اسمك الكامل"
+                className={`w-full border-2 rounded-xl px-4 py-3 text-gray-900 focus:outline-none transition-all ${
+                  submitted && !name.trim() ? "border-red-400 bg-red-50" : name.trim() ? "border-green-400" : "border-gray-300"
+                }`}
+              />
+              {submitted && !name.trim() && <p className="text-red-500 text-xs mt-1 font-medium">يرجى إدخال الاسم الكامل</p>}
+            </div>
+
+            {/* الهاتف */}
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-1">رقم الهاتف / واتساب</label>
+              <input
+                type="tel"
+                value={phone}
+                onChange={e => setPhone(e.target.value)}
+                placeholder="07xxxxxxxxx"
+                className={`w-full border-2 rounded-xl px-4 py-3 text-gray-900 focus:outline-none transition-all ${
+                  submitted && !phone.trim() ? "border-red-400 bg-red-50" : phone.trim() ? "border-green-400" : "border-gray-300"
+                }`}
+              />
+              {submitted && !phone.trim() && <p className="text-red-500 text-xs mt-1 font-medium">يرجى إدخال رقم الهاتف</p>}
+            </div>
+
+            {/* المحافظة */}
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-1">المحافظة *</label>
+              <select
+                value={city}
+                onChange={e => setCity(e.target.value)}
+                className={`w-full border-2 rounded-xl px-4 py-3 text-gray-900 focus:outline-none transition-all bg-white ${
+                  submitted && !city.trim() ? "border-red-400 bg-red-50" : city.trim() ? "border-green-400" : "border-gray-300"
+                }`}
+              >
+                <option value="">اختر محافظتك</option>
+                {IRAQ_PROVINCES.map(p => <option key={p} value={p}>{p}</option>)}
+              </select>
+              {submitted && !city.trim() && <p className="text-red-500 text-xs mt-1 font-medium">يرجى اختيار المحافظة</p>}
+            </div>
+
+            {/* العنوان */}
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-1">العنوان التفصيلي</label>
+              <input
+                type="text"
+                value={address}
+                onChange={e => setAddress(e.target.value)}
+                placeholder="القضاء / الحي / أقرب نقطة دالة"
+                className={`w-full border-2 rounded-xl px-4 py-3 text-gray-900 focus:outline-none transition-all ${
+                  submitted && !address.trim() ? "border-red-400 bg-red-50" : address.trim() ? "border-green-400" : "border-gray-300"
+                }`}
+              />
+              {submitted && !address.trim() && <p className="text-red-500 text-xs mt-1 font-medium">يرجى إدخال العنوان التفصيلي</p>}
+            </div>
+
+            {/* الإجمالي */}
+            <div className="bg-black text-white rounded-xl p-3 flex items-center justify-between">
+              <span className="text-gray-400 text-sm">الإجمالي</span>
+              <p className="font-black text-xl">{PRICE_IQD.toLocaleString()} د.ع</p>
+            </div>
+
+            {/* شريط التقدم */}
+            {orderMutation.isPending && (
+              <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                <div
+                  className="h-2 rounded-full transition-all duration-300"
+                  style={{
+                    width: `${progress}%`,
+                    background: progress < 50
+                      ? "linear-gradient(90deg,#f59e0b,#ef4444)"
+                      : progress < 90
+                      ? "linear-gradient(90deg,#3b82f6,#8b5cf6)"
+                      : "linear-gradient(90deg,#10b981,#059669)",
+                  }}
+                />
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={orderMutation.isPending}
+              className={`w-full text-white font-black text-lg py-4 rounded-2xl transition-all duration-500 active:scale-95 shadow-lg disabled:opacity-80 ${
+                orderMutation.isPending ? "bg-blue-500" : isFormReady ? "bg-green-500 hover:bg-green-600 scale-[1.02]" : "bg-black hover:bg-gray-900"
+              }`}
             >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-              </svg>
-              اطلب عبر واتساب
-            </a>
-          </div>
+              {orderMutation.isPending
+                ? `جاري إرسال الطلب... ${progress}%`
+                : isFormReady
+                ? "👆 اضغط هنا لإرسال الطلب"
+                : "اطلب الآن — الدفع عند الاستلام"}
+            </button>
+          </form>
         </div>
-      </section>
 
-      {/* ── فوتر ── */}
-      <footer className="py-10 px-4 text-center"
-        style={{ background: "#030302", borderTop: "1px solid rgba(212,175,55,0.15)" }}>
-        <div className="max-w-2xl mx-auto">
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mb-6">
-            <a href={`tel:${SALES_TEL}`}
-              className="flex items-center gap-2 text-sm"
-              style={{ color: "#D4AF37" }}>
-              📞 مبيعات: {SALES_TEL}
-            </a>
-            <div className="hidden sm:block w-px h-4" style={{ background: "#D4AF3766" }} />
-            <a href={`tel:${MAINT_TEL}`}
-              className="flex items-center gap-2 text-sm"
-              style={{ color: "#D4AF37" }}>
-              🔧 صيانة: {MAINT_TEL}
-            </a>
-          </div>
-          <p className="text-white/40 text-sm mb-1">
-            📍 الرمادي — نهاية شارع 20
-          </p>
-          <p className="text-white/25 text-xs mt-4">
-            جداف للبيع بالتجزئة © {new Date().getFullYear()}
-          </p>
+        {/* تواصل مباشر */}
+        <div className="text-center mb-6">
+          <p className="text-gray-500 text-sm mb-3">للاستفسار والطلب المباشر</p>
+          <a
+            href={`https://wa.me/${WA_NUMBER}`}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white font-bold px-6 py-3 rounded-full transition-all"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+            </svg>
+            تواصل عبر واتساب
+          </a>
+          <p className="text-gray-400 text-xs mt-2">{SALES_TEL}</p>
         </div>
+
+        <div className="bg-green-50 border border-green-200 rounded-2xl p-4 mb-6 text-center">
+          <p className="text-green-800 font-bold mb-2">نوصل لكل محافظات العراق</p>
+          <p className="text-green-600 text-sm">بغداد • البصرة • الموصل • الأنبار • كربلاء • النجف • وجميع المحافظات</p>
+        </div>
+      </div>
+
+      {/* فوتر */}
+      <footer className="bg-gray-900 text-gray-400 text-center py-4 px-4 text-xs">
+        <p className="font-bold text-white text-sm mb-1">جداف — نظارات فاخرة</p>
+        <p>الرمادي — نهاية شارع 20 | مبيعات: {SALES_TEL}</p>
       </footer>
-
-      <style>{`
-        @keyframes shimmer { 0%{background-position:0%} 100%{background-position:200%} }
-        * { box-sizing: border-box; }
-        html { scroll-behavior: smooth; }
-      `}</style>
     </div>
   );
 }

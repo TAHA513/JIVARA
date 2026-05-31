@@ -38,6 +38,7 @@ export default function CampaignLinks() {
   const [kneePadQCopied, setKneePadQCopied] = useState(false);
   const [poedagarCopied, setPoedagarCopied] = useState(false);
   const [jadafCopied, setJadafCopied] = useState(false);
+  const [sunglassesCopied, setSunglassesCopied] = useState(false);
 
   const { data: products = [], isLoading } = useQuery<Product[]>({
     queryKey: ["/api/products"],
@@ -137,6 +138,15 @@ export default function CampaignLinks() {
       setJadafCopied(true);
       toast({ title: "تم النسخ!", description: "رابط صفحة JADAF الفاخرة جاهز" });
       setTimeout(() => setJadafCopied(false), 2000);
+    });
+  };
+
+  const copySunglassesLink = () => {
+    const link = `${baseUrl}/sunglasses`;
+    navigator.clipboard.writeText(link).then(() => {
+      setSunglassesCopied(true);
+      toast({ title: "تم النسخ!", description: "رابط صفحة النظارات الفاخرة جاهز" });
+      setTimeout(() => setSunglassesCopied(false), 2000);
     });
   };
 
@@ -590,6 +600,48 @@ export default function CampaignLinks() {
                     onClick={() => window.open(`${baseUrl}/jadaf`, "_blank")}
                     className="h-8 px-3 text-xs arabic-text gap-1.5"
                     style={{ borderColor: "rgba(212,175,55,0.45)", color: "#F2C76E", background: "transparent" }}
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" /> معاينة
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* رابط صفحة النظارات الفاخرة */}
+        <div className="mb-5">
+          <Card className="border-2 bg-gradient-to-br from-zinc-900 to-black" style={{ borderColor: "rgba(192,192,192,0.45)" }}>
+            <CardContent className="p-3">
+              <div className="flex items-center gap-3">
+                <div className="w-14 h-14 rounded-lg flex items-center justify-center shrink-0 text-2xl" style={{ background: "linear-gradient(135deg,#555,#111)" }}>
+                  🕶️
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-sm arabic-text" style={{ color: "#E0E0E0", letterSpacing: "1.5px" }}>SUNGLASSES · نظارات فاخرة 🕶️</p>
+                  <p className="text-xs arabic-text mt-0.5" style={{ color: "#A0A0A0" }}>Police · Dior · Maybach · Ray-Ban | 45,000 د.ع</p>
+                  <p className="text-xs mt-1 truncate font-mono" dir="ltr" style={{ color: "#B8B8B8" }}>
+                    {baseUrl}/sunglasses
+                  </p>
+                </div>
+                <div className="flex flex-col gap-1.5 shrink-0">
+                  <Button
+                    size="sm"
+                    onClick={copySunglassesLink}
+                    className={`h-8 px-3 text-xs arabic-text gap-1.5 text-white font-bold ${sunglassesCopied ? "bg-green-600 hover:bg-green-700" : "bg-zinc-600 hover:bg-zinc-700"}`}
+                  >
+                    {sunglassesCopied ? (
+                      <><Check className="w-3.5 h-3.5" /> تم النسخ</>
+                    ) : (
+                      <><Copy className="w-3.5 h-3.5" /> نسخ الرابط</>
+                    )}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => window.open(`${baseUrl}/sunglasses`, "_blank")}
+                    className="h-8 px-3 text-xs arabic-text gap-1.5"
+                    style={{ borderColor: "rgba(192,192,192,0.45)", color: "#E0E0E0", background: "transparent" }}
                   >
                     <ExternalLink className="w-3.5 h-3.5" /> معاينة
                   </Button>
