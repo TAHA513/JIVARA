@@ -321,32 +321,53 @@ export default function SunglassesLanding() {
         </div>
       </div>
 
-      {/* فلتر البراندات */}
-      <div className="bg-white border-b border-gray-100 sticky top-[52px] z-20 px-4 py-3">
+      {/* ═══ قسم المعرض — كل الصور للمشاهدة ═══ */}
+      <div className="bg-gray-50 px-3 pt-5 pb-4">
         <div className="max-w-xl mx-auto">
-          <div className="flex gap-2 overflow-x-auto pb-1">
-            {BRAND_FILTERS.map(b => (
-              <button key={b} onClick={() => setFilter(b)}
-                className={`flex-shrink-0 px-4 py-1.5 rounded-full text-xs font-bold transition-all border ${
-                  filter === b
-                    ? "bg-gray-900 text-white border-gray-900"
-                    : "bg-white text-gray-600 border-gray-200"
-                }`}>
-                {b}
-              </button>
+          <div className="flex items-center gap-2 mb-3">
+            <div className="flex-1 h-px bg-gray-200" />
+            <p className="text-sm font-black text-gray-700 whitespace-nowrap">📸 معرض النظارات</p>
+            <div className="flex-1 h-px bg-gray-200" />
+          </div>
+          <div className="grid grid-cols-3 gap-2">
+            {PRODUCTS.map(product => (
+              <div
+                key={product.id}
+                className="relative rounded-xl overflow-hidden border border-gray-200 bg-white cursor-zoom-in"
+                onClick={() => setModal(product)}
+              >
+                <div className="absolute top-0 inset-x-0 h-0.5" style={{ background: product.brandColor }} />
+                <img
+                  src={product.src}
+                  alt={product.label}
+                  className="w-full bg-white"
+                  style={{ aspectRatio: "1/1", objectFit: "contain" }}
+                />
+                <div className="px-1.5 py-1.5 bg-white">
+                  <p className="text-[10px] font-black leading-tight" style={{ color: product.brandColor }}>{product.brand}</p>
+                  <p className="text-[10px] text-gray-500 leading-tight truncate">{product.label}</p>
+                </div>
+              </div>
             ))}
           </div>
+          <p className="text-gray-400 text-xs text-center mt-2">اضغط على أي صورة للتكبير 🔍</p>
         </div>
       </div>
 
-      {/* عداد المحدد + زر الطلب */}
+      {/* فاصل */}
+      <div className="bg-gray-900 text-white text-center py-4 px-4">
+        <p className="font-black text-base mb-0.5">👇 اختر النظارة التي تريدها</p>
+        <p className="text-gray-400 text-xs">يمكنك اختيار أكثر من واحدة · الدفع عند الاستلام</p>
+      </div>
+
+      {/* عداد المحدد + زر الطلب (لاصق) */}
       {selected.length > 0 && (
-        <div className="sticky top-[100px] z-20 px-4 py-2 bg-green-500 text-white">
+        <div className="sticky top-[52px] z-20 px-4 py-2 bg-green-500 text-white">
           <div className="max-w-xl mx-auto flex items-center justify-between">
             <div className="flex items-center gap-2">
               <ShoppingBag className="w-4 h-4" />
               <span className="font-bold text-sm">
-                {selected.length} {selected.length === 1 ? "نظارة محددة" : "نظارات محددة"} — {(PRICE_IQD * selected.length).toLocaleString()} د.ع
+                {selected.length} {selected.length === 1 ? "نظارة" : "نظارات"} — {(PRICE_IQD * selected.length).toLocaleString()} د.ع
               </span>
             </div>
             <button onClick={scrollToForm}
@@ -357,38 +378,30 @@ export default function SunglassesLanding() {
         </div>
       )}
 
-      {/* شبكة الصور */}
+      {/* ═══ قسم الاختيار — نفس الصور للتحديد ═══ */}
       <div className="px-3 py-4 max-w-xl mx-auto">
-        <p className="text-gray-500 text-xs text-center mb-3">
-          اضغط على النظارة لتحديدها · يمكنك اختيار أكثر من واحدة
-        </p>
         <div className="grid grid-cols-2 gap-3">
-          {filteredProducts.map(product => {
+          {PRODUCTS.map(product => {
             const isSelected = selected.includes(product.id);
             return (
               <div
                 key={product.id}
-                className={`relative rounded-2xl overflow-hidden border-2 cursor-pointer transition-all duration-200 ${
+                className={`relative rounded-2xl overflow-hidden border-2 cursor-pointer transition-all duration-200 active:scale-95 ${
                   isSelected
-                    ? "border-green-500 shadow-lg scale-[0.97]"
-                    : "border-gray-200 hover:border-gray-400"
+                    ? "border-green-500 shadow-lg"
+                    : "border-gray-200"
                 }`}
                 onClick={() => toggleSelect(product.id)}
               >
-                {/* زر تكبير */}
-                <button
-                  className="absolute top-2 left-2 z-10 bg-black/40 text-white rounded-full w-7 h-7 flex items-center justify-center text-xs"
-                  onClick={e => { e.stopPropagation(); setModal(product); }}
-                  aria-label="تكبير">
-                  🔍
-                </button>
-
                 {/* علامة التحديد */}
-                {isSelected && (
-                  <div className="absolute top-2 right-2 z-10 bg-green-500 rounded-full w-7 h-7 flex items-center justify-center shadow">
-                    <Check className="w-4 h-4 text-white" />
-                  </div>
-                )}
+                <div className={`absolute top-2 right-2 z-10 rounded-full w-7 h-7 flex items-center justify-center shadow transition-all ${
+                  isSelected ? "bg-green-500 scale-100" : "bg-white/80 border border-gray-300 scale-90"
+                }`}>
+                  {isSelected
+                    ? <Check className="w-4 h-4 text-white" />
+                    : <span className="text-gray-300 text-xs font-black">+</span>
+                  }
+                </div>
 
                 {/* شريط البراند */}
                 <div className="absolute top-0 inset-x-0 h-1" style={{ background: product.brandColor }} />
@@ -399,13 +412,17 @@ export default function SunglassesLanding() {
                   className="w-full bg-white"
                   style={{ aspectRatio: "1/1", objectFit: "contain" }}
                 />
-                <div className={`px-2 py-2 ${isSelected ? "bg-green-50" : "bg-white"}`}>
+                <div className={`px-2 py-2 transition-colors ${isSelected ? "bg-green-50" : "bg-white"}`}>
                   <p className="text-xs font-bold" style={{ color: product.brandColor }}>{product.brand}</p>
                   <p className="text-xs text-gray-600 leading-tight">{product.label}</p>
                   <p className={`text-xs font-black mt-0.5 ${isSelected ? "text-green-600" : "text-gray-900"}`}>
                     {PRICE_IQD.toLocaleString()} د.ع
                   </p>
                 </div>
+
+                {isSelected && (
+                  <div className="absolute inset-0 border-2 border-green-500 rounded-2xl pointer-events-none" />
+                )}
               </div>
             );
           })}
